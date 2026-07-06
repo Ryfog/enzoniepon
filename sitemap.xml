@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://ryfog.github.io/enzoniepon/</loc>
+    <loc>https://enzoniepon.fr/</loc>
     <lastmod>2026-07-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://ryfog.github.io/enzoniepon/mentions-legales.html</loc>
+    <loc>https://enzoniepon.fr/mentions-legales.html</loc>
     <priority>0.2</priority>
   </url>
   <url>
-    <loc>https://ryfog.github.io/enzoniepon/politique-confidentialite.html</loc>
+    <loc>https://enzoniepon.fr/politique-confidentialite.html</loc>
     <priority>0.2</priority>
   </url>
 </urlset>
