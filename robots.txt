@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ryfog.github.io/enzoniepon/sitemap.xml
