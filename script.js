@@ -130,6 +130,8 @@
     lbImg.src = im.dataset.full || im.src;
     lbImg.alt = im.alt;
     lbCap.textContent = im.alt;
+    const ex = $('.lb-exif');
+    if (ex) ex.textContent = p.dataset.exif || '';
   };
   const closeLb = () => { lb.classList.remove('open'); document.body.style.overflow = ''; };
   const step = d => { idx = (idx + d + visible.length) % visible.length; render(); };
@@ -221,4 +223,58 @@ ${v('#f-msg')}`;
 
   /* ---------- année copyright ---------- */
   const y = $('#year'); if (y) y.textContent = new Date().getFullYear();
+
+  /* ---------- ouverture façon obturateur ---------- */
+  const shutter = $('#shutter');
+  if (shutter) {
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced || flat || sessionStorage.getItem('en_shutter')) {
+      shutter.classList.add('done');
+    } else {
+      sessionStorage.setItem('en_shutter', '1');
+      setTimeout(() => shutter.classList.add('done'), 1500);   // filet de securite
+      const iris = $('#iris');
+      const t0 = performance.now(), DUR = 950;
+      const circle = r => `M0 0H100V100H0Z M50 50 m${-r},0 a${r},${r} 0 1,0 ${r * 2},0 a${r},${r} 0 1,0 ${-r * 2},0`;
+      const ease = t => 1 - Math.pow(1 - t, 3);
+      const tick = now => {
+        const t = Math.min(1, (now - t0) / DUR);
+        iris.setAttribute('d', circle(0.2 + ease(t) * 90));
+        if (t < 1) requestAnimationFrame(tick);
+        else shutter.classList.add('done');
+      };
+      requestAnimationFrame(tick);
+    }
+  }
+
+  /* ---------- easter egg : traversée de pattes 🐾 ---------- */
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches && !flat) {
+    const walkPaws = () => {
+      const fromLeft = Math.random() < 0.5;
+      const y0 = innerHeight * (0.25 + Math.random() * 0.55);
+      const y1 = innerHeight * (0.25 + Math.random() * 0.55);
+      const steps = 9;
+      const ang = Math.atan2(y1 - y0, fromLeft ? innerWidth : -innerWidth) * 180 / Math.PI + 90;
+      for (let i = 0; i < steps; i++) {
+        setTimeout(() => {
+          const paw = document.createElement('span');
+          paw.className = 'paw';
+          paw.textContent = '🐾';
+          const t = i / (steps - 1);
+          const x = fromLeft ? t * (innerWidth + 40) - 20 : (1 - t) * (innerWidth + 40) - 20;
+          const yy = y0 + (y1 - y0) * t + (i % 2 ? -14 : 14);
+          paw.style.left = x + 'px';
+          paw.style.top = yy + 'px';
+          paw.style.transform = `rotate(${ang + (fromLeft ? 0 : 180)}deg)`;
+          document.body.appendChild(paw);
+          setTimeout(() => paw.remove(), 3800);
+        }, i * 260);
+      }
+    };
+    const loop = () => {
+      walkPaws();
+      setTimeout(loop, 55000 + Math.random() * 65000);
+    };
+    setTimeout(loop, 20000 + Math.random() * 15000);
+  }
 })();

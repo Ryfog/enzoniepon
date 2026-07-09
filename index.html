@@ -45,6 +45,13 @@
 </head>
 <body>
 
+  <!-- Ouverture façon obturateur -->
+  <div id="shutter" aria-hidden="true">
+    <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+      <path id="iris" fill="#14110d" fill-rule="evenodd" d="M0 0H100V100H0Z"/>
+    </svg>
+  </div>
+
   <!-- ==================== NAVIGATION ==================== -->
   <header class="nav on-hero">
     <a class="logo" href="#accueil">Enzo <em>Niepon</em></a>
@@ -105,7 +112,7 @@
           <img src="photos/chien-marguerites.jpg" alt="Berger américain miniature dans les marguerites" loading="lazy">
           <figcaption>Dans les marguerites <small>Animaux</small></figcaption>
         </figure>
-        <figure class="ph reveal" data-cat="mariages">
+        <figure class="ph reveal" data-cat="mariages" data-exif="ƒ/7.1 · 1/500 s · ISO 500 · 70 mm · Sony α7 IV">
           <img src="photos/mains-henne.jpg" alt="Mains au henné — cérémonie de mariage" loading="lazy">
           <figcaption>Mains liées <small>Mariage</small></figcaption>
         </figure>
@@ -117,7 +124,7 @@
           <img src="photos/oiseau-lampadaire.jpg" alt="Oiseau perché sur un lampadaire sous les nuages" loading="lazy">
           <figcaption>Perché sous les nuages <small>Animaux</small></figcaption>
         </figure>
-        <figure class="ph reveal" data-cat="mariages">
+        <figure class="ph reveal" data-cat="mariages" data-exif="ƒ/9 · 1/500 s · ISO 640 · 65 mm · Sony α7 IV">
           <img src="photos/table-mariage.jpg" alt="Table fleurie de réception de mariage" loading="lazy">
           <figcaption>Table fleurie <small>Mariage</small></figcaption>
         </figure>
@@ -133,7 +140,7 @@
           <img src="photos/chien-foret.jpg" alt="Berger américain miniature de profil en forêt" loading="lazy">
           <figcaption>Balade en forêt <small>Animaux</small></figcaption>
         </figure>
-        <figure class="ph reveal" data-cat="evenements">
+        <figure class="ph reveal" data-cat="evenements" data-exif="ƒ/11 · 1/200 s · ISO 500 · 70 mm · Sony α7 IV">
           <img src="photos/decor-oriental.jpg" alt="Décor de soirée orientale aux lanternes" loading="lazy">
           <figcaption>Soirée orientale <small>Événement</small></figcaption>
         </figure>
@@ -173,7 +180,7 @@
           <img src="photos/chat-jungle.jpg" alt="Chat tigré dans une jungle de verdure" loading="lazy">
           <figcaption>Petit tigre urbain <small>Animaux</small></figcaption>
         </figure>
-        <figure class="ph reveal" data-cat="animaux">
+        <figure class="ph reveal" data-cat="animaux" data-exif="ƒ/4 · 1/500 s · ISO 125 · 70 mm · Sony α7 IV">
           <img src="photos/chat-oeil-gris.jpg" alt="Œil doré d'un chat gris — gros plan" loading="lazy">
           <figcaption>L'œil d'or <small>Animaux</small></figcaption>
         </figure>
@@ -489,6 +496,7 @@
   <div class="lightbox" role="dialog" aria-modal="true" aria-label="Visionneuse photo">
     <img src="" alt="">
     <p class="lb-caption"></p>
+    <p class="lb-exif"></p>
     <button class="lb-btn lb-close" aria-label="Fermer"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <button class="lb-btn lb-prev" aria-label="Photo précédente"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
     <button class="lb-btn lb-next" aria-label="Photo suivante"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
