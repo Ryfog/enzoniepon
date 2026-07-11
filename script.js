@@ -178,6 +178,64 @@
     restart();
   }
 
+  /* ---------- comparateur avant / après ---------- */
+  const baFrame = $('.ba-frame');
+  if (baFrame) {
+    // avant = photos/avant/<file>.jpg ; après = photos/<file>.jpg (sauf "apres" spécifique)
+    const PAIRS = [
+      { f: 'mainecoon-regard',  n: 'Regard de Maine Coon' },
+      { f: 'chat-oeil-gris',    n: 'L’œil d’or' },
+      { f: 'chien-foret',       n: 'Balade en forêt' },
+      { f: 'chat-dore',         n: 'Heure dorée' },
+      { f: 'mainecoon-lumiere', n: 'Maine Coon majestueux' },
+      { f: 'papillon-orange',   n: 'Papillon au repos' },
+      { f: 'chat-jungle',       n: 'Petit tigre urbain' },
+      { f: 'mainecoon-affut',   n: 'L’approche' },
+      { f: 'chien-regard-ciel', n: 'Les yeux au ciel' },
+      { f: 'chien-face',        n: 'Regard complice', apres: 'photos/avant/chien-face-apres.jpg' },
+      { f: 'mainecoon-jardin',  n: 'Cache-cache au jardin' },
+      { f: 'eglise',            n: 'Clocher au couchant' },
+      { f: 'oiseau-fil',        n: 'Le funambule' },
+      { f: 'oiseau-lampadaire', n: 'Perché sous les nuages' },
+      { f: 'guepe-fleurs',      n: 'La butineuse' },
+      { f: 'chat-oeil-ambre',   n: 'Ambre' },
+      { f: 'mains-henne',       n: 'Mains liées' },
+    ];
+    const before = $('.ba-before', baFrame);
+    const after = $('.ba-after', baFrame);
+    const wrap = $('.ba-before-wrap', baFrame);
+    const divider = $('.ba-divider', baFrame);
+    const range = $('.ba-range', baFrame);
+    const caption = $('.ba-caption');
+    const thumbs = $('.ba-thumbs');
+
+    const setPos = p => {
+      wrap.style.clipPath = `inset(0 ${100 - p}% 0 0)`;
+      divider.style.left = p + '%';
+    };
+    range.addEventListener('input', () => setPos(+range.value));
+
+    const select = i => {
+      const pair = PAIRS[i];
+      before.src = `photos/avant/${pair.f}.jpg`;
+      after.src = pair.apres || `photos/${pair.f}.jpg`;
+      caption.innerHTML = `<b>${pair.n}</b><br>Fichier brut · Sony α7 IV &nbsp;→&nbsp; retouche Lightroom`;
+      range.value = 50;
+      setPos(50);
+      $$('.ba-thumb', thumbs).forEach((t, k) => t.classList.toggle('active', k === i));
+    };
+
+    PAIRS.forEach((pair, i) => {
+      const b = document.createElement('button');
+      b.className = 'ba-thumb' + (i ? '' : ' active');
+      b.setAttribute('aria-label', `Comparer : ${pair.n}`);
+      b.innerHTML = `<img src="photos/${pair.f}.jpg" alt="" loading="lazy" decoding="async">`;
+      b.addEventListener('click', () => select(i));
+      thumbs.appendChild(b);
+    });
+    select(0);
+  }
+
   /* ---------- prestations -> préremplir la réservation ---------- */
   $$('[data-book]').forEach(a => a.addEventListener('click', () => {
     const sel = $('#f-type');
