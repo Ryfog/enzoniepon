@@ -236,6 +236,66 @@
     select(0);
   }
 
+  /* ---------- comparateur intégré aux photos du portfolio ---------- */
+  // photos ayant un fichier brut aligné dans photos/avant/ (chien-face exclu : cadrage différent)
+  const INPLACE = ['mainecoon-regard', 'mainecoon-lumiere', 'mainecoon-affut', 'mainecoon-jardin',
+    'chat-jungle', 'chat-dore', 'chat-oeil-gris', 'chat-oeil-ambre',
+    'chien-foret', 'chien-regard-ciel', 'eglise', 'mains-henne',
+    'oiseau-fil', 'oiseau-lampadaire', 'guepe-fleurs', 'papillon-orange'];
+  photos.forEach(fig => {
+    const im = $('img', fig);
+    const m = (im?.getAttribute('src') || '').match(/photos\/([a-z-]+)\.jpg$/);
+    if (!m || !INPLACE.includes(m[1])) return;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'phba-wrap';
+    wrap.innerHTML = `<img data-src="photos/avant/${m[1]}.jpg" alt="" aria-hidden="true" decoding="async">`;
+    const line = document.createElement('div');
+    line.className = 'phba-line';
+    line.innerHTML = '<button class="phba-grip" aria-label="Comparer avec la photo brute (glisser vers la droite)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5l-5 7 5 7M16 5l5 7-5 7"/></svg></button>';
+    const tag = document.createElement('span');
+    tag.className = 'phba-tag';
+    tag.textContent = 'Brut';
+    im.after(wrap, line, tag);
+
+    const bimg = $('img', wrap);
+    const grip = $('.phba-grip', line);
+    const setP = p => {
+      p = Math.max(0, Math.min(100, p));
+      wrap.style.clipPath = `inset(0 ${100 - p}% 0 0)`;
+      line.style.left = p + '%';
+      fig.classList.toggle('ba-open', p > 2);
+      return p;
+    };
+    const loadRaw = () => { if (!bimg.src) bimg.src = bimg.dataset.src; };
+    let dragging = false;
+    grip.addEventListener('pointerdown', e => {
+      e.preventDefault(); e.stopPropagation();
+      loadRaw();
+      grip.setPointerCapture(e.pointerId);
+      dragging = true;
+    });
+    grip.addEventListener('pointermove', e => {
+      if (!dragging) return;
+      const r = fig.getBoundingClientRect();
+      setP((e.clientX - r.left) / r.width * 100);
+    });
+    const stop = () => { dragging = false; };
+    grip.addEventListener('pointerup', stop);
+    grip.addEventListener('pointercancel', stop);
+    grip.addEventListener('click', e => e.stopPropagation());   // ne pas ouvrir la lightbox
+    grip.addEventListener('keydown', e => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault(); e.stopPropagation();
+      loadRaw();
+      const cur = parseFloat(line.style.left) || 0;
+      setP(cur + (e.key === 'ArrowRight' ? 5 : -5));
+    });
+
+    const bam = location.search.match(/ba=(\d+)/);   // ?ba=40 : position de test (captures)
+    if (bam) { loadRaw(); setP(+bam[1]); }
+  });
+
   /* ---------- prestations -> préremplir la réservation ---------- */
   $$('[data-book]').forEach(a => a.addEventListener('click', () => {
     const sel = $('#f-type');
