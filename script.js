@@ -217,8 +217,8 @@
 
     const select = i => {
       const pair = PAIRS[i];
-      before.src = `photos/avant/${pair.f}.jpg`;
-      after.src = pair.apres || `photos/${pair.f}.jpg`;
+      before.src = `photos/avant/webp/${pair.f}.webp`;
+      after.src = pair.apres || `photos/webp/${pair.f}.webp`;
       caption.innerHTML = `<b>${pair.n}</b><br>Fichier brut · Sony α7 IV &nbsp;→&nbsp; retouche Lightroom`;
       range.value = 50;
       setPos(50);
@@ -229,7 +229,7 @@
       const b = document.createElement('button');
       b.className = 'ba-thumb' + (i ? '' : ' active');
       b.setAttribute('aria-label', `Comparer : ${pair.n}`);
-      b.innerHTML = `<img src="photos/${pair.f}.jpg" alt="" loading="lazy" decoding="async">`;
+      b.innerHTML = `<img src="photos/webp/${pair.f}-800.webp" alt="" loading="lazy" decoding="async">`;
       b.addEventListener('click', () => select(i));
       thumbs.appendChild(b);
     });
@@ -242,33 +242,55 @@
     if (sel) sel.value = a.dataset.book;
   }));
 
-  /* ---------- formulaire réservation (mailto) ---------- */
-  $('#booking-form')?.addEventListener('submit', e => {
+  /* ---------- formulaire réservation (envoi direct via FormSubmit) ---------- */
+  $('#booking-form')?.addEventListener('submit', async e => {
     e.preventDefault();
     const v = id => $(id)?.value.trim() || '';
-    const body =
-`Bonjour Enzo,
-
-Je souhaite réserver une séance photo.
-
-Nom : ${v('#f-nom')}
-Email : ${v('#f-email')}
-Téléphone : ${v('#f-tel')}
-Type de séance : ${v('#f-type')}
-Date souhaitée : ${v('#f-date')}
-
-Message :
-${v('#f-msg')}`;
-    location.href = `mailto:enzo.nieponpro@gmail.com?subject=${encodeURIComponent('Demande de séance — ' + v('#f-type'))}&body=${encodeURIComponent(body)}`;
     const note = $('.form-note');
-    if (note) note.textContent = 'Votre logiciel de mail vient de s’ouvrir avec votre demande pré-remplie ✨';
+    const btn = $('#booking-form .btn-solid');
+    btn.disabled = true;
+    if (note) note.textContent = 'Envoi en cours…';
+    try {
+      const res = await fetch('https://formsubmit.co/ajax/enzo.nieponpro@gmail.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          _subject: 'Demande de séance — ' + v('#f-type'),
+          _template: 'table',
+          Nom: v('#f-nom'),
+          Email: v('#f-email'),
+          'Téléphone': v('#f-tel'),
+          'Type de séance': v('#f-type'),
+          'Date souhaitée': v('#f-date'),
+          Message: v('#f-msg'),
+        }),
+      });
+      if (!res.ok) throw new Error();
+      if (note) note.textContent = 'Demande envoyée ✨ Je vous réponds sous 24 h !';
+      e.target.reset();
+    } catch {
+      // secours : ouverture du logiciel de mail
+      const body = `Bonjour Enzo,\n\nJe souhaite réserver une séance photo.\n\nNom : ${v('#f-nom')}\nEmail : ${v('#f-email')}\nTéléphone : ${v('#f-tel')}\nType de séance : ${v('#f-type')}\nDate souhaitée : ${v('#f-date')}\n\nMessage :\n${v('#f-msg')}`;
+      location.href = `mailto:enzo.nieponpro@gmail.com?subject=${encodeURIComponent('Demande de séance — ' + v('#f-type'))}&body=${encodeURIComponent(body)}`;
+      if (note) note.textContent = 'Votre logiciel de mail vient de s’ouvrir avec votre demande pré-remplie ✨';
+    }
+    btn.disabled = false;
   });
 
-  /* ---------- newsletter (démo) ---------- */
-  $('#nl-form')?.addEventListener('submit', e => {
+  /* ---------- newsletter (envoi via FormSubmit) ---------- */
+  $('#nl-form')?.addEventListener('submit', async e => {
     e.preventDefault();
     const inp = $('#nl-email');
-    $('#nl-ok').textContent = `Merci ! ${inp.value} est bien inscrit ♡`;
+    const email = inp.value.trim();
+    $('#nl-ok').textContent = 'Inscription…';
+    try {
+      await fetch('https://formsubmit.co/ajax/enzo.nieponpro@gmail.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ _subject: 'Newsletter — nouvelle inscription', _template: 'table', Email: email }),
+      });
+    } catch {}
+    $('#nl-ok').textContent = `Merci ! ${email} est bien inscrit ♡`;
     inp.value = '';
   });
 
