@@ -192,7 +192,7 @@
       { f: 'chat-jungle',       n: 'Petit tigre urbain' },
       { f: 'mainecoon-affut',   n: 'L’approche' },
       { f: 'chien-regard-ciel', n: 'Les yeux au ciel' },
-      { f: 'chien-face',        n: 'Regard complice', apres: 'photos/avant/chien-face-apres.jpg' },
+      { f: 'chien-automne',     n: 'Couleurs d’automne' },
       { f: 'mainecoon-jardin',  n: 'Cache-cache au jardin' },
       { f: 'eglise',            n: 'Clocher au couchant' },
       { f: 'oiseau-fil',        n: 'Le funambule' },
