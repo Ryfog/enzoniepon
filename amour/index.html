@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enzo &amp; Stacy — Qui de nous deux ? 💕</title>
+  <meta name="description" content="Le petit jeu d'Enzo & Stacy : 105 questions pour savoir qui de nous deux…">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💕</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="hearts-bg" aria-hidden="true"></div>
+
+  <!-- ============ ACCUEIL ============ -->
+  <main id="screen-home" class="screen active">
+    <div class="card home-card">
+      <div class="home-emoji">💞</div>
+      <h1 class="title">Enzo <span class="amp">&amp;</span> Stacy</h1>
+      <p class="subtitle">Qui de nous deux&nbsp;?</p>
+      <p class="intro">105 questions, 2 amoureux, 1 seule règle&nbsp;: répondre honnêtement 😌<br>
+      Réponds de ton côté, envoie ton code à l'autre… et découvrez si vous pensez pareil&nbsp;!</p>
+      <p class="who">Qui es-tu&nbsp;?</p>
+      <div class="who-row">
+        <button class="btn btn-enzo" id="btn-im-enzo">Je suis Enzo</button>
+        <button class="btn btn-stacy" id="btn-im-stacy">Je suis Stacy</button>
+      </div>
+      <button class="btn btn-ghost hidden" id="btn-continue">Reprendre là où j'en étais →</button>
+    </div>
+  </main>
+
+  <!-- ============ QUIZ ============ -->
+  <main id="screen-quiz" class="screen">
+    <div class="card quiz-card">
+      <div class="quiz-top">
+        <button class="mini-btn" id="btn-back" title="Question précédente">←</button>
+        <span class="cat-chip" id="cat-chip">💘 Amour</span>
+        <span class="counter" id="counter">1 / 105</span>
+      </div>
+      <div class="progress"><div class="progress-fill" id="progress-fill"></div></div>
+      <p class="q-lead">Qui de nous deux…</p>
+      <h2 class="q-text" id="q-text">…</h2>
+      <div class="answer-row">
+        <button class="btn btn-enzo big" id="btn-ans-enzo">Enzo</button>
+        <button class="btn btn-stacy big" id="btn-ans-stacy">Stacy</button>
+      </div>
+      <button class="btn btn-ghost small" id="btn-quit">Pause — retour à l'accueil</button>
+    </div>
+  </main>
+
+  <!-- ============ RÉSULTATS / PARTAGE ============ -->
+  <main id="screen-results" class="screen">
+    <div class="card">
+      <div class="home-emoji">🎉</div>
+      <h2 class="title2">Tu as tout fini, <span id="res-name">toi</span>&nbsp;!</h2>
+      <p class="intro" id="res-summary"></p>
+
+      <div class="share-box">
+        <p class="share-label">Envoie ce lien à ton amour 💌</p>
+        <div class="code-row">
+          <input type="text" id="share-link" readonly>
+          <button class="btn btn-mini" id="btn-copy">Copier</button>
+        </div>
+        <p class="tiny" id="copy-ok"></p>
+      </div>
+
+      <div class="share-box" id="partner-box">
+        <p class="share-label">Tu as reçu le lien de l'autre&nbsp;? Colle son code ici 👇</p>
+        <div class="code-row">
+          <input type="text" id="partner-code" placeholder="Code reçu…">
+          <button class="btn btn-mini" id="btn-import">Valider</button>
+        </div>
+        <p class="tiny warn" id="import-msg"></p>
+      </div>
+
+      <button class="btn btn-love hidden" id="btn-compare">💘 Voir notre comparaison</button>
+      <div class="row-mini">
+        <button class="btn btn-ghost small" id="btn-redo">Refaire mes réponses</button>
+        <button class="btn btn-ghost small" id="btn-home2">Accueil</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ============ COMPARAISON ============ -->
+  <main id="screen-compare" class="screen">
+    <div class="card">
+      <h2 class="title2">Enzo 💙 <span class="amp">vs</span> 💗 Stacy</h2>
+      <div class="match-circle" id="match-circle">
+        <span class="match-pct" id="match-pct">0%</span>
+        <span class="match-sub">d'accord</span>
+      </div>
+      <p class="match-msg" id="match-msg"></p>
+      <div class="legend">
+        <span><i class="dot dot-match"></i> Même réponse</span>
+        <span><i class="dot dot-diff"></i> Pas d'accord</span>
+      </div>
+      <div id="cat-stats"></div>
+      <div id="compare-list"></div>
+      <div class="row-mini">
+        <button class="btn btn-ghost small" id="btn-back-results">← Retour</button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="foot">Fait avec 💕 pour Enzo &amp; Stacy</footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+/* ============ Enzo & Stacy — Qui de nous deux ? ============ */
+:root {
+  --rose-bg1: #fff0f5;
+  --rose-bg2: #ffe0ec;
+  --rose: #f472b6;
+  --rose-deep: #ec4899;
+  --rose-dark: #be185d;
+  --blue: #60a5fa;
+  --blue-deep: #3b82f6;
+  --ink: #4a2035;
+  --ink-soft: #8a5570;
+  --white: #fffafc;
+  --match: #34c98e;
+  --diff: #f97316;
+  --shadow: 0 14px 40px rgba(190, 24, 93, .16);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  background: linear-gradient(160deg, var(--rose-bg1), var(--rose-bg2) 55%, #fcd6e6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+}
+
+/* ---------- cœurs flottants ---------- */
+.hearts-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.hearts-bg span {
+  position: absolute;
+  bottom: -8vh;
+  font-size: 22px;
+  opacity: 0;
+  animation: floatUp linear infinite;
+}
+@keyframes floatUp {
+  0%   { transform: translateY(0) rotate(-8deg) scale(.8); opacity: 0; }
+  12%  { opacity: .45; }
+  85%  { opacity: .25; }
+  100% { transform: translateY(-115vh) rotate(10deg) scale(1.15); opacity: 0; }
+}
+
+/* ---------- écrans ---------- */
+.screen { display: none; width: 100%; max-width: 620px; padding: 26px 16px 10px; z-index: 1; }
+.screen.active { display: block; animation: pop .35s ease; }
+@keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.985); } to { opacity: 1; transform: none; } }
+
+.card {
+  background: var(--white);
+  border-radius: 26px;
+  box-shadow: var(--shadow);
+  padding: 34px 26px 28px;
+  text-align: center;
+  border: 1px solid #ffd3e5;
+}
+
+.home-emoji { font-size: 52px; margin-bottom: 6px; animation: beat 1.6s ease infinite; display: inline-block; }
+@keyframes beat { 0%,100% { transform: scale(1); } 12% { transform: scale(1.18); } 24% { transform: scale(1); } 36% { transform: scale(1.12); } 48% { transform: scale(1); } }
+
+.title { font-family: 'Playfair Display', serif; font-size: clamp(34px, 8vw, 46px); color: var(--rose-dark); }
+.title .amp, .title2 .amp { color: var(--rose); font-style: italic; }
+.title2 { font-family: 'Playfair Display', serif; font-size: clamp(24px, 6vw, 32px); color: var(--rose-dark); margin-bottom: 14px; }
+.subtitle { font-family: 'Playfair Display', serif; font-style: italic; font-size: 20px; color: var(--rose-deep); margin: 2px 0 14px; }
+.intro { font-size: 15px; line-height: 1.65; color: var(--ink-soft); margin-bottom: 22px; }
+.who { font-weight: 700; font-size: 17px; margin-bottom: 12px; }
+
+/* ---------- boutons ---------- */
+.btn {
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  border: none;
+  border-radius: 16px;
+  padding: 15px 22px;
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s;
+  color: #fff;
+}
+.btn:active { transform: scale(.96); }
+.btn-enzo  { background: linear-gradient(135deg, var(--blue), var(--blue-deep)); box-shadow: 0 8px 20px rgba(59,130,246,.35); }
+.btn-stacy { background: linear-gradient(135deg, var(--rose), var(--rose-deep)); box-shadow: 0 8px 20px rgba(236,72,153,.35); }
+.btn-enzo:hover, .btn-stacy:hover, .btn-love:hover { filter: brightness(1.07); transform: translateY(-2px); }
+.btn-love { background: linear-gradient(135deg, #f472b6, #a855f7); box-shadow: 0 8px 20px rgba(168,85,247,.35); width: 100%; margin-top: 16px; font-size: 18px; }
+.btn-ghost { background: transparent; color: var(--ink-soft); border: 2px solid #f3c2d8; font-size: 14px; }
+.btn-ghost:hover { background: #fff0f7; }
+.btn.small { padding: 10px 16px; }
+.btn-mini, .mini-btn { background: var(--rose-deep); color: #fff; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
+.btn-mini { padding: 12px 18px; font-size: 14px; }
+.mini-btn { width: 38px; height: 38px; font-size: 18px; flex: none; }
+.mini-btn:disabled { opacity: .3; cursor: default; }
+
+.who-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.who-row .btn { flex: 1; min-width: 150px; }
+.hidden { display: none !important; }
+
+/* ---------- quiz ---------- */
+.quiz-top { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.cat-chip {
+  background: #ffe3ef; color: var(--rose-dark);
+  font-weight: 700; font-size: 13px;
+  border-radius: 999px; padding: 7px 14px;
+  white-space: nowrap;
+}
+.counter { margin-left: auto; font-weight: 700; color: var(--ink-soft); font-size: 14px; }
+.progress { height: 10px; background: #ffe3ef; border-radius: 999px; overflow: hidden; margin-bottom: 26px; }
+.progress-fill { height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, var(--rose), var(--rose-deep)); transition: width .3s ease; }
+.q-lead { font-family: 'Playfair Display', serif; font-style: italic; color: var(--rose-deep); font-size: 18px; margin-bottom: 8px; }
+.q-text { font-family: 'Playfair Display', serif; font-size: clamp(22px, 5.4vw, 30px); line-height: 1.35; min-height: 3.6em; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; }
+.answer-row { display: flex; gap: 14px; margin-bottom: 18px; }
+.answer-row .btn { flex: 1; }
+.btn.big { padding: 20px 10px; font-size: 20px; }
+
+/* ---------- résultats ---------- */
+.share-box { background: #fff0f7; border: 1px dashed #f3a8cc; border-radius: 18px; padding: 16px; margin-top: 16px; text-align: left; }
+.share-label { font-weight: 700; font-size: 14px; margin-bottom: 10px; }
+.code-row { display: flex; gap: 8px; }
+.code-row input {
+  flex: 1; min-width: 0;
+  border: 2px solid #f3c2d8; border-radius: 12px;
+  padding: 11px 12px; font-family: inherit; font-size: 13px; color: var(--ink);
+  background: #fff;
+}
+.code-row input:focus { outline: none; border-color: var(--rose-deep); }
+.tiny { font-size: 12.5px; color: var(--match); font-weight: 700; margin-top: 8px; min-height: 1em; }
+.tiny.warn { color: var(--diff); }
+.row-mini { display: flex; gap: 10px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+
+/* ---------- comparaison ---------- */
+.match-circle {
+  width: 148px; height: 148px; border-radius: 50%;
+  margin: 8px auto 14px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background:
+    radial-gradient(closest-side, var(--white) 79%, transparent 80% 100%),
+    conic-gradient(var(--rose-deep) calc(var(--pct) * 1%), #ffe3ef 0);
+}
+.match-pct { font-family: 'Playfair Display', serif; font-size: 38px; font-weight: 700; color: var(--rose-dark); }
+.match-sub { font-size: 13px; color: var(--ink-soft); font-weight: 700; }
+.match-msg { font-size: 16px; font-weight: 600; color: var(--ink-soft); margin-bottom: 16px; line-height: 1.5; }
+
+.legend { display: flex; gap: 18px; justify-content: center; font-size: 13px; font-weight: 700; color: var(--ink-soft); margin-bottom: 18px; }
+.dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 5px; }
+.dot-match { background: var(--match); }
+.dot-diff { background: var(--diff); }
+
+#cat-stats { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; }
+.cat-stat { background: #fff0f7; border-radius: 999px; padding: 7px 13px; font-size: 12.5px; font-weight: 700; color: var(--rose-dark); }
+
+.cmp-cat-title { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--rose-dark); margin: 22px 0 10px; text-align: left; }
+.cmp-item {
+  display: flex; align-items: center; gap: 10px;
+  background: #fff6fa; border-radius: 14px;
+  padding: 11px 13px; margin-bottom: 8px;
+  text-align: left; font-size: 14px;
+  border-left: 4px solid var(--match);
+}
+.cmp-item.diff { border-left-color: var(--diff); background: #fff8f2; }
+.cmp-q { flex: 1; line-height: 1.4; }
+.cmp-ans { display: flex; flex-direction: column; gap: 3px; align-items: flex-end; flex: none; }
+.pill { font-size: 11.5px; font-weight: 700; border-radius: 999px; padding: 3px 9px; color: #fff; white-space: nowrap; }
+.pill-enzo { background: var(--blue-deep); }
+.pill-stacy { background: var(--rose-deep); }
+.cmp-icon { flex: none; font-size: 17px; }
+
+.foot { z-index: 1; padding: 16px 0 22px; font-size: 12.5px; color: var(--ink-soft); font-weight: 600; }
+
+@media (max-width: 480px) {
+  .card { padding: 26px 16px 22px; }
+  .btn.big { font-size: 18px; padding: 17px 8px; }
+}
