@@ -18,7 +18,7 @@ function addLove(n) {
 
 /* ---------- confettis de cœurs ---------- */
 function confetti(n = 40) {
-  const glyphs = ['💗', '💖', '💕', '💘', '🩷', '✨'];
+  const glyphs = ['⭐', '✨', '💛', '🧡', '💫', '🌟'];
   for (let i = 0; i < n; i++) {
     const s = document.createElement('span');
     s.className = 'confetti';
@@ -321,17 +321,18 @@ $('btn-replay').onclick = () => {
   show('screen-intro');
 };
 
-/* ---------- cœurs flottants du fond ---------- */
-(function hearts() {
+/* ---------- ciel étoilé du fond ---------- */
+(function stars() {
   const box = document.querySelector('.hearts-bg');
-  const glyphs = ['💗', '💕', '💖', '🩷', '💞', '❤️'];
-  for (let i = 0; i < 16; i++) {
+  const glyphs = ['✦', '✧', '✨', '⭐', '·', '✦', '·', '✧'];
+  for (let i = 0; i < 34; i++) {
     const s = document.createElement('span');
     s.textContent = glyphs[i % glyphs.length];
     s.style.left = (Math.random() * 98) + 'vw';
-    s.style.fontSize = (14 + Math.random() * 20) + 'px';
-    s.style.animationDuration = (9 + Math.random() * 12) + 's';
-    s.style.animationDelay = (-Math.random() * 18) + 's';
+    s.style.top = (Math.random() * 96) + 'vh';
+    s.style.fontSize = (8 + Math.random() * 16) + 'px';
+    s.style.animationDuration = (2.5 + Math.random() * 5) + 's';
+    s.style.animationDelay = (-Math.random() * 6) + 's';
     box.appendChild(s);
   }
 })();
