@@ -1,305 +1,327 @@
-/* ============ Enzo & Stacy — Qui de nous deux ? — version 🌶️ ============ */
+/* ============ Pour Stacy 💕 — petit jeu fait main ============ */
 
-const CATS = [
-  { id: 'envies',    label: '💋 Envies' },
-  { id: 'couette',   label: '🔥 Sous la couette' },
-  { id: 'seduction', label: '😏 Séduction' },
-  { id: 'distance',  label: '📱 Coquin à distance' },
-  { id: 'fantasmes', label: '🫦 Fantasmes' },
-  { id: 'hot',       label: '🌶️ Très hot' },
-  { id: 'corps',     label: '💞 Corps & craquage' },
-];
-
-const QUESTIONS = [
-  // 💋 Envies
-  { c: 'envies', q: '…pense le plus souvent à des choses coquines ?' },
-  { c: 'envies', q: '…a des envies aux pires moments de la journée ?' },
-  { c: 'envies', q: '…craque en premier quand on se retrouve ?' },
-  { c: 'envies', q: '…envoie le premier message coquin ?' },
-  { c: 'envies', q: '…a le plus de mal à cacher son envie en public ?' },
-  { c: 'envies', q: '…trouve toujours une excuse pour un câlin qui dérape ?' },
-  { c: 'envies', q: '…est le/la plus insatiable ?' },
-  { c: 'envies', q: '…provoque l\'autre juste pour voir sa réaction ?' },
-  { c: 'envies', q: '…a déjà eu une pensée coquine pendant un appel tout innocent ?' },
-  { c: 'envies', q: '…aurait le plus de mal à tenir une semaine sans rien ?' },
-  { c: 'envies', q: '…se réveille avec des idées coquines ?' },
-  { c: 'envies', q: '…a le plus d\'envies après minuit ?' },
-  { c: 'envies', q: '…cache le mieux son jeu devant les autres ?' },
-  { c: 'envies', q: '…dit « on se met un film » en pensant à tout sauf au film ?' },
-  { c: 'envies', q: '…a l\'imagination la plus débordante ?' },
-  // 🔥 Sous la couette
-  { c: 'couette', q: '…est le/la plus câlin(e) sous la couette ?' },
-  { c: 'couette', q: '…prend toute la place (et tout le reste) ?' },
-  { c: 'couette', q: '…est le/la plus doué(e) de ses mains ?' },
-  { c: 'couette', q: '…fait durer le plus les préliminaires ?' },
-  { c: 'couette', q: '…est le/la plus bruyant(e) ?' },
-  { c: 'couette', q: '…s\'endort direct après ?' },
-  { c: 'couette', q: '…a le plus d\'énergie au réveil ?' },
-  { c: 'couette', q: '…préfère les lumières éteintes ?' },
-  { c: 'couette', q: '…est le/la plus joueur(se) ?' },
-  { c: 'couette', q: '…dit des choses qu\'il/elle ne redirait JAMAIS en public ?' },
-  { c: 'couette', q: '…reste romantique même dans ces moments-là ?' },
-  { c: 'couette', q: '…a le plus de mal à rester discret(ète) ?' },
-  { c: 'couette', q: '…transforme un câlin innocent en autre chose ?' },
-  { c: 'couette', q: '…est le/la plus généreux(se) ?' },
-  { c: 'couette', q: '…demande « encore » en premier ?' },
-  // 😏 Séduction
-  { c: 'seduction', q: '…embrasse le mieux ?' },
-  { c: 'seduction', q: '…a le regard le plus déstabilisant ?' },
-  { c: 'seduction', q: '…sait exactement quoi porter pour faire craquer l\'autre ?' },
-  { c: 'seduction', q: '…drague encore l\'autre comme au premier jour ?' },
-  { c: 'seduction', q: '…fait les compliments les plus coquins ?' },
-  { c: 'seduction', q: '…a la voix la plus sexy au téléphone ?' },
-  { c: 'seduction', q: '…danse de la façon la plus troublante ?' },
-  { c: 'seduction', q: '…sait faire monter la température en une seule phrase ?' },
-  { c: 'seduction', q: '…a le sourire le plus charmeur ?' },
-  { c: 'seduction', q: '…jouerait le mieux la scène « on fait semblant de ne pas se connaître » au bar ?' },
-  { c: 'seduction', q: '…est le/la plus doué(e) pour les sous-entendus ?' },
-  { c: 'seduction', q: '…fait semblant de ne pas voir l\'effet qu\'il/elle fait ?' },
-  { c: 'seduction', q: '…a le déhanché le plus dangereux ?' },
-  { c: 'seduction', q: '…pourrait faire craquer l\'autre en dix secondes chrono ?' },
-  { c: 'seduction', q: '…mérite le titre d\'allumeur(se) en chef ?' },
-  // 📱 Coquin à distance
-  { c: 'distance', q: '…envoie les photos les plus osées ?' },
-  { c: 'distance', q: '…écrit les messages les plus chauds ?' },
-  { c: 'distance', q: '…fait déraper les conversations innocentes ?' },
-  { c: 'distance', q: '…est le/la plus frustré(e) par la distance ?' },
-  { c: 'distance', q: '…a déjà envoyé un message coquin au pire moment ?' },
-  { c: 'distance', q: '…est le/la plus créatif(ve) pour pimenter les appels vidéo ?' },
-  { c: 'distance', q: '…chuchote des choses interdites au téléphone ?' },
-  { c: 'distance', q: '…relit les vieilles conversations coquines ?' },
-  { c: 'distance', q: '…serait capable de faire la route juste pour une nuit ?' },
-  { c: 'distance', q: '…imagine les retrouvailles avec le plus de détails ?' },
-  { c: 'distance', q: '…tient le moins longtemps sans appel vidéo ?' },
-  { c: 'distance', q: '…envoie des vocaux à la voix beaucoup trop douce pour être innocents ?' },
-  { c: 'distance', q: '…a le plus de mal à raccrocher le soir ?' },
-  { c: 'distance', q: '…prépare des surprises coquines pour les retrouvailles ?' },
-  { c: 'distance', q: '…transformerait la première minute des retrouvailles en scène de film interdit aux -16 ?' },
-  // 🫦 Fantasmes
-  { c: 'fantasmes', q: '…a les fantasmes les plus fous ?' },
-  { c: 'fantasmes', q: '…ose le plus en parler ?' },
-  { c: 'fantasmes', q: '…voudrait essayer le plus de nouvelles choses ?' },
-  { c: 'fantasmes', q: '…a déjà rêvé de l\'autre de façon très peu innocente ?' },
-  { c: 'fantasmes', q: '…proposerait un jeu de rôle en premier ?' },
-  { c: 'fantasmes', q: '…voudrait une nuit d\'hôtel juste pour l\'occasion ?' },
-  { c: 'fantasmes', q: '…aimerait le plus un massage… qui dérape ?' },
-  { c: 'fantasmes', q: '…serait partant(e) pour un bain de minuit sans maillot ?' },
-  { c: 'fantasmes', q: '…a une liste secrète d\'envies à réaliser ?' },
-  { c: 'fantasmes', q: '…rougirait le plus si on lisait ses pensées à voix haute ?' },
-  { c: 'fantasmes', q: '…voudrait revivre notre première fois ?' },
-  { c: 'fantasmes', q: '…choisirait la plage déserte plutôt que la chambre ?' },
-  { c: 'fantasmes', q: '…oserait dans un endroit où il ne faudrait pas ?' },
-  { c: 'fantasmes', q: '…a déjà fait un rêve dont il/elle n\'a jamais osé parler ?' },
-  { c: 'fantasmes', q: '…réaliserait un fantasme de l\'autre sans même hésiter ?' },
-  // 🌶️ Très hot
-  { c: 'hot', q: '…a le plus d\'endurance ?' },
-  { c: 'hot', q: '…laisse des marques (et assume) ?' },
-  { c: 'hot', q: '…a déjà été à deux doigts de se faire griller ?' },
-  { c: 'hot', q: '…préfère le matin plutôt que le soir ?' },
-  { c: 'hot', q: '…prend les initiatives les plus audacieuses ?' },
-  { c: 'hot', q: '…dirait oui à « tout de suite, là, maintenant » ?' },
-  { c: 'hot', q: '…est le/la plus sauvage ?' },
-  { c: 'hot', q: '…est le/la plus sage… en apparence ?' },
-  { c: 'hot', q: '…aime le plus prendre les commandes ?' },
-  { c: 'hot', q: '…perdrait au jeu du « premier qui touche l\'autre a perdu » ?' },
-  { c: 'hot', q: '…a le plus de mal à rester sage en soirée ?' },
-  { c: 'hot', q: '…craquerait en premier au défi « interdiction de s\'embrasser » ?' },
-  { c: 'hot', q: '…surprend le plus l\'autre ?' },
-  { c: 'hot', q: '…ferait perdre tous ses moyens à l\'autre en un chuchotement ?' },
-  { c: 'hot', q: '…gagnerait un concours de regards qui en disent beaucoup trop ?' },
-  // 💞 Corps & craquage
-  { c: 'corps', q: '…a le plus beau corps (soyez honnêtes 😏) ?' },
-  { c: 'corps', q: '…est le/la plus sexy au réveil ?' },
-  { c: 'corps', q: '…a les lèvres les plus embrassables ?' },
-  { c: 'corps', q: '…a le cou le plus sensible ?' },
-  { c: 'corps', q: '…frissonne le plus vite ?' },
-  { c: 'corps', q: '…a les mains les plus baladeuses ?' },
-  { c: 'corps', q: '…vole les vêtements de l\'autre (pour mieux les porter) ?' },
-  { c: 'corps', q: '…est le/la plus chatouilleux(se)… et pas que sur les côtes 😏 ?' },
-  { c: 'corps', q: '…a le parfum qui rend l\'autre fou/folle ?' },
-  { c: 'corps', q: '…fait le plus d\'effet en sortant de la douche ?' },
-  { c: 'corps', q: '…a le sourire qui fait tout basculer ?' },
-  { c: 'corps', q: '…résiste le moins à l\'autre quand il/elle se déshabille ?' },
-  { c: 'corps', q: '…a le point faible le plus facile à trouver ?' },
-  { c: 'corps', q: '…fond complètement pour un bisou dans le cou ?' },
-  { c: 'corps', q: '…a le plus de chance d\'avoir un(e) amoureux(se) aussi canon ? 🥰' },
-];
-
-const N = QUESTIONS.length;
-const NAMES = { E: 'Enzo', S: 'Stacy' };
-
-/* ---------- état ---------- */
-let me = localStorage.getItem('qdn2_me') || '';           // 'E' ou 'S'
-let answers = JSON.parse(localStorage.getItem('qdn2_answers') || '[]'); // ['E','S',...]
-let partner = localStorage.getItem('qdn2_partner') || ''; // code complet de l'autre
-let idx = answers.length;
-
-/* ---------- helpers ---------- */
 const $ = (id) => document.getElementById(id);
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   $(id).classList.add('active');
   window.scrollTo({ top: 0 });
 }
-function save() {
-  localStorage.setItem('qdn2_me', me);
-  localStorage.setItem('qdn2_answers', JSON.stringify(answers));
-  localStorage.setItem('qdn2_partner', partner);
+
+/* ---------- compteur d'amour ---------- */
+let love = 0;
+function addLove(n) {
+  love += n;
+  $('love-n').textContent = love;
+  const c = $('love-counter');
+  c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump');
 }
 
-/* code = identité + base64url des réponses (1 bit / question) */
-function encode(who, arr) {
-  const bytes = new Uint8Array(Math.ceil(N / 8));
-  arr.forEach((a, i) => { if (a === 'S') bytes[i >> 3] |= 1 << (i & 7); });
-  let b64 = btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  return who + b64;
-}
-function decode(code) {
-  code = (code || '').trim();
-  const who = code[0];
-  if (who !== 'E' && who !== 'S') return null;
-  let b64 = code.slice(1).replace(/-/g, '+').replace(/_/g, '/');
-  try {
-    const bin = atob(b64);
-    if (bin.length < Math.ceil(N / 8)) return null;
-    const arr = [];
-    for (let i = 0; i < N; i++) arr.push((bin.charCodeAt(i >> 3) >> (i & 7)) & 1 ? 'S' : 'E');
-    return { who, arr };
-  } catch { return null; }
-}
-
-/* ---------- accueil ---------- */
-function startAs(w) {
-  if (me && me !== w && answers.length) {
-    if (!confirm('Tu avais commencé en tant que ' + NAMES[me] + ' — changer effacera tes réponses. Continuer ?')) return;
-    answers = []; idx = 0;
+/* ---------- confettis de cœurs ---------- */
+function confetti(n = 40) {
+  const glyphs = ['💗', '💖', '💕', '💘', '🩷', '✨'];
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement('span');
+    s.className = 'confetti';
+    s.textContent = glyphs[i % glyphs.length];
+    s.style.left = Math.random() * 100 + 'vw';
+    s.style.fontSize = (14 + Math.random() * 18) + 'px';
+    s.style.animationDuration = (2.2 + Math.random() * 2.5) + 's';
+    s.style.animationDelay = (Math.random() * .8) + 's';
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 6000);
   }
-  me = w; save();
-  idx = Math.min(answers.length, N);
-  if (idx >= N) { showResults(); } else { renderQ(); show('screen-quiz'); }
 }
-$('btn-im-enzo').onclick = () => startAs('E');
-$('btn-im-stacy').onclick = () => startAs('S');
-$('btn-continue').onclick = () => { idx = Math.min(answers.length, N); if (idx >= N) showResults(); else { renderQ(); show('screen-quiz'); } };
 
-/* ---------- quiz ---------- */
-function renderQ() {
-  const item = QUESTIONS[idx];
+/* ============ 0-1. intro & lettre ============ */
+$('btn-open').onclick = () => { addLove(5); show('screen-letter'); };
+$('envelope').onclick = () => $('btn-open').click();
+$('btn-start').onclick = () => { startQuiz(); show('screen-quiz'); };
+
+/* ============ 2. quiz nous deux ============ */
+/* Chaque réponse a sa petite réaction — il n'y a pas de mauvaise réponse 💕 */
+const QUIZ = [
+  {
+    q: 'Qui a craqué en premier pour l\'autre ?',
+    opts: [
+      { t: 'Moi, évidemment 😌', r: 'Enzo confirme… mais il jure qu\'il t\'avait repérée bien avant 👀' },
+      { t: 'Enzo, ça se voyait trop', r: 'Exact. Il paraît qu\'il souriait bêtement à son téléphone 📱😁' },
+      { t: 'Les deux en même temps 💥', r: 'Coup de foudre synchronisé — la meilleure réponse 💘' },
+    ],
+  },
+  {
+    q: 'C\'est quoi le mieux chez Enzo ?',
+    opts: [
+      { t: 'Son humour (parfois douteux)', r: 'Il prend, même le « parfois douteux » 😂' },
+      { t: 'Son sourire', r: 'Celui qu\'il a QUE quand c\'est toi. Bien vu 😊' },
+      { t: 'Tout, je ne peux pas choisir', r: 'Réponse acceptée. Enzo rougit d\'ici ☺️' },
+    ],
+  },
+  {
+    q: 'Qui envoie le premier message le matin ?',
+    opts: [
+      { t: 'Moi 🌅', r: 'Et ça illumine sa journée à chaque fois, il me l\'a dit 🥹' },
+      { t: 'Lui ⏰', r: 'Il se réveille et il pense à toi. Direct. Chaque matin 💙' },
+      { t: 'Ça dépend qui se lève en premier 😴', r: 'L\'important c\'est que ça finit toujours par arriver 💌' },
+    ],
+  },
+  {
+    q: 'Le plus beau duo du monde, c\'est…',
+    opts: [
+      { t: 'Nous deux 💑', r: 'Bonne réponse ! (c\'était la seule d\'ailleurs)' },
+      { t: 'Nous deux + Milo 🐾', r: 'LA vraie bonne réponse. Le trio de légende 🐶💕' },
+      { t: 'Stacy & Milo, désolée Enzo', r: 'Aïe 😂 Enzo demande officiellement à rejoindre l\'équipe' },
+    ],
+  },
+  {
+    q: 'Qui supporte le moins la distance ?',
+    opts: [
+      { t: 'Moi 🥺', r: 'Tiens bon. Il compte les jours aussi, promis 🤞' },
+      { t: 'Enzo, il le cache mal', r: 'Il le cache TRÈS mal oui 😅 tu lui manques tout le temps' },
+      { t: 'Égalité parfaite', r: 'Deux cœurs qui tirent sur le même élastique 🧲💞' },
+    ],
+  },
+  {
+    q: 'Notre premier « je t\'aime », il était comment ?',
+    opts: [
+      { t: 'Parfait 🥹', r: 'Il s\'en souvient par cœur. Chaque mot 💙' },
+      { t: 'Maladroit mais mignon', r: 'Comme les meilleures choses : vraies et pas répétées ✨' },
+      { t: 'Je m\'en souviens plus… 😳', r: 'Pas grave — Enzo s\'en souvient pour deux 😌' },
+    ],
+  },
+  {
+    q: 'Si Enzo était là, maintenant, il ferait quoi ?',
+    opts: [
+      { t: 'Un câlin de 3 heures minimum', r: 'Minimum. Avec option prolongation illimitée 🫂' },
+      { t: 'Des blagues pour me faire rire', r: 'Et il serait trop fier à chaque fois que tu ris 😁' },
+      { t: 'Rien, juste être avec moi', r: 'C\'est exactement ça. Juste être là. C\'est tout ce qu\'il veut 💙' },
+    ],
+  },
+  {
+    q: 'Dans 10 ans, on est où ?',
+    opts: [
+      { t: 'Mariés 💍', r: 'Il n\'a pas dit non. Il n\'a PAS dit non 👀💍' },
+      { t: 'En voyage quelque part', r: 'Toi, lui, une valise et zéro kilomètre de distance ✈️' },
+      { t: 'Dans notre maison avec Milo (et les autres)', r: '« Les autres » ?? Combien d\'animaux tu prévois exactement ? 😂🐾' },
+    ],
+  },
+];
+
+let qi = 0;
+function startQuiz() { qi = 0; renderQuiz(); }
+function renderQuiz() {
+  const item = QUIZ[qi];
   $('q-text').textContent = item.q;
-  $('cat-chip').textContent = CATS.find(c => c.id === item.c).label;
-  $('counter').textContent = (idx + 1) + ' / ' + N;
-  $('progress-fill').style.width = ((idx) / N * 100) + '%';
-  $('btn-back').disabled = idx === 0;
-}
-function answer(w) {
-  answers[idx] = w; save();
-  idx++;
-  if (idx >= N) { showResults(); } else { renderQ(); }
-}
-$('btn-ans-enzo').onclick = () => answer('E');
-$('btn-ans-stacy').onclick = () => answer('S');
-$('btn-back').onclick = () => { if (idx > 0) { idx--; renderQ(); } };
-$('btn-quit').onclick = () => { refreshHome(); show('screen-home'); };
-
-/* ---------- résultats ---------- */
-function showResults() {
-  $('res-name').textContent = NAMES[me] || 'toi';
-  const ne = answers.filter(a => a === 'E').length;
-  $('res-summary').textContent = 'Tu as répondu « Enzo » ' + ne + ' fois et « Stacy » ' + (N - ne) + ' fois.';
-  const link = location.origin + location.pathname + '?p=' + encode(me, answers);
-  $('share-link').value = link;
-  refreshCompareBtn();
-  show('screen-results');
-}
-function refreshCompareBtn() {
-  const p = decode(partner);
-  const ok = p && p.who !== me;
-  $('btn-compare').classList.toggle('hidden', !ok);
-}
-$('btn-copy').onclick = async () => {
-  try { await navigator.clipboard.writeText($('share-link').value); $('copy-ok').textContent = 'Copié ! Envoie-le sur Insta/Snap 💌'; }
-  catch { $('share-link').select(); document.execCommand('copy'); $('copy-ok').textContent = 'Copié !'; }
-  setTimeout(() => $('copy-ok').textContent = '', 3500);
-};
-$('btn-import').onclick = () => importCode($('partner-code').value);
-function importCode(raw) {
-  raw = (raw || '').trim();
-  const m = raw.match(/[?&]p=([^&\s]+)/);
-  if (m) raw = m[1];
-  const p = decode(raw);
-  if (!p) { $('import-msg').textContent = 'Code invalide 😢 vérifie le copier-coller.'; return false; }
-  if (p.who === me) { $('import-msg').textContent = 'C\'est ton propre code 😅 il faut celui de l\'autre !'; return false; }
-  partner = raw; save();
-  $('import-msg').textContent = '';
-  refreshCompareBtn();
-  return true;
-}
-$('btn-compare').onclick = () => renderCompare();
-$('btn-redo').onclick = () => {
-  if (!confirm('Effacer toutes tes réponses et recommencer ?')) return;
-  answers = []; idx = 0; save();
-  renderQ(); show('screen-quiz');
-};
-$('btn-home2').onclick = () => { refreshHome(); show('screen-home'); };
-$('btn-back-results').onclick = () => show('screen-results');
-
-/* ---------- comparaison ---------- */
-function renderCompare() {
-  const p = decode(partner);
-  if (!p) return;
-  const mine = answers, theirs = p.arr;
-  const enzoArr = me === 'E' ? mine : theirs;
-  const stacyArr = me === 'S' ? mine : theirs;
-
-  let match = 0;
-  QUESTIONS.forEach((_, i) => { if (enzoArr[i] === stacyArr[i]) match++; });
-  const pct = Math.round(match / N * 100);
-  $('match-pct').textContent = pct + '%';
-  $('match-circle').style.setProperty('--pct', pct);
-  $('match-msg').textContent =
-    pct >= 90 ? 'Fusionnels 💞 vous pensez quasiment pareil, c\'est presque flippant !' :
-    pct >= 75 ? 'Très connectés 💘 vous vous connaissez par cœur (ou presque) !' :
-    pct >= 60 ? 'Belle complicité 💕 mais il reste des petits mystères entre vous…' :
-    pct >= 45 ? 'Hmm 😏 vous n\'êtes pas d\'accord sur tout — de quoi débattre en appel !' :
-    'Aïe aïe 😂 vous ne vivez clairement pas dans le même film. Débat immédiat !';
-
-  // stats par catégorie
-  const catBox = $('cat-stats'); catBox.innerHTML = '';
-  CATS.forEach(cat => {
-    const ids = QUESTIONS.map((q, i) => q.c === cat.id ? i : -1).filter(i => i >= 0);
-    const m = ids.filter(i => enzoArr[i] === stacyArr[i]).length;
-    const el = document.createElement('span');
-    el.className = 'cat-stat';
-    el.textContent = cat.label + ' ' + m + '/' + ids.length;
-    catBox.appendChild(el);
+  $('quiz-fill').style.width = (qi / QUIZ.length * 100) + '%';
+  $('reaction').classList.add('hidden');
+  const box = $('opts');
+  box.innerHTML = '';
+  item.opts.forEach(o => {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.textContent = o.t;
+    b.onclick = () => {
+      addLove(10);
+      box.querySelectorAll('.opt').forEach(x => x.disabled = true);
+      const r = $('reaction');
+      r.textContent = o.r;
+      r.classList.remove('hidden');
+      setTimeout(() => {
+        qi++;
+        if (qi >= QUIZ.length) { $('quiz-fill').style.width = '100%'; setTimeout(() => show('screen-catch'), 300); }
+        else renderQuiz();
+      }, 2100);
+    };
+    box.appendChild(b);
   });
-
-  // liste détaillée
-  const list = $('compare-list'); list.innerHTML = '';
-  CATS.forEach(cat => {
-    const title = document.createElement('h3');
-    title.className = 'cmp-cat-title';
-    title.textContent = cat.label;
-    list.appendChild(title);
-    QUESTIONS.forEach((q, i) => {
-      if (q.c !== cat.id) return;
-      const same = enzoArr[i] === stacyArr[i];
-      const item = document.createElement('div');
-      item.className = 'cmp-item' + (same ? '' : ' diff');
-      item.innerHTML =
-        '<span class="cmp-icon">' + (same ? '💚' : '🧡') + '</span>' +
-        '<span class="cmp-q">Qui ' + q.q.replace(/^…/, '') + '</span>' +
-        '<span class="cmp-ans">' +
-          '<span class="pill pill-enzo">Enzo dit : ' + NAMES[enzoArr[i]] + '</span>' +
-          '<span class="pill pill-stacy">Stacy dit : ' + NAMES[stacyArr[i]] + '</span>' +
-        '</span>';
-      list.appendChild(item);
-    });
-  });
-  show('screen-compare');
 }
 
-/* ---------- cœurs flottants ---------- */
+/* ============ 3. attrape-cœurs (avec Milo 🐾) ============ */
+let catchScore = 0, catchTimer = null, spawner = null, miloSpawner = null, timeLeft = 20;
+
+$('btn-catch-start').onclick = () => {
+  $('btn-catch-start').classList.add('hidden');
+  $('catch-intro').classList.add('hidden');
+  $('catch-end').classList.add('hidden');
+  $('catch-hud').classList.remove('hidden');
+  $('catch-zone').classList.remove('hidden');
+  catchScore = 0; timeLeft = 20;
+  updHud();
+  spawner = setInterval(spawnHeart, 480);
+  miloSpawner = setInterval(spawnMilo, 5200);
+  setTimeout(spawnMilo, 1800);
+  catchTimer = setInterval(() => {
+    timeLeft--;
+    updHud();
+    if (timeLeft <= 0) endCatch();
+  }, 1000);
+};
+
+function updHud() {
+  $('catch-score').textContent = '💗 ' + catchScore;
+  $('catch-time').textContent = '⏱ ' + timeLeft + 's';
+}
+
+function plusAt(zone, x, y, txt) {
+  const p = document.createElement('span');
+  p.className = 'floating-plus';
+  p.textContent = txt;
+  p.style.left = x + 'px';
+  p.style.top = y + 'px';
+  zone.appendChild(p);
+  setTimeout(() => p.remove(), 700);
+}
+
+function spawnHeart() {
+  const zone = $('catch-zone');
+  const glyphs = ['💗', '💖', '💕', '🩷', '💘'];
+  const h = document.createElement('span');
+  h.className = 'fly';
+  h.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+  h.style.left = (8 + Math.random() * 80) + '%';
+  h.style.animationDuration = (2.6 + Math.random() * 2.2) + 's';
+  const tap = (e) => {
+    e.preventDefault();
+    if (h.classList.contains('pop')) return;
+    h.classList.add('pop');
+    catchScore++;
+    addLove(1);
+    updHud();
+    plusAt(zone, h.offsetLeft, h.offsetTop, '+1');
+    setTimeout(() => h.remove(), 300);
+  };
+  h.addEventListener('pointerdown', tap);
+  zone.appendChild(h);
+  setTimeout(() => h.remove(), 5200);
+}
+
+function spawnMilo() {
+  const zone = $('catch-zone');
+  const m = document.createElement('span');
+  m.className = 'milo';
+  const fromLeft = Math.random() < .5;
+  const w = zone.clientWidth;
+  m.textContent = fromLeft ? '🐕' : '🐕‍🦺';
+  m.style.top = (30 + Math.random() * (zone.clientHeight - 110)) + 'px';
+  m.style.left = fromLeft ? '-52px' : (w + 8) + 'px';
+  m.style.setProperty('--dist', (fromLeft ? 1 : -1) * (w + 70) + 'px');
+  m.style.animationDuration = '3.4s';
+  let caught = false;
+  m.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    if (caught) return;
+    caught = true;
+    catchScore += 5;
+    addLove(5);
+    updHud();
+    const r = m.getBoundingClientRect(), z = zone.getBoundingClientRect();
+    plusAt(zone, r.left - z.left, r.top - z.top, '+5 🐾 Milo !');
+    m.textContent = '🐾';
+    setTimeout(() => m.remove(), 250);
+  });
+  zone.appendChild(m);
+  setTimeout(() => m.remove(), 3600);
+}
+
+function endCatch() {
+  clearInterval(spawner); clearInterval(miloSpawner); clearInterval(catchTimer);
+  $('catch-zone').classList.add('hidden');
+  $('catch-zone').innerHTML = '';
+  $('catch-hud').classList.add('hidden');
+  const end = $('catch-end');
+  const msg = catchScore >= 25 ? 'Record absolu 😱 Milo est impressionné.'
+            : catchScore >= 15 ? 'Très joli score ! Enzo applaudit des deux mains 👏'
+            : 'Peu importe le score… ils étaient tous à toi de toute façon 💘';
+  end.innerHTML = 'Tu as attrapé <b>' + catchScore + ' cœurs</b> !<br>' + msg +
+    '<br><button class="btn btn-love" id="btn-catch-next">La suite ➜</button>';
+  end.classList.remove('hidden');
+  $('btn-catch-next').onclick = () => show('screen-question');
+  confetti(20);
+}
+
+/* ============ 4. la question (le Non s'enfuit) ============ */
+let dodges = 0;
+const TAUNTS = [
+  'Le bouton « Non » a peur, on dirait 😳',
+  'Il court vite ce bouton…',
+  'Il rétrécit ?? Bizarre 🤔',
+  'Bon. Il y a visiblement qu\'une seule réponse possible 😌',
+];
+function dodge() {
+  const zone = $('yn-zone');
+  const no = $('btn-no');
+  const zw = zone.clientWidth, zh = Math.max(zone.clientHeight, 190);
+  no.style.position = 'absolute';
+  no.style.left = Math.random() * Math.max(10, zw - no.offsetWidth - 10) + 'px';
+  no.style.top = Math.random() * Math.max(10, zh - no.offsetHeight - 10) + 'px';
+  dodges++;
+  const scale = Math.max(.35, 1 - dodges * .16);
+  no.style.transform = 'scale(' + scale + ')';
+  $('no-taunt').textContent = TAUNTS[Math.min(dodges - 1, TAUNTS.length - 1)];
+  if (dodges >= 6) { no.style.display = 'none'; $('no-taunt').textContent = 'Le bouton « Non » a démissionné. 🏳️'; }
+}
+$('btn-no').addEventListener('pointerenter', dodge);
+$('btn-no').addEventListener('pointerdown', (e) => { e.preventDefault(); dodge(); });
+$('btn-yes').onclick = () => {
+  addLove(100);
+  confetti(60);
+  setTimeout(() => { buildReasons(); show('screen-reasons'); }, 900);
+};
+
+/* ============ 5. les 10 raisons ============ */
+const REASONS = [
+  'Ton sourire. Même à travers un écran, il me met KO.',
+  'Ta façon de rire à mes blagues (même les nulles — surtout les nulles).',
+  'Nos appels qui durent des heures et qui passent en 5 minutes.',
+  'Ta voix quand tu dis mon prénom.',
+  'Le courage qu\'on a, tous les deux, de tenir malgré les kilomètres.',
+  'Tes yeux. J\'ai pas d\'autre explication, juste : tes yeux.',
+  'Ta douceur avec Milo 🐾 (et avec moi).',
+  'Tous les projets qu\'on se raconte pour « quand on sera ensemble ».',
+  'Tu me donnes envie d\'être une meilleure version de moi.',
+  'Parce que c\'est toi. Tout simplement. Et ça suffit largement.',
+];
+let revealed = 0;
+function buildReasons() {
+  const grid = $('reasons-grid');
+  grid.innerHTML = '';
+  revealed = 0;
+  $('btn-final').classList.add('hidden');
+  REASONS.forEach((txt, i) => {
+    const c = document.createElement('div');
+    c.className = 'reason hiddenface';
+    c.textContent = '💗';
+    c.onclick = () => {
+      if (c.classList.contains('revealed')) return;
+      c.classList.remove('hiddenface');
+      c.classList.add('revealed');
+      c.textContent = (i + 1) + '. ' + txt;
+      addLove(10);
+      revealed++;
+      if (revealed >= REASONS.length) $('btn-final').classList.remove('hidden');
+    };
+    grid.appendChild(c);
+  });
+}
+$('btn-final').onclick = () => {
+  confetti(80);
+  show('screen-final');
+  setTimeout(() => confetti(40), 1500);
+};
+
+/* ============ 6. rejouer ============ */
+$('btn-replay').onclick = () => {
+  love = 0; addLove(0);
+  dodges = 0;
+  const no = $('btn-no');
+  no.style.display = ''; no.style.position = ''; no.style.left = ''; no.style.top = ''; no.style.transform = '';
+  $('no-taunt').textContent = '';
+  $('btn-catch-start').classList.remove('hidden');
+  $('catch-intro').classList.remove('hidden');
+  $('catch-end').classList.add('hidden');
+  show('screen-intro');
+};
+
+/* ---------- cœurs flottants du fond ---------- */
 (function hearts() {
   const box = document.querySelector('.hearts-bg');
   const glyphs = ['💗', '💕', '💖', '🩷', '💞', '❤️'];
@@ -312,32 +334,4 @@ function renderCompare() {
     s.style.animationDelay = (-Math.random() * 18) + 's';
     box.appendChild(s);
   }
-})();
-
-/* ---------- init ---------- */
-function refreshHome() {
-  const started = me && answers.length > 0;
-  $('btn-continue').classList.toggle('hidden', !started);
-  if (started) {
-    $('btn-continue').textContent = answers.length >= N
-      ? 'Voir mes résultats (' + NAMES[me] + ') →'
-      : 'Reprendre — ' + NAMES[me] + ', question ' + (answers.length + 1) + '/' + N + ' →';
-  }
-}
-(function init() {
-  const m = location.search.match(/[?&]p=([^&]+)/);
-  if (m) {
-    const code = decodeURIComponent(m[1]);
-    const p = decode(code);
-    if (p) {
-      if (!me) {
-        // premier passage : le lien reçu détermine qui je suis (l'autre)
-        me = p.who === 'E' ? 'S' : 'E';
-      }
-      if (p.who !== me) { partner = code; save(); }
-    }
-    history.replaceState(null, '', location.pathname);
-  }
-  refreshHome();
-  if (me && answers.length >= N) showResults();
 })();

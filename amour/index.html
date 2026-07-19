@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enzo &amp; Stacy — Qui de nous deux ? 💕</title>
-  <meta name="description" content="Le petit jeu d'Enzo & Stacy : 105 questions pour savoir qui de nous deux…">
+  <title>Pour Stacy 💕</title>
+  <meta name="description" content="Une petite surprise d'Enzo pour Stacy…">
   <meta name="robots" content="noindex">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💕</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💌</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,98 +15,104 @@
 <body>
 
   <div class="hearts-bg" aria-hidden="true"></div>
+  <div class="love-counter" id="love-counter" title="Compteur d'amour">💗 <span id="love-n">0</span></div>
 
-  <!-- ============ ACCUEIL ============ -->
-  <main id="screen-home" class="screen active">
-    <div class="card home-card">
-      <div class="home-emoji">💞</div>
-      <h1 class="title">Enzo <span class="amp">&amp;</span> Stacy</h1>
-      <p class="subtitle">Qui de nous deux&nbsp;? <span title="version pimentée">🌶️</span></p>
-      <p class="intro">105 questions coquines, 2 amoureux, 1 seule règle&nbsp;: répondre honnêtement 😏<br>
-      Réponds de ton côté, envoie ton code à l'autre… et découvrez si vous pensez pareil&nbsp;!</p>
-      <p class="who">Qui es-tu&nbsp;?</p>
-      <div class="who-row">
-        <button class="btn btn-enzo" id="btn-im-enzo">Je suis Enzo</button>
-        <button class="btn btn-stacy" id="btn-im-stacy">Je suis Stacy</button>
+  <!-- ============ 0. ENVELOPPE ============ -->
+  <main id="screen-intro" class="screen active">
+    <div class="card center">
+      <div class="envelope" id="envelope">
+        <div class="env-flap"></div>
+        <div class="env-body">💌</div>
       </div>
-      <button class="btn btn-ghost hidden" id="btn-continue">Reprendre là où j'en étais →</button>
+      <h1 class="title">Pour Stacy</h1>
+      <p class="intro">Quelqu'un a préparé quelque chose<br>rien que pour toi…</p>
+      <button class="btn btn-love" id="btn-open">Ouvrir la lettre 💌</button>
     </div>
   </main>
 
-  <!-- ============ QUIZ ============ -->
+  <!-- ============ 1. LETTRE D'INTRO ============ -->
+  <main id="screen-letter" class="screen">
+    <div class="card letter">
+      <p class="letter-hand">Ma Stacy,</p>
+      <p class="letter-text">
+        J'ai fabriqué ce petit jeu rien que pour toi.<br>
+        4 petites épreuves t'attendent, et à la fin… une surprise.<br>
+        Prends ton temps, je ne suis pas pressé :<br>
+        de toute façon, je pense à toi tout le temps. 😌
+      </p>
+      <p class="letter-hand right">— Enzo 💙</p>
+      <button class="btn btn-love" id="btn-start">C'est parti 💪</button>
+    </div>
+  </main>
+
+  <!-- ============ 2. QUIZ NOUS DEUX ============ -->
   <main id="screen-quiz" class="screen">
-    <div class="card quiz-card">
-      <div class="quiz-top">
-        <button class="mini-btn" id="btn-back" title="Question précédente">←</button>
-        <span class="cat-chip" id="cat-chip">💘 Amour</span>
-        <span class="counter" id="counter">1 / 105</span>
-      </div>
-      <div class="progress"><div class="progress-fill" id="progress-fill"></div></div>
-      <p class="q-lead">Qui de nous deux…</p>
+    <div class="card">
+      <span class="step-chip">Épreuve 1/4 — Le quiz « Nous deux » 💞</span>
+      <div class="progress"><div class="progress-fill" id="quiz-fill"></div></div>
       <h2 class="q-text" id="q-text">…</h2>
-      <div class="answer-row">
-        <button class="btn btn-enzo big" id="btn-ans-enzo">Enzo</button>
-        <button class="btn btn-stacy big" id="btn-ans-stacy">Stacy</button>
-      </div>
-      <button class="btn btn-ghost small" id="btn-quit">Pause — retour à l'accueil</button>
+      <div class="opts" id="opts"></div>
+      <div class="reaction hidden" id="reaction"></div>
     </div>
   </main>
 
-  <!-- ============ RÉSULTATS / PARTAGE ============ -->
-  <main id="screen-results" class="screen">
+  <!-- ============ 3. ATTRAPE-CŒURS ============ -->
+  <main id="screen-catch" class="screen">
     <div class="card">
-      <div class="home-emoji">🎉</div>
-      <h2 class="title2">Tu as tout fini, <span id="res-name">toi</span>&nbsp;!</h2>
-      <p class="intro" id="res-summary"></p>
-
-      <div class="share-box">
-        <p class="share-label">Envoie ce lien à ton amour 💌</p>
-        <div class="code-row">
-          <input type="text" id="share-link" readonly>
-          <button class="btn btn-mini" id="btn-copy">Copier</button>
-        </div>
-        <p class="tiny" id="copy-ok"></p>
+      <span class="step-chip">Épreuve 2/4 — Attrape mes cœurs 🫶</span>
+      <p class="intro" id="catch-intro">Attrape un maximum de cœurs en <b>20 secondes</b>.<br>Et si tu vois passer un certain toutou… touche-le, il rapporte gros 🐾</p>
+      <div class="catch-hud hidden" id="catch-hud">
+        <span id="catch-score">💗 0</span>
+        <span id="catch-time">⏱ 20s</span>
       </div>
-
-      <div class="share-box" id="partner-box">
-        <p class="share-label">Tu as reçu le lien de l'autre&nbsp;? Colle son code ici 👇</p>
-        <div class="code-row">
-          <input type="text" id="partner-code" placeholder="Code reçu…">
-          <button class="btn btn-mini" id="btn-import">Valider</button>
-        </div>
-        <p class="tiny warn" id="import-msg"></p>
-      </div>
-
-      <button class="btn btn-love hidden" id="btn-compare">💘 Voir notre comparaison</button>
-      <div class="row-mini">
-        <button class="btn btn-ghost small" id="btn-redo">Refaire mes réponses</button>
-        <button class="btn btn-ghost small" id="btn-home2">Accueil</button>
-      </div>
+      <div class="catch-zone hidden" id="catch-zone"></div>
+      <button class="btn btn-love" id="btn-catch-start">Je suis prête 😤</button>
+      <div class="catch-end hidden" id="catch-end"></div>
     </div>
   </main>
 
-  <!-- ============ COMPARAISON ============ -->
-  <main id="screen-compare" class="screen">
+  <!-- ============ 4. LA QUESTION ============ -->
+  <main id="screen-question" class="screen">
+    <div class="card center tall" id="question-card">
+      <span class="step-chip">Épreuve 3/4 — Une simple question 😇</span>
+      <h2 class="big-q">Est-ce que tu m'aimes&nbsp;?</h2>
+      <div class="yn-zone" id="yn-zone">
+        <button class="btn btn-love yes" id="btn-yes">Oui 🥰</button>
+        <button class="btn btn-no" id="btn-no">Non</button>
+      </div>
+      <p class="tiny-note" id="no-taunt"></p>
+    </div>
+  </main>
+
+  <!-- ============ 5. LES 10 RAISONS ============ -->
+  <main id="screen-reasons" class="screen">
     <div class="card">
-      <h2 class="title2">Enzo 💙 <span class="amp">vs</span> 💗 Stacy</h2>
-      <div class="match-circle" id="match-circle">
-        <span class="match-pct" id="match-pct">0%</span>
-        <span class="match-sub">d'accord</span>
-      </div>
-      <p class="match-msg" id="match-msg"></p>
-      <div class="legend">
-        <span><i class="dot dot-match"></i> Même réponse</span>
-        <span><i class="dot dot-diff"></i> Pas d'accord</span>
-      </div>
-      <div id="cat-stats"></div>
-      <div id="compare-list"></div>
-      <div class="row-mini">
-        <button class="btn btn-ghost small" id="btn-back-results">← Retour</button>
-      </div>
+      <span class="step-chip">Épreuve 4/4 — Retourne les 10 cartes 🃏</span>
+      <p class="intro">Sous chaque cœur se cache une raison pour laquelle je t'aime.</p>
+      <div class="reasons-grid" id="reasons-grid"></div>
+      <button class="btn btn-love hidden" id="btn-final">Voir ta surprise 🎁</button>
     </div>
   </main>
 
-  <footer class="foot">Fait avec 💕 pour Enzo &amp; Stacy</footer>
+  <!-- ============ 6. FINAL ============ -->
+  <main id="screen-final" class="screen">
+    <div class="card letter">
+      <div class="final-heart">❤️</div>
+      <h2 class="title small">Je t'aime, Stacy</h2>
+      <p class="letter-text">
+        Merci d'avoir joué jusqu'au bout.<br>
+        La distance, c'est juste des kilomètres —<br>
+        et aucun kilomètre ne fait le poids contre nous. 💪<br><br>
+        Vivement qu'on se retrouve.<br>
+        En attendant, tu sais où me trouver : partout, dans chacune de tes pensées 😌
+      </p>
+      <p class="letter-hand right">— Ton Enzo 💙</p>
+      <p class="ps">PS&nbsp;: fais un câlin à Milo de ma part 🐾</p>
+      <button class="btn btn-ghost small" id="btn-replay">Rejouer 🔁</button>
+    </div>
+  </main>
+
+  <footer class="foot">Fait main avec 💕 par Enzo, pour Stacy (et validé par Milo 🐾)</footer>
 
   <script src="script.js"></script>
 </body>
