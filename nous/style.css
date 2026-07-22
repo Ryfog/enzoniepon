@@ -33,7 +33,12 @@ body {
     radial-gradient(55% 45% at 50% 100%, rgba(255,215,154,.22), transparent 60%),
     radial-gradient(50% 50% at 78% 80%, rgba(120,90,220,.30), transparent 60%);
   filter: blur(20px);
+  will-change: transform;
   animation: drift 22s ease-in-out infinite alternate;
+}
+@media (prefers-reduced-motion: reduce) {
+  .aurora, .particles span, .prog-heart, .path span.today,
+  .modal-emoji, .kicker { animation: none !important; }
 }
 @keyframes drift {
   0%   { transform: translate3d(-2%, -1%, 0) scale(1.05); }
@@ -61,11 +66,9 @@ body {
 }
 .block { margin-top: 26px; }
 .glass {
-  background: var(--glass);
+  background: rgba(38,22,66,.55);
   border: 1px solid var(--glass-line);
   border-radius: 26px;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   padding: 26px 22px;
   box-shadow: 0 20px 50px rgba(0,0,0,.35);
 }
@@ -110,9 +113,8 @@ body {
 }
 .unit {
   flex: 1;
-  background: var(--glass); border: 1px solid var(--glass-line);
+  background: rgba(255,255,255,.06); border: 1px solid var(--glass-line);
   border-radius: 16px; padding: 14px 6px;
-  backdrop-filter: blur(10px);
 }
 .u-n {
   display: block; font-family: 'Cormorant Garamond', serif;

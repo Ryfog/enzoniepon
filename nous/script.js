@@ -42,6 +42,33 @@ const DAILY = [
   "Le compte à rebours tourne, et mon cœur avec lui — vers toi.",
   "Je t'aime plus que les mots de cette petite appli ne pourront jamais dire.",
   "Encore un peu de patience mon amour. Le plus beau nous attend.",
+  "Ce matin, ma première pensée a été pour toi. Comme tous les matins.",
+  "J'ai hâte de réentendre ton rire en vrai, pas dans un haut-parleur.",
+  "On est deux aimants séparés : plus le temps passe, plus on s'attire.",
+  "Je compte bien te voler un pull et le garder. Tu es prévenue.",
+  "Un jour, on rira de toute cette distance, blottis l'un contre l'autre.",
+  "Tu es ma bonne raison de me lever le matin et de sourire le soir.",
+  "Prépare tes joues : j'ai un gros stock de bisous en retard à rattraper.",
+  "Même à des kilomètres, je te choisis. Encore, et toujours.",
+  "Notre histoire est ma préférée, et le plus beau chapitre arrive.",
+  "Je t'aime le lundi, le mardi… et surtout tous les autres jours.",
+  "Quand je pense à toi, la distance rétrécit d'un coup. Essaie, tu verras.",
+  "Tu es la première personne à qui je veux tout raconter, chaque jour.",
+  "On se rapproche, doucement mais sûrement. Comme deux évidences.",
+  "J'ai réservé le plus grand câlin de l'histoire, et il porte ton nom.",
+  "Ton sourire est mon fond d'écran préféré — dans ma tête et sur mon tel.",
+  "Chaque jour loin de toi me rappelle la chance de t'avoir dans mon cœur.",
+  "Bientôt je pourrai t'endormir pour de vrai, plus au téléphone.",
+  "Je t'aime comme on aime une seule fois : à fond, sans plan B.",
+  "Milo garde ta place au chaud, moi je garde la mienne dans ton cœur 🐾.",
+  "On y est presque, mon amour. Tiens ma main même à travers l'écran.",
+  "Tu rends l'attente supportable rien qu'en étant toi.",
+  "J'ai mille choses à te dire, mais elles attendront ton oreille en vrai.",
+  "Le plus dur est derrière nous. Devant, il n'y a que toi et moi.",
+  "Compte avec moi : encore quelques dodos et je t'embrasse pour de vrai.",
+  "Tu es mon aujourd'hui préféré et mon demain le plus sûr.",
+  "Demain approche, et avec lui le moment que j'attends le plus au monde.",
+  "C'est presque l'heure. Ouvre grand les bras, j'arrive. 💞",
 ];
 
 /* ---------- surprises à débloquer (seuil = jours restants) ---------- */
@@ -226,7 +253,7 @@ function hearts(n) {
   let stars = [];
   function resize() {
     c.width = innerWidth; c.height = innerHeight;
-    const n = Math.min(140, Math.floor(innerWidth*innerHeight/9000));
+    const n = Math.min(80, Math.floor(innerWidth*innerHeight/15000));
     stars = Array.from({length:n}, () => ({
       x: Math.random()*c.width, y: Math.random()*c.height,
       r: Math.random()*1.4+.3, a: Math.random(), sp: Math.random()*.02+.004,
