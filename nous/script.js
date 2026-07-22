@@ -83,20 +83,22 @@ function tick() {
   const now = new Date();
   const diff = TARGET - now;
 
-  if (diff <= 0) {
+  const days = Math.ceil((midnight(TARGET) - midnight(now)) / DAY);
+
+  if (days <= 0) {
     $('jnum').textContent = '0';
     $('jlabel').textContent = "c'est le grand jour ! 💞";
     ['t-d','t-h','t-m','t-s'].forEach(id => $(id).textContent = '0');
     $('target').textContent = "On se retrouve aujourd'hui 🥹";
   } else {
-    const days = Math.ceil((midnight(TARGET) - midnight(now)) / DAY);
-    const d = Math.floor(diff / DAY);
-    const h = Math.floor(diff % DAY / 3600000);
-    const m = Math.floor(diff % 3600000 / 60000);
-    const s = Math.floor(diff % 60000 / 1000);
+    /* le minuteur compte le temps avant que le J− ne baisse d'un cran (prochain minuit) */
+    const toNextDay = (midnight(now).getTime() + DAY) - now.getTime();
+    const h = Math.floor(toNextDay % DAY / 3600000);
+    const m = Math.floor(toNextDay % 3600000 / 60000);
+    const s = Math.floor(toNextDay % 60000 / 1000);
     $('jnum').textContent = days;
     $('jlabel').textContent = days > 1 ? 'jours à patienter' : 'jour à patienter';
-    $('t-d').textContent = d;
+    $('t-d').textContent = days;
     $('t-h').textContent = String(h).padStart(2,'0');
     $('t-m').textContent = String(m).padStart(2,'0');
     $('t-s').textContent = String(s).padStart(2,'0');

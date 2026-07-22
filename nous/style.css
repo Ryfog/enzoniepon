@@ -89,15 +89,15 @@ body {
 }
 
 .big-count {
-  display: flex; align-items: flex-start; justify-content: center; gap: 4px;
-  line-height: .9;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  line-height: 1;
   filter: drop-shadow(0 8px 30px rgba(255,95,168,.4));
 }
-.jminus { font-family: 'Cormorant Garamond', serif; font-size: clamp(50px,14vw,90px); font-weight: 600; color: var(--ink); margin-top: .12em; }
-.jdash  { font-family: 'Cormorant Garamond', serif; font-size: clamp(50px,14vw,90px); font-weight: 600; color: var(--rose); margin-top: .12em; }
+.jminus { font-family: 'Cormorant Garamond', serif; font-size: clamp(50px,14vw,88px); font-weight: 600; color: var(--ink); line-height: 1; }
+.jdash  { font-family: 'Cormorant Garamond', serif; font-size: clamp(50px,14vw,88px); font-weight: 600; color: var(--rose); line-height: 1; }
 .jnum {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(120px, 34vw, 220px); font-weight: 700;
+  font-size: clamp(120px, 34vw, 210px); font-weight: 700; line-height: 1;
   background: linear-gradient(160deg, #fff, var(--gold) 55%, var(--rose));
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
