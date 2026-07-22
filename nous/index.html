@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enzo &amp; Stacy — J-… ✨</title>
+  <meta name="description" content="Le compte à rebours avant qu'on se retrouve…">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#1a0f2e">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💞</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <canvas id="stars" aria-hidden="true"></canvas>
+  <div class="aurora" aria-hidden="true"></div>
+  <div class="particles" id="particles" aria-hidden="true"></div>
+
+  <main class="wrap">
+
+    <!-- ==================== HERO COMPTE À REBOURS ==================== -->
+    <header class="hero">
+      <p class="kicker">Enzo <span>&amp;</span> Stacy</p>
+      <h1 class="hero-title">Avant de<br>te retrouver</h1>
+
+      <div class="big-count">
+        <span class="jminus">J</span><span class="jdash">−</span><span class="jnum" id="jnum">–</span>
+      </div>
+      <p class="jlabel" id="jlabel">jours à patienter</p>
+
+      <div class="timer" id="timer">
+        <div class="unit"><span class="u-n" id="t-d">–</span><span class="u-l">jours</span></div>
+        <div class="unit"><span class="u-n" id="t-h">–</span><span class="u-l">heures</span></div>
+        <div class="unit"><span class="u-n" id="t-m">–</span><span class="u-l">min</span></div>
+        <div class="unit"><span class="u-n" id="t-s">–</span><span class="u-l">sec</span></div>
+      </div>
+
+      <p class="target" id="target">Mercredi 16 septembre 💫</p>
+    </header>
+
+    <!-- ==================== PROGRESSION ==================== -->
+    <section class="glass block">
+      <h2 class="h2">Le chemin parcouru</h2>
+      <div class="prog">
+        <div class="prog-fill" id="prog-fill"></div>
+        <span class="prog-heart" id="prog-heart">💗</span>
+      </div>
+      <p class="prog-txt" id="prog-txt">…</p>
+    </section>
+
+    <!-- ==================== LE MOT DU JOUR ==================== -->
+    <section class="glass block">
+      <span class="chip">💌 Le petit mot du jour</span>
+      <blockquote class="daily" id="daily">…</blockquote>
+      <p class="daily-date" id="daily-date"></p>
+    </section>
+
+    <!-- ==================== CHEMIN DE CŒURS ==================== -->
+    <section class="glass block">
+      <h2 class="h2">Chaque jour un pas de plus</h2>
+      <p class="sub">Un cœur par jour — ils s'illuminent au fil du temps ✨</p>
+      <div class="path" id="path"></div>
+    </section>
+
+    <!-- ==================== SURPRISES ==================== -->
+    <section class="block">
+      <h2 class="h2 center">Nos surprises à débloquer 🎁</h2>
+      <p class="sub center">Une nouvelle s'ouvre à chaque étape du compte à rebours.<br>Reviens souvent… 😉</p>
+      <div class="surprises" id="surprises"></div>
+    </section>
+
+    <footer class="foot">Fait avec 💞 en attendant le 16 septembre — Enzo &amp; Stacy (et Milo 🐾)</footer>
+  </main>
+
+  <!-- modale surprise -->
+  <div class="modal" id="modal" hidden>
+    <div class="modal-card glass" id="modal-card">
+      <button class="modal-x" id="modal-x" aria-label="Fermer">✕</button>
+      <div class="modal-emoji" id="modal-emoji">🎁</div>
+      <h3 class="modal-title" id="modal-title"></h3>
+      <p class="modal-text" id="modal-text"></p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
