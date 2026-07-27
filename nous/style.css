@@ -261,8 +261,8 @@ body {
 .gate-inner { max-width: 460px; animation: pop .5s ease; }
 .gate-kicker { font-size: 15px; letter-spacing: 3px; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 22px; }
 .gate-env {
-  font-size: 96px; cursor: pointer; display: inline-block;
-  filter: drop-shadow(0 0 30px rgba(255,143,196,.6));
+  width: 200px; height: auto; cursor: pointer; display: block; margin: 0 auto;
+  filter: drop-shadow(0 14px 30px rgba(255,95,168,.55));
   animation: envfloat 2.6s ease-in-out infinite;
 }
 @keyframes envfloat { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-12px) rotate(5deg); } }
