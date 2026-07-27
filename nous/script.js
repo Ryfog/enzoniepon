@@ -274,6 +274,20 @@ function hearts(n) {
   resize(); draw();
 })();
 
+/* ---------- lettre d'entrée ---------- */
+(function gate() {
+  const g = $('gate');
+  if (!g) return;
+  const open = () => {
+    if (g.classList.contains('hide')) return;
+    g.classList.add('hide');
+    hearts(26);
+    setTimeout(() => { g.style.display = 'none'; }, 750);
+  };
+  $('gate-btn').onclick = open;
+  $('gate-env').onclick = open;
+})();
+
 /* ---------- init ---------- */
 function refreshDaily() { renderProgress(); renderDaily(); renderPath(); renderSurprises(); }
 tick(); refreshDaily();
