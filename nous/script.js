@@ -75,8 +75,8 @@ const DAILY = [
 const SURPRISES = [
   { at: 57, emoji: "💌", name: "Le début", title: "Défi n°1 — On lance le jeu 💌",
     text: "Envoie tout de suite à l'autre un message qui commence par « J'ai hâte de… » et finis la phrase avec la première chose qui te vient. C'est notre point de départ. 57 jours, on les fait ensemble." },
-  { at: 50, emoji: "🎬", name: "Ciné à deux", title: "Défi — Notre séance ciné à distance 🎬",
-    text: "Ce soir, rendez-vous en appel vidéo : lancez le même film au même moment, pop-corn des deux côtés, et regardez-le « ensemble ». Rien que nous deux, le même écran, le même fou rire. La distance n'existe plus pendant deux heures." },
+  { at: 50, emoji: "📝", name: "Bucket list", title: "Défi — La bucket list des retrouvailles 📝",
+    text: "Ensemble, là maintenant, écrivez la liste de tout ce que vous voulez faire le jour où vous vous retrouvez : les câlins, les sorties, les bêtises, les endroits… Gardez-la précieusement. Le 16 septembre, vous commencerez à tout cocher, un par un." },
   { at: 45, emoji: "🎙️", name: "Ta voix", title: "Défi — Un vocal rien que pour l'autre 🎙️",
     text: "Enregistre un vocal de 30 secondes où tu racontes ta journée, comme si l'autre était assis juste à côté de toi. Ta voix, c'est déjà un petit bout de retrouvailles." },
   { at: 40, emoji: "🐾", name: "Milo", title: "Défi — Câlin à Milo 🐾",
