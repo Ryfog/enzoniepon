@@ -302,6 +302,7 @@ function hearts(n) {
     localStorage.setItem('nous_gift', '1');
   }
   box.addEventListener('click', open);
+  if (/[?&]giftopen/.test(location.search)) { g.classList.add('open'); hint.textContent = OPENED; }
   if (localStorage.getItem('nous_gift')) {
     g.classList.add('open');
     hint.textContent = OPENED;
