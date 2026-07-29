@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enzo &amp; Stacy — J-… ✨</title>
+  <title>Enzo &amp; Stacy — J-… 🧸</title>
   <meta name="description" content="Le compte à rebours avant qu'on se retrouve…">
   <meta name="robots" content="noindex">
-  <meta name="theme-color" content="#1a0f2e">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💞</text></svg>">
+  <meta name="theme-color" content="#fff3ea">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧸</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Caveat:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -37,23 +37,42 @@
       <p class="kicker">Enzo <span>&amp;</span> Stacy</p>
       <h1 class="hero-title">Avant de<br>te retrouver</h1>
 
-      <div class="big-count">
-        <span class="jminus">J</span><span class="jdash">−</span><span class="jnum" id="jnum">–</span>
+      <div class="count-card">
+        <span class="deco deco-a" aria-hidden="true">🌸</span>
+        <span class="deco deco-b" aria-hidden="true">🎀</span>
+        <div class="big-count">
+          <span class="jminus">J</span><span class="jdash">−</span><span class="jnum" id="jnum">–</span>
+        </div>
+        <p class="jlabel" id="jlabel">jours à patienter</p>
       </div>
-      <p class="jlabel" id="jlabel">jours à patienter</p>
 
       <div class="timer" id="timer">
-        <div class="unit"><span class="u-n" id="t-d">–</span><span class="u-l">jours</span></div>
-        <div class="unit"><span class="u-n" id="t-h">–</span><span class="u-l">heures</span></div>
-        <div class="unit"><span class="u-n" id="t-m">–</span><span class="u-l">min</span></div>
-        <div class="unit"><span class="u-n" id="t-s">–</span><span class="u-l">sec</span></div>
+        <div class="unit u1"><span class="u-n" id="t-d">–</span><span class="u-l">jours</span></div>
+        <div class="unit u2"><span class="u-n" id="t-h">–</span><span class="u-l">heures</span></div>
+        <div class="unit u3"><span class="u-n" id="t-m">–</span><span class="u-l">min</span></div>
+        <div class="unit u4"><span class="u-n" id="t-s">–</span><span class="u-l">sec</span></div>
       </div>
 
       <p class="target" id="target">Mercredi 16 septembre 💫</p>
     </header>
 
+    <!-- ==================== CADEAU ==================== -->
+    <section class="glass block gift-block">
+      <h2 class="h2 center">Un cadeau rien que pour toi 🎁</h2>
+      <div class="gift" id="gift">
+        <div class="gift-box" id="gift-box">
+          <span class="gift-lid"></span>
+          <span class="gift-bow">🎀</span>
+          <span class="gift-body"></span>
+        </div>
+        <img class="gift-plush" id="gift-plush" src="peluche.png" alt="Une peluche pour toi">
+        <span class="gift-plush-fallback" id="gift-plush-fb" aria-hidden="true">🧸</span>
+      </div>
+      <p class="gift-hint" id="gift-hint">Clique sur le paquet pour l'ouvrir…</p>
+    </section>
+
     <!-- ==================== PROGRESSION ==================== -->
-    <section class="glass block">
+    <section class="glass block tilt-l">
       <h2 class="h2">Le chemin parcouru</h2>
       <div class="prog">
         <div class="prog-fill" id="prog-fill"></div>
@@ -63,14 +82,14 @@
     </section>
 
     <!-- ==================== LE MOT DU JOUR ==================== -->
-    <section class="glass block">
+    <section class="glass block tilt-r">
       <span class="chip">💌 Le petit mot du jour</span>
       <blockquote class="daily" id="daily">…</blockquote>
       <p class="daily-date" id="daily-date"></p>
     </section>
 
     <!-- ==================== CHEMIN DE CŒURS ==================== -->
-    <section class="glass block">
+    <section class="glass block tilt-l">
       <h2 class="h2">Chaque jour un pas de plus</h2>
       <p class="sub">Un cœur par jour — ils s'illuminent au fil du temps ✨</p>
       <div class="path" id="path"></div>

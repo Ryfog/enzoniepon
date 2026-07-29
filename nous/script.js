@@ -221,7 +221,7 @@ $('modal').onclick = (e) => { if (e.target === $('modal')) $('modal').hidden = t
 /* ---------- pluie de cœurs ---------- */
 function hearts(n) {
   const box = $('particles');
-  const g = ['💗','💖','✨','💛','🌟'];
+  const g = ['💗','🎀','🌸','💕','🧸','⭐'];
   for (let i = 0; i < n; i++) {
     const s = document.createElement('span');
     s.textContent = g[i % g.length];
@@ -235,7 +235,7 @@ function hearts(n) {
 /* particules d'ambiance permanentes */
 (function ambient() {
   const box = $('particles');
-  const g = ['✨','💫','·','✦','💗'];
+  const g = ['🌸','💗','🎀','✨','☁️','🧸'];
   for (let i = 0; i < 14; i++) {
     const s = document.createElement('span');
     s.textContent = g[i % g.length];
@@ -247,31 +247,65 @@ function hearts(n) {
   }
 })();
 
-/* ---------- ciel étoilé (canvas) ---------- */
-(function starfield() {
+/* ---------- bulles pastel qui flottent (canvas) ---------- */
+(function bubbles() {
   const c = $('stars'), x = c.getContext('2d');
-  let stars = [];
+  const COLORS = ['#ffd0e2', '#ffe0c2', '#d7f3ea', '#e4dcff', '#ffe9f2'];
+  let dots = [];
   function resize() {
     c.width = innerWidth; c.height = innerHeight;
-    const n = Math.min(80, Math.floor(innerWidth*innerHeight/15000));
-    stars = Array.from({length:n}, () => ({
-      x: Math.random()*c.width, y: Math.random()*c.height,
-      r: Math.random()*1.4+.3, a: Math.random(), sp: Math.random()*.02+.004,
+    const n = Math.min(46, Math.floor(innerWidth * innerHeight / 26000));
+    dots = Array.from({ length: n }, () => ({
+      x: Math.random() * c.width,
+      y: Math.random() * c.height,
+      r: 8 + Math.random() * 26,
+      col: COLORS[Math.floor(Math.random() * COLORS.length)],
+      a: Math.random() * 6.28,
+      sp: 0.002 + Math.random() * 0.005,
+      amp: 10 + Math.random() * 22,
+      vy: 0.05 + Math.random() * 0.14,
     }));
   }
   function draw() {
-    x.clearRect(0,0,c.width,c.height);
-    for (const s of stars) {
-      s.a += s.sp; const tw = (Math.sin(s.a)+1)/2;
-      x.globalAlpha = .2 + tw*.8;
-      x.fillStyle = tw > .6 ? '#fff3d6' : '#e8dcff';
-      x.beginPath(); x.arc(s.x, s.y, s.r, 0, 7); x.fill();
+    x.clearRect(0, 0, c.width, c.height);
+    for (const d of dots) {
+      d.a += d.sp;
+      d.y -= d.vy;
+      if (d.y + d.r < 0) { d.y = c.height + d.r; d.x = Math.random() * c.width; }
+      x.globalAlpha = 0.45;
+      x.fillStyle = d.col;
+      x.beginPath();
+      x.arc(d.x + Math.sin(d.a) * d.amp, d.y, d.r, 0, 7);
+      x.fill();
     }
     x.globalAlpha = 1;
     requestAnimationFrame(draw);
   }
   addEventListener('resize', resize);
   resize(); draw();
+})();
+
+/* ---------- le cadeau a ouvrir ---------- */
+(function gift() {
+  const g = $('gift'), box = $('gift-box'), hint = $('gift-hint'), img = $('gift-plush');
+  if (!g) return;
+
+  // si l'image de la peluche manque, on bascule sur l'emoji
+  img.addEventListener('error', () => g.classList.add('no-img'));
+
+  const OPENED = 'Une peluche pour te faire un câlin quand je ne suis pas là 🧸💗';
+  function open() {
+    if (g.classList.contains('open')) return;
+    g.classList.add('open');
+    hint.textContent = OPENED;
+    hearts(30);
+    localStorage.setItem('nous_gift', '1');
+  }
+  box.addEventListener('click', open);
+  if (localStorage.getItem('nous_gift')) {
+    g.classList.add('open');
+    hint.textContent = OPENED;
+  }
 })();
 
 /* ---------- lettre d'entrée ---------- */
@@ -286,6 +320,7 @@ function hearts(n) {
   };
   $('gate-btn').onclick = open;
   $('gate-env').onclick = open;
+  if (/[?&]nogate/.test(location.search)) { g.classList.add('hide'); g.style.display = 'none'; }
 })();
 
 /* ---------- init ---------- */
