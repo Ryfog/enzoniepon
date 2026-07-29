@@ -299,14 +299,11 @@ function hearts(n) {
     g.classList.add('open');
     hint.textContent = OPENED;
     hearts(30);
-    localStorage.setItem('nous_gift', '1');
   }
   box.addEventListener('click', open);
+  // le cadeau se referme a chaque visite : le plaisir de l'ouvrir se rejoue
+  localStorage.removeItem('nous_gift');
   if (/[?&]giftopen/.test(location.search)) { g.classList.add('open'); hint.textContent = OPENED; }
-  if (localStorage.getItem('nous_gift')) {
-    g.classList.add('open');
-    hint.textContent = OPENED;
-  }
 })();
 
 /* ---------- lettre d'entrée ---------- */
