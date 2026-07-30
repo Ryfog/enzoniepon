@@ -229,7 +229,13 @@ body {
   transition: opacity .5s ease .35s, transform .8s cubic-bezier(.2,.9,.3,1.5) .35s;
   pointer-events: none;
 }
-.gift-plush { width: 210px; height: auto; filter: drop-shadow(0 14px 24px rgba(180, 110, 140, .40)); }
+/* photo encadree facon polaroid */
+.gift-plush {
+  width: 196px; height: auto;
+  border-radius: 18px;
+  border: 7px solid #fff;
+  box-shadow: 0 16px 30px rgba(180, 110, 140, .38);
+}
 .gift-plush-fallback { font-size: 150px; line-height: 1; display: none; }
 .gift.no-img .gift-plush { display: none; }
 .gift.no-img .gift-plush-fallback { display: block; }
@@ -239,7 +245,7 @@ body {
 .gift.open .gift-lid { transform: translate(58px, -140px) rotate(38deg); opacity: 0; }
 .gift.open .gift-bow { transform: translate(40px, -160px) rotate(52deg); opacity: 0; }
 .gift.open .gift-body { opacity: 0; transition: opacity .5s ease .3s; }
-.gift.open .gift-plush,
+.gift.open .gift-plush { opacity: 1; transform: scale(1) translateY(0) rotate(-3deg); }
 .gift.open .gift-plush-fallback { opacity: 1; transform: scale(1) translateY(0); }
 
 .gift-hint {

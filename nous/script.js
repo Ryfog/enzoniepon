@@ -293,7 +293,8 @@ function hearts(n) {
   // si l'image de la peluche manque, on bascule sur l'emoji
   img.addEventListener('error', () => g.classList.add('no-img'));
 
-  const OPENED = 'Une peluche pour te faire un câlin quand je ne suis pas là 🧸💗';
+  const OPENED = 'Un jour, je te la passerai au doigt pour de vrai. '
+               + 'En attendant, garde juste ça dans un coin de ta tête 🤍';
   function open() {
     if (g.classList.contains('open')) return;
     g.classList.add('open');
