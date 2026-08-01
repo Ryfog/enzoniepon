@@ -417,14 +417,14 @@ if (/[?&]tout/.test(location.search)) {
    ========================================================= */
 (function wheel() {
   const PRIZES = [
-    ['📞', 'Un appel vidéo de 2h, sans regarder l\'heure une seule fois.'],
+    ['🎮', 'Une soirée à jouer à tout ce que tu veux, jusqu\'à plus d\'heure.'],
     ['🎬', 'Tu choisis le film. Même le pire. Je ne dirai rien.'],
     ['🎧', 'Une playlist faite rien que pour toi, dans la semaine.'],
     ['🎙️', 'Un vocal de 5 minutes, juste pour t\'endormir.'],
     ['🤡', 'Une photo de moi complètement ridicule, sur demande.'],
     ['🤐', 'Je réponds à 3 questions. Honnêtement. Sans esquiver.'],
     ['🖍️', 'Un dessin de Milo, fait par moi. Désolé d\'avance.'],
-    ['✉️', 'Une vraie lettre écrite à la main, envoyée par la poste.'],
+    ['📸', 'Une vraie séance photo rien que pour toi, le 16 septembre.'],
     ['🍽️', 'Tu choisis notre tout premier repas du 16 septembre.'],
     ['💛', 'Un compliment par heure pendant 24h. Prépare ton téléphone.']
   ];
