@@ -117,9 +117,17 @@ body{
 }
 .mq-film{color:var(--muted);font-size:.94rem;margin:14px 0 26px}
 .mq-film b{color:var(--cream);font-weight:600}
+.mq-alt{margin:18px 0 0}
+.linkish{
+  background:none;border:none;cursor:pointer;padding:6px 4px;
+  font-family:'Inter',sans-serif;font-size:.84rem;color:var(--muted);
+  border-bottom:1px dotted rgba(160,140,132,.55);
+  transition:color .2s, border-color .2s;
+}
+.linkish:hover{color:var(--gold);border-color:var(--gold)}
 .mq-note{
   font-family:'Bebas Neue',sans-serif;letter-spacing:.22em;font-size:.74rem;
-  color:var(--muted);margin:22px 0 0;
+  color:var(--muted);margin:20px 0 0;
 }
 
 /* =========================================================

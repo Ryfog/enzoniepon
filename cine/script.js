@@ -141,7 +141,8 @@ function modeSalle(on) {
     document.exitFullscreen().catch(() => {});
   }
 }
-$('#salle-btn').addEventListener('click', () => modeSalle(true));
+document.querySelectorAll('#salle-btn, #salle-btn-2')
+  .forEach(b => b.addEventListener('click', () => modeSalle(true)));
 $('#th-x').addEventListener('click', () => modeSalle(false));
 addEventListener('keydown', e => { if (e.key === 'Escape' && !theatre.hidden) modeSalle(false); });
 
