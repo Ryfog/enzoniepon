@@ -55,46 +55,18 @@ body{
 }
 .gate.gone{opacity:0;visibility:hidden}
 
-.ticket{
-  position:relative;
-  width:min(440px,100%);
-  background:#fffdfa;
-  border:3px dashed var(--line);
-  border-radius:24px;
-  padding:34px 26px 30px;
-  text-align:center;
-  box-shadow:0 24px 60px rgba(160,90,70,.22);
-  animation:tin .8s cubic-bezier(.2,.9,.3,1.4) both;
-}
+.gate-inner{width:min(560px,100%);text-align:center}
 @keyframes tin{from{opacity:0;transform:translateY(26px) scale(.94) rotate(-2deg)}to{opacity:1;transform:none}}
 
-.ticket-punch{
-  position:absolute;top:50%;width:30px;height:30px;border-radius:50%;
-  background:#ffe4d3;transform:translateY(-50%);
+.gate-ticket{
+  display:block;width:100%;height:auto;cursor:pointer;
+  filter:drop-shadow(0 16px 30px rgba(160,90,70,.28));
+  animation:tin .9s cubic-bezier(.2,.9,.3,1.4) both;
+  transition:transform .3s cubic-bezier(.2,.9,.3,1.4);
 }
-.ticket-punch.l{left:-17px}
-.ticket-punch.r{right:-17px}
-
-.ticket-top{
-  font-family:'Quicksand',sans-serif;font-weight:700;
-  letter-spacing:.16em;text-transform:uppercase;font-size:.66rem;
-  color:var(--ink-soft);margin:0 0 14px;
-}
-.ticket-emoji{font-size:3.2rem;line-height:1;animation:wig 2.6s ease-in-out infinite}
-@keyframes wig{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
-
-.ticket-title{
-  font-family:'Fredoka',sans-serif;font-weight:700;
-  font-size:clamp(1.7rem,7vw,2.3rem);line-height:1.15;
-  margin:12px 0 10px;color:var(--ink);
-}
-.ticket-title em{font-style:normal;color:var(--coral-d)}
-.ticket-sub{margin:0 0 16px;color:var(--ink-soft);font-size:.95rem}
-.ticket-name{
-  font-family:'Gloria Hallelujah',cursive;font-size:1.05rem;
-  color:var(--coral-d);margin:0 0 22px;
-}
-.ticket-name b{font-weight:400}
+.gate-ticket:hover{transform:rotate(-1.4deg) scale(1.025)}
+.gate-ticket:active{transform:scale(.99)}
+.gate-inner .btn{margin-top:26px}
 
 /* =========================================================
    BOUTONS
@@ -456,7 +428,27 @@ body{
   position:absolute;top:12px;right:14px;border:none;background:none;
   font-size:1.1rem;color:var(--ink-soft);cursor:pointer;
 }
+.pop-img{
+  display:block;width:170px;height:auto;margin:0 auto 14px;
+  border-radius:18px;border:5px solid #fff;
+  box-shadow:0 10px 26px rgba(59,43,43,.3);
+}
+.pop-img[hidden]{display:none}
 .pop-emoji{font-size:3rem;line-height:1;margin-bottom:8px}
+
+/* ---------- easter egg : le nounours ---------- */
+.peek{
+  position:fixed;z-index:56;left:-64px;bottom:22px;
+  width:106px;padding:0;border:none;background:none;cursor:pointer;
+  opacity:0;pointer-events:none;transform:rotate(9deg);
+  transition:left .55s cubic-bezier(.2,.9,.3,1.5), opacity .6s, transform .3s;
+}
+.peek.show{opacity:1;pointer-events:auto;left:-48px}
+.peek:hover,.peek:focus-visible{left:-12px;transform:rotate(3deg)}
+.peek img{
+  display:block;width:100%;height:auto;border-radius:18px;
+  box-shadow:0 8px 22px rgba(59,43,43,.32);
+}
 .pop-title{font-family:'Fredoka',sans-serif;font-size:1.3rem;margin:0 0 10px}
 .pop-text{color:var(--ink-soft);margin:0 0 20px}
 

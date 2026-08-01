@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Gloria+Hallelujah&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 
@@ -20,13 +20,9 @@
 
 <!-- ============ ENTRÉE ============ -->
 <div class="gate" id="gate">
-  <div class="ticket">
-    <span class="ticket-punch l"></span><span class="ticket-punch r"></span>
-    <p class="ticket-top">— Billet d'entrée · 1 personne —</p>
-    <div class="ticket-emoji">🎟️</div>
-    <h1 class="ticket-title">Le 1<sup>er</sup> août,<br>c'est <em>ta</em> journée</h1>
-    <p class="ticket-sub">Journée internationale de la copine.<br>Officiellement. J'ai vérifié.</p>
-    <p class="ticket-name">Au nom de&nbsp;: <b>Stacy</b></p>
+  <div class="gate-inner">
+    <img class="gate-ticket" id="gate-ticket" src="ticket.webp" width="900" height="661"
+         alt="Billet d'entrée, 1 personne. Le 1er août, c'est ta journée. Journée internationale de la copine, officiellement. Au nom de : Stacy">
     <button class="btn big" id="gate-btn">Entrer dans ma journée 🎉</button>
   </div>
 </div>
@@ -209,10 +205,16 @@
   </footer>
 </main>
 
+<!-- easter egg : le nounours qui se cache au bord de l'écran -->
+<button class="peek" id="peek" aria-label="Quelque chose se cache ici">
+  <img src="nounours.webp" alt="" width="440" height="587" loading="lazy">
+</button>
+
 <!-- popup -->
 <div class="pop" id="pop" hidden>
   <div class="pop-card">
     <button class="pop-x" id="pop-x" aria-label="Fermer">✕</button>
+    <img class="pop-img" id="pop-img" alt="" hidden>
     <div class="pop-emoji" id="pop-emoji">🎉</div>
     <h3 class="pop-title" id="pop-title"></h3>
     <p class="pop-text" id="pop-text"></p>
@@ -220,6 +222,6 @@
   </div>
 </div>
 
-<script src="script.js?v=3"></script>
+<script src="script.js?v=4"></script>
 </body>
 </html>

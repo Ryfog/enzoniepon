@@ -68,10 +68,15 @@ function win(id, title, text, emo = '🎉') {
 
 /* ============ POPUP ============ */
 const pop = $('#pop');
-function popup(title, text, emo = '🎉') {
+function popup(title, text, emo = '🎉', img = null) {
   $('#pop-title').textContent = title;
   $('#pop-text').textContent = text;
-  $('#pop-emoji').textContent = emo;
+  const pi = $('#pop-img'), pe = $('#pop-emoji');
+  if (img) {
+    pi.src = img; pi.hidden = false; pe.hidden = true;
+  } else {
+    pi.hidden = true; pe.hidden = false; pe.textContent = emo;
+  }
   pop.hidden = false;
 }
 const closePop = () => { pop.hidden = true; };
@@ -124,11 +129,13 @@ function loop() {
 }
 
 /* ============ ENTRÉE ============ */
-$('#gate-btn').addEventListener('click', () => {
+function entrer() {
   $('#gate').classList.add('gone');
   burst(200);
   setTimeout(() => { $('#gate').style.display = 'none'; }, 750);
-});
+}
+$('#gate-btn').addEventListener('click', entrer);
+$('#gate-ticket').addEventListener('click', entrer);   // le billet aussi est cliquable
 if (/[?&]nogate/.test(location.search)) {
   $('#gate').style.display = 'none';
 }
@@ -618,6 +625,35 @@ if (/[?&]tout/.test(location.search)) {
     cnt.textContent = n === 1 ? '' : `${n} compliments distribués. Continue, j'en ai encore.`;
     const r = btn.getBoundingClientRect();
     burst(10, r.left + r.width / 2, r.top);
+  });
+})();
+
+/* =========================================================
+   EASTER EGG — le nounours planque au bord de l'ecran
+   ========================================================= */
+(function nounours() {
+  const p = $('#peek');
+  let shown = false, trouve = false;
+  function check() {
+    if (shown) return;
+    if (scrollY + innerHeight > document.body.scrollHeight * 0.4) {
+      p.classList.add('show');
+      shown = true;
+      removeEventListener('scroll', check);
+    }
+  }
+  addEventListener('scroll', check, { passive: true });
+  setTimeout(check, 600);
+
+  p.addEventListener('click', () => {
+    burst(80, 70, innerHeight - 100);
+    popup(
+      trouve ? 'Toujours là 🧸' : 'Regarde qui se cachait…',
+      trouve
+        ? 'Il ne bougera pas d\'ici. Il monte la garde, c\'est son truc.'
+        : 'Lui, il te connaît depuis bien plus longtemps que moi. Ça fait deux à veiller sur toi, maintenant. 🤍',
+      '🧸', 'nounours.webp');
+    trouve = true;
   });
 })();
 
