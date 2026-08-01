@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Sacramento&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=1">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
@@ -77,6 +77,10 @@
     <a id="dplus" href="https://www.disneyplus.com/fr-fr/play/877827e9-2ac6-44b0-8444-155a2da3c505" target="_blank" rel="noopener">Ouvrir le film sur Disney+ →</a>
   </p>
 
+  <p class="mode-line">
+    <button class="btn ghost small" id="salle-btn">🎦 Mode salle (pour ton partage d'écran)</button>
+  </p>
+
   <!-- ================= LES FAUTEUILS ================= -->
   <section class="seats">
     <div class="seat">
@@ -119,12 +123,36 @@
   </footer>
 </main>
 
+<!-- ================= MODE SALLE ================= -->
+<div class="theatre" id="theatre" hidden>
+  <div class="th-drape l" aria-hidden="true"></div>
+  <div class="th-drape r" aria-hidden="true"></div>
+
+  <div class="th-stage">
+    <div class="th-frame">
+      <p class="th-hint" id="th-hint">
+        Pose la fenêtre du film dans ce cadre.<br>
+        <small>Puis partage ton écran entier. Ce texte disparaît tout seul.</small>
+      </p>
+    </div>
+    <p class="th-film">Frère des Ours 2 · <span>Cinéma Enzo &amp; Stacy</span></p>
+  </div>
+
+  <div class="th-bottom">
+    <div class="th-seat"><span></span><b>Enzo</b></div>
+    <p class="th-tc" id="th-tc">00:00:00</p>
+    <div class="th-seat"><span></span><b>Stacy</b></div>
+  </div>
+
+  <button class="th-x" id="th-x">Quitter le mode salle ✕</button>
+</div>
+
 <!-- petit mot qui apparaît pendant le film -->
 <div class="note" id="note" hidden>
   <button class="note-x" id="note-x" aria-label="Fermer">✕</button>
   <p class="note-txt" id="note-txt"></p>
 </div>
 
-<script src="script.js?v=1"></script>
+<script src="script.js?v=2"></script>
 </body>
 </html>

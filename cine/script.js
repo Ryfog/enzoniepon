@@ -69,6 +69,7 @@ let boucle = null;
 function tick() {
   const e = ecoule();
   $('#tc').textContent = hms(e);
+  $('#th-tc').textContent = hms(e);
   $('#bar-fill').style.width = Math.min(100, (e / DUREE) * 100).toFixed(2) + '%';
 
   MOTS.forEach(([min, txt], i) => {
@@ -121,6 +122,28 @@ $('#again').addEventListener('click', () => {
   S = { t0: null, pause: null, cumul: 0, vus: [] }; save();
   show('#pane-set');
 });
+
+/* ---------- mode salle : le decor derriere la fenetre du film ---------- */
+const theatre = $('#theatre'), thHint = $('#th-hint');
+let hintTimer = null;
+
+function modeSalle(on) {
+  theatre.hidden = !on;
+  document.body.style.overflow = on ? 'hidden' : '';
+  if (on) {
+    thHint.classList.remove('off');
+    clearTimeout(hintTimer);
+    hintTimer = setTimeout(() => thHint.classList.add('off'), 9000);
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+  } else if (document.fullscreenElement && document.exitFullscreen) {
+    document.exitFullscreen().catch(() => {});
+  }
+}
+$('#salle-btn').addEventListener('click', () => modeSalle(true));
+$('#th-x').addEventListener('click', () => modeSalle(false));
+addEventListener('keydown', e => { if (e.key === 'Escape' && !theatre.hidden) modeSalle(false); });
 
 /* ---------- reprise après un rafraîchissement ---------- */
 function ouvrirDirect() {
