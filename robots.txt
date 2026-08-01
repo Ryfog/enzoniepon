@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /amour/
 Disallow: /nous/
+Disallow: /copine/
 
 Sitemap: https://enzoniepon.fr/sitemap.xml
