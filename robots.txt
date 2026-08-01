@@ -3,5 +3,6 @@ Allow: /
 Disallow: /amour/
 Disallow: /nous/
 Disallow: /copine/
+Disallow: /cine/
 
 Sitemap: https://enzoniepon.fr/sitemap.xml
