@@ -266,30 +266,34 @@ if (/[?&]tout/.test(location.search)) {
    3 · MEMORY
    ========================================================= */
 (function memory() {
+  // [fichier, legende, emoji de la popup]
   const PAIRS = [
-    ['🐶', 'Milo. Le chien le plus gâté de France.'],
-    ['📸', 'Toi, en photo. Mon sujet préféré.'],
-    ['💍', 'Un jour. Pas de pression. Mais un jour.'],
-    ['🚂', 'Tous ces trajets. Ils en valent la peine.'],
-    ['🌻', 'Tu es de meilleure humeur que le soleil.'],
-    ['🍿', 'Nos films en visio, même décalés de 3 secondes.'],
-    ['💬', 'Nos messages à 2h du matin.'],
-    ['🤍', 'Le 16 septembre. Bientôt.']
+    ['memo/milo.jpg',   'Milo. Le chien le plus gâté de France.', '🐶'],
+    ['memo/toi.jpg',    'Toi. Mon sujet préféré, et de très loin.', '📸'],
+    ['memo/bague.jpg',  'Un jour. Pas de pression. Mais un jour.', '💍'],
+    ['memo/trajet.jpg', '873 km, 8h43 de route. Ça les vaut largement.', '🚗'],
+    ['memo/soleil.jpg', 'Tu es de meilleure humeur que le soleil.', '🌼'],
+    ['memo/tigrou.jpg', 'Nos messages à 2h du matin. Tigrou n\'est pas content.', '🐱']
   ];
   const grid = $('#memo'), msg = $('#memo-msg');
   let deck = [];
-  PAIRS.forEach((p, i) => { deck.push({ i, e: p[0] }); deck.push({ i, e: p[0] }); });
+  PAIRS.forEach((p, i) => { deck.push(i); deck.push(i); });
   deck.sort(() => Math.random() - .5);
 
   let up = [], lock = false, hits = 0, moves = 0;
 
-  deck.forEach(c => {
+  deck.forEach(i => {
     const b = document.createElement('button');
     b.className = 'mcard';
-    b.dataset.i = c.i;
+    b.dataset.i = i;
+    const im = document.createElement('img');
+    im.src = PAIRS[i][0];
+    im.alt = '';
+    im.loading = 'lazy';
+    b.appendChild(im);
     b.addEventListener('click', () => {
       if (lock || b.classList.contains('up') || b.classList.contains('ok')) return;
-      b.classList.add('up'); b.textContent = c.e;
+      b.classList.add('up');
       up.push(b);
       if (up.length === 2) {
         moves++;
@@ -301,19 +305,19 @@ if (/[?&]tout/.test(location.search)) {
             a.classList.add('ok'); z.classList.add('ok');
             a.classList.remove('up'); z.classList.remove('up');
             up = []; lock = false; hits++;
-            popup('Une paire !', PAIRS[+a.dataset.i][1], PAIRS[+a.dataset.i][0]);
+            const p = PAIRS[+a.dataset.i];
+            popup('Une paire !', p[1], p[2]);
             if (hits === PAIRS.length) {
               msg.textContent = `Terminé en ${moves} coups 🧠`;
               setTimeout(() => win('memory', 'Memory bouclé !',
                 `${moves} coups. Tu retiens tout, c'est bien ce que je disais.`, '🧠'), 400);
             }
-          }, 420);
+          }, 500);
         } else {
           setTimeout(() => {
-            a.classList.remove('up'); a.textContent = '';
-            z.classList.remove('up'); z.textContent = '';
+            a.classList.remove('up'); z.classList.remove('up');
             up = []; lock = false;
-          }, 750);
+          }, 850);
         }
       }
     });
@@ -326,21 +330,28 @@ if (/[?&]tout/.test(location.search)) {
    ========================================================= */
 (function milo() {
   const grid = $('#milo-grid'), msg = $('#milo-msg');
+  const MILO = ['dog/milo1.jpg', 'dog/milo2.jpg'];
+  const AUTRES = ['dog/a.jpg', 'dog/b.jpg'];
   const ROUNDS = [
-    { deco: '🐱', txt: 'Manche 1 / 3 — facile' },
-    { deco: '🐺', txt: 'Manche 2 / 3 — ça se corse' },
-    { deco: '🐕', txt: 'Manche 3 / 3 — bonne chance 😈' }
+    { deco: [AUTRES[0]], milo: MILO[0], txt: 'Manche 1 / 3 — échauffement' },
+    { deco: [AUTRES[1]], milo: MILO[1], txt: 'Manche 2 / 3 — ça se corse' },
+    { deco: AUTRES,      milo: null,    txt: 'Manche 3 / 3 — bonne chance 😈' }
   ];
   let r = 0;
 
   function build() {
+    const R = ROUNDS[r];
+    const milo = R.milo || pick(MILO);
     grid.innerHTML = '';
-    const N = 36, target = Math.floor(Math.random() * N);
-    msg.textContent = ROUNDS[r].txt;
+    const N = 25, target = Math.floor(Math.random() * N);
+    msg.textContent = R.txt;
     for (let i = 0; i < N; i++) {
       const b = document.createElement('button');
       b.className = 'milo-cell';
-      b.textContent = i === target ? '🐶' : ROUNDS[r].deco;
+      const im = document.createElement('img');
+      im.src = i === target ? milo : R.deco[i % R.deco.length];
+      im.alt = '';
+      b.appendChild(im);
       b.addEventListener('click', () => {
         if (i === target) {
           b.classList.add('found');
@@ -351,7 +362,7 @@ if (/[?&]tout/.test(location.search)) {
               'Trois fois de suite. Officiellement, tu es sa personne préférée. Moi je suis deuxième et ça me va.', '🐶');
           } else {
             msg.textContent = 'Trouvé ! Il repart se cacher…';
-            setTimeout(build, 700);
+            setTimeout(build, 800);
           }
         } else {
           b.classList.add('bad');
