@@ -20,6 +20,13 @@ const KEY = 'jdc2026';
 let done = {};
 try { done = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { done = {}; }
 
+// ?reset : efface la progression et repart exactement comme un premier visiteur
+if (/[?&]reset/.test(location.search)) {
+  done = {};
+  try { localStorage.removeItem(KEY); } catch (e) {}
+  history.replaceState(null, '', location.pathname);
+}
+
 function saveState() {
   try { localStorage.setItem(KEY, JSON.stringify(done)); } catch (e) {}
 }
