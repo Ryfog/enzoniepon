@@ -256,14 +256,15 @@ if (/[?&]nogate/.test(location.search)) $('#gate').style.display = 'none';
    ========================================================= */
 (function journee() {
   const L = [
-    ['07h30', 'Je te laisserais dormir et je ferais le café en silence.'],
-    ['09h00', 'On sortirait promener Milo, même s\'il fait un temps pourri.'],
-    ['11h00', 'Je te prendrais en photo sans te prévenir. Encore une fois.'],
+    ['07h30', 'Je te laisserais dormir, et je t\'apporterais un Capri-Sun au lit. Pas un café — je sais.'],
+    ['09h00', 'Câlin avec Milo. Tous les trois dans le lit, et personne ne se lève.'],
+    ['11h00', 'Pâte à modeler. Tu ferais un truc magnifique, moi une horreur, et on rigolerait.'],
     ['13h00', 'On mangerait trop, et on ne culpabiliserait pas une seconde.'],
     ['15h00', 'Sieste. Toi sur moi. Ce n\'est pas négociable.'],
-    ['17h00', 'On irait voir l\'océan, juste pour le regarder sans rien dire.'],
+    ['17h00', 'Balade sur la plage, une glace à la main, sans regarder l\'heure.'],
     ['20h00', 'Je cuisinerais. Tu goûterais. Tu dirais que c\'est bon même si c\'est faux.'],
-    ['23h00', 'On resterait éveillés beaucoup trop tard à parler de rien du tout.']
+    ['21h00', 'On sortirait Milo tous les deux, dans le froid, en se tenant la main.'],
+    ['23h00', 'On resterait éveillés beaucoup trop tard à parler de rien du tout. Et je te dirais bonne nuit. Vraiment, cette fois.']
   ];
   const box = $('#jour');
   L.forEach(([h, t]) => {
