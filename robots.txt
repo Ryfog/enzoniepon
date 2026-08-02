@@ -4,5 +4,6 @@ Disallow: /amour/
 Disallow: /nous/
 Disallow: /copine/
 Disallow: /cine/
+Disallow: /duo/
 
 Sitemap: https://enzoniepon.fr/sitemap.xml

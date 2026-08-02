@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Duo — le jeu de nous deux 💜</title>
+  <meta name="description" content="Un jeu à deux, chacun sur son écran, en même temps.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#1a1030">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💜</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<!-- ==================== LOBBY ==================== -->
+<section class="screen on" id="s-lobby">
+  <div class="glass lobby">
+    <p class="kick">Chacun son écran · en même temps</p>
+    <h1 class="big">DUO</h1>
+    <p class="tag">Le jeu de nous deux</p>
+
+    <label class="lab" for="pseudo">Ton prénom</label>
+    <input class="in" id="pseudo" maxlength="14" placeholder="Enzo" autocomplete="off">
+
+    <div class="two">
+      <button class="btn" id="b-create">Créer un salon</button>
+      <button class="btn ghost" id="b-joinmode">Rejoindre</button>
+    </div>
+
+    <div class="join" id="joinbox" hidden>
+      <label class="lab" for="code">Code du salon</label>
+      <input class="in code" id="code" maxlength="4" placeholder="ABCD" autocomplete="off">
+      <button class="btn" id="b-join">Entrer</button>
+    </div>
+
+    <p class="err" id="lobby-err"></p>
+    <p class="mini">Un seul de vous deux crée le salon. L'autre entre le code.</p>
+  </div>
+</section>
+
+<!-- ==================== SALLE D'ATTENTE ==================== -->
+<section class="screen" id="s-wait">
+  <div class="glass wait">
+    <p class="kick">Salon ouvert</p>
+    <div class="code-big" id="code-big">····</div>
+    <button class="btn ghost small" id="b-copy">Copier le code</button>
+    <p class="tag" id="wait-txt">En attente de l'autre…</p>
+    <div class="dots"><i></i><i></i><i></i></div>
+    <div class="players">
+      <div class="pl" id="pl-h"><span class="av">🫶</span><b>—</b></div>
+      <div class="vs">×</div>
+      <div class="pl off" id="pl-g"><span class="av">💭</span><b>—</b></div>
+    </div>
+    <button class="btn" id="b-start" hidden>Commencer la partie</button>
+  </div>
+</section>
+
+<!-- ==================== JEU ==================== -->
+<section class="screen" id="s-game">
+
+  <header class="hud">
+    <div class="sc">
+      <span class="sc-n" id="n1">—</span>
+      <b id="p1">0</b>
+    </div>
+    <div class="rd">
+      <span id="r-lab">Manche 1 / 10</span>
+      <span class="r-type" id="r-type">—</span>
+    </div>
+    <div class="sc r">
+      <b id="p2">0</b>
+      <span class="sc-n" id="n2">—</span>
+    </div>
+  </header>
+
+  <div class="board">
+
+    <!-- QUI DE NOUS DEUX -->
+    <div class="mode" id="m-qui" hidden>
+      <p class="q" id="qui-q">…</p>
+      <div class="two big-two">
+        <button class="pick" id="qui-a"><span class="av">💙</span><b id="qui-an">—</b></button>
+        <button class="pick" id="qui-b"><span class="av">💜</span><b id="qui-bn">—</b></button>
+      </div>
+      <p class="wait-l" id="qui-w"></p>
+    </div>
+
+    <!-- SYNCHRO -->
+    <div class="mode" id="m-syn" hidden>
+      <p class="q" id="syn-q">…</p>
+      <input class="in" id="syn-in" maxlength="60" placeholder="ta réponse…" autocomplete="off">
+      <button class="btn" id="syn-ok">Valider</button>
+      <p class="wait-l" id="syn-w"></p>
+    </div>
+
+    <!-- RÉFLEXE -->
+    <div class="mode" id="m-ref" hidden>
+      <p class="q">Le premier qui clique sur le cœur marque le point.</p>
+      <button class="target" id="ref-t"><span id="ref-face">⏳</span></button>
+      <p class="wait-l" id="ref-w">Attends le signal… ne clique pas trop tôt.</p>
+    </div>
+
+    <!-- DESSIN -->
+    <div class="mode" id="m-des" hidden>
+      <p class="q" id="des-q">…</p>
+      <canvas id="pad" width="800" height="520"></canvas>
+      <div class="des-bar">
+        <div class="tools" id="des-tools" hidden>
+          <button class="tool" data-c="#ffffff" style="--c:#fff"></button>
+          <button class="tool" data-c="#ff7ab8" style="--c:#ff7ab8"></button>
+          <button class="tool" data-c="#7ae0ff" style="--c:#7ae0ff"></button>
+          <button class="tool" data-c="#ffd76e" style="--c:#ffd76e"></button>
+          <button class="btn ghost small" id="des-clear">Effacer</button>
+        </div>
+        <div class="guessbox" id="des-guessbox" hidden>
+          <input class="in" id="des-in" maxlength="30" placeholder="c'est quoi ?" autocomplete="off">
+        </div>
+      </div>
+      <p class="wait-l" id="des-w"></p>
+      <p class="guesses" id="des-live"></p>
+    </div>
+
+    <!-- RÉVÉLATION -->
+    <div class="mode reveal" id="m-rev" hidden>
+      <div class="rev-e" id="rev-e">✨</div>
+      <h2 class="rev-t" id="rev-t"></h2>
+      <div class="rev-two" id="rev-two"></div>
+      <p class="rev-p" id="rev-p"></p>
+      <button class="btn" id="rev-next">Manche suivante →</button>
+      <p class="wait-l" id="rev-w"></p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ==================== FIN ==================== -->
+<section class="screen" id="s-end">
+  <div class="glass end">
+    <div class="end-e" id="end-e">🏆</div>
+    <h2 class="end-t" id="end-t">—</h2>
+    <div class="end-sc" id="end-sc"></div>
+    <p class="end-p" id="end-p"></p>
+    <button class="btn" id="b-again">Rejouer</button>
+  </div>
+</section>
+
+<canvas id="conf" aria-hidden="true"></canvas>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="game.js?v=1"></script>
+</body>
+</html>
