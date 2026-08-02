@@ -84,6 +84,7 @@ let minuteur = null, chrono = null;
 
 let longueur = 16;
 const neuf = () => ({
+  demarree: false,
   ph: 'round', i: 0, total: SUITE.length, type: 'qui',
   q: '', ans: { h: null, g: null }, sc: { h: 0, g: 0 },
   nm: { h: '', g: '' }, rev: null, drawer: 'h', fin: 0
@@ -94,22 +95,71 @@ function envoie(m) { if (conn && conn.open) conn.send(m); }
 function diffuse() { envoie({ t: 'S', st }); rendu(); }
 
 function brancher(c) {
+  if (conn && conn !== c) {
+    conn.remplacee = true;                 // fermeture volontaire : pas d'alerte
+    try { conn.close(); } catch (e) {}
+  }
   conn = c;
   c.on('data', m => recois(m));
-  c.on('close', () => toast('Connexion perdue 💔'));
-  c.on('error', () => toast('Souci de connexion'));
+  c.on('close', () => {
+    if (c.remplacee) return;
+    toast('Connexion perdue — reconnexion…');
+    relance();
+  });
+  c.on('error', () => { if (!c.remplacee) relance(); });
+}
+
+/* ---------- reconnexion ----------
+   Le mobile coupe la liaison dès que l'écran se verrouille ou que le
+   réseau change. On retente tout seul, et l'hôte renvoie l'état complet
+   pour que la partie reprenne exactement où elle en était. */
+let codeSalon = '', boucleRetour = null, essais = 0, garde = null;
+
+function relance() {
+  if (hote || !codeSalon || boucleRetour) return;
+  essais = 0;
+  boucleRetour = setInterval(() => {
+    if (conn && conn.open) {
+      clearInterval(boucleRetour); boucleRetour = null;
+      toast('Reconnecté 💜'); return;
+    }
+    if (++essais > 25) {
+      clearInterval(boucleRetour); boucleRetour = null;
+      toast('Reconnexion impossible. Recharge la page.'); return;
+    }
+    try {
+      if (peer.disconnected && !peer.destroyed) peer.reconnect();
+      const c = peer.connect(PREFIXE + codeSalon, { reliable: true });
+      brancher(c);
+      c.on('open', () => envoie({ t: 'HELLO', nom: monNom() }));
+    } catch (e) {}
+  }, 2500);
+}
+
+/* on garde la liaison éveillée, sinon elle s'endort toute seule */
+function surveille() {
+  clearInterval(garde);
+  garde = setInterval(() => {
+    if (conn && conn.open) envoie({ t: 'KA' });
+    else relance();
+  }, 10000);
 }
 
 function recois(m) {
   if (m.t === 'S') { st = m.st; rendu(); }
   else if (m.t === 'A' && hote) action(autre, m.a);
+  else if (m.t === 'KA') { /* juste un battement de cœur */ }
   else if (m.t === 'HELLO') {
     st.nm[autre] = m.nom || 'L\'autre';
-    ecran('s-wait'); majAttente();
     envoie({ t: 'WELCOME', nom: st.nm[moi] });
+    // si la partie tourne déjà, c'est une reconnexion : on ne repart pas au salon
+    if (!st.demarree) { ecran('s-wait'); majAttente(); }
     diffuse();
   }
-  else if (m.t === 'WELCOME') { st.nm[autre] = m.nom || 'L\'autre'; ecran('s-wait'); majAttente(); }
+  else if (m.t === 'WELCOME') {
+    st.nm[autre] = m.nom || 'L\'autre';
+    if (!st.demarree) { ecran('s-wait'); majAttente(); }
+  }
   else if (m.t === 'GO') topDepart();
   else if (m.t === 'BF') poulsRecu(m);
   else if (m.t === 'D') dessineDistant(m);
@@ -137,7 +187,7 @@ $('#b-joinmode').addEventListener('click', () => {
 
 $('#b-create').addEventListener('click', () => {
   const code = codeAlea();
-  hote = true; moi = 'h'; autre = 'g';
+  hote = true; moi = 'h'; autre = 'g'; codeSalon = code;
   st = neuf(); st.nm.h = monNom();
   erreur('Ouverture du salon…');
   peer = new Peer(PREFIXE + code, { debug: 0 });
@@ -147,9 +197,8 @@ $('#b-create').addEventListener('click', () => {
     ecran('s-wait'); majAttente();
   });
   peer.on('connection', c => {
-    if (conn) { c.close(); return; }          // salon déjà plein
-    brancher(c);
-    c.on('open', () => { ping(); });
+    brancher(c);                              // accepte aussi une reconnexion
+    c.on('open', () => { ping(); surveille(); if (st.demarree) diffuse(); });
   });
   peer.on('error', e => {
     if (e.type === 'unavailable-id') { peer.destroy(); $('#b-create').click(); }
@@ -160,14 +209,14 @@ $('#b-create').addEventListener('click', () => {
 $('#b-join').addEventListener('click', () => {
   const code = $('#code').value.trim().toUpperCase();
   if (code.length !== 4) { erreur('Il faut les 4 lettres du code.'); return; }
-  hote = false; moi = 'g'; autre = 'h';
+  hote = false; moi = 'g'; autre = 'h'; codeSalon = code;
   st = neuf(); st.nm.g = monNom();
   erreur('Connexion…');
   peer = new Peer({ debug: 0 });
   peer.on('open', () => {
     const c = peer.connect(PREFIXE + code, { reliable: true });
     brancher(c);
-    c.on('open', () => { erreur(''); envoie({ t: 'HELLO', nom: monNom() }); ping(); });
+    c.on('open', () => { erreur(''); envoie({ t: 'HELLO', nom: monNom() }); ping(); surveille(); });
     setTimeout(() => { if (!conn || !conn.open) erreur('Salon introuvable. Vérifie le code.'); }, 6000);
   });
   peer.on('error', () => erreur('Salon introuvable. Vérifie le code.'));
@@ -214,6 +263,7 @@ function manche(i) {
   if (!sacSyn.length) sacSyn = melange(SYNCHRO);
   if (!sacMots.length) sacMots = melange(MOTS);
 
+  st.demarree = true;
   st.i = i;
   st.type = SUITE[i];
   st.ph = 'round';
@@ -440,10 +490,12 @@ function rendu() {
   if (st.ph === 'end') { finPartie(); return; }
   ecran('s-game');
 
-  $('#n1').textContent = st.nm[moi] || 'Moi';
-  $('#n2').textContent = st.nm[autre] || 'L\'autre';
-  $('#p1').textContent = st.sc[moi];
-  $('#p2').textContent = st.sc[autre];
+  /* couleurs et cotes ABSOLUS : les deux ecrans sont identiques,
+     sinon impossible de se parler au telephone pendant la partie */
+  $('#n1').textContent = (st.nm.h || 'Hôte') + (moi === 'h' ? ' (toi)' : '');
+  $('#n2').textContent = (st.nm.g || 'Invité') + (moi === 'g' ? ' (toi)' : '');
+  $('#p1').textContent = st.sc.h;
+  $('#p2').textContent = st.sc.g;
   $('#r-lab').textContent = `Manche ${st.i + 1} / ${st.total}`;
   $('#r-type').textContent = NOMS[st.type] || '';
 
@@ -456,7 +508,7 @@ function rendu() {
     $('#rev-p').textContent = st.rev.p;
     const box = $('#rev-two'); box.innerHTML = '';
     if (st.rev.deux) {
-      [moi, autre].forEach(k => {
+      ['h', 'g'].forEach(k => {
         const v = st.type === 'qui' ? (st.nm[st.ans[k]] || '?') : (st.ans[k] || '—');
         const d = document.createElement('div');
         d.className = 'rev-c';
@@ -519,11 +571,11 @@ function rendu() {
 
   else if (st.type === 'bra') {
     on('m-bra');
-    $('#bra-nl').textContent = st.nm[moi];
-    $('#bra-nr').textContent = st.nm[autre];
+    $('#bra-nl').textContent = st.nm.h;
+    $('#bra-nr').textContent = st.nm.g;
     $('#bra-b').disabled = false;
     if (manchePrec !== st.i) { manchePrec = st.i; mesCoups = 0; finLocale = Date.now() + 12000; }
-    corde(st.bf ? st.bf[moi] : 0, st.bf ? st.bf[autre] : 0);
+    corde(st.bf ? st.bf.h : 0, st.bf ? st.bf.g : 0);
     lanceChronoBra();
   }
 
@@ -542,7 +594,7 @@ function rendu() {
       }
     }
     [...g.children].forEach((b, k) => {
-      b.className = P.b[k] ? (P.b[k] === moi ? 'h' : 'g') : '';
+      b.className = P.b[k] || '';        // 'h' = cyan, 'g' = rose, pareil des deux cotes
       if (P.win && P.win.includes(k)) b.classList.add('win');
     });
     $('#p4-w').textContent = aMoi ? 'Clique dans la colonne de ton choix.' : 'Patience…';
@@ -550,7 +602,7 @@ function rendu() {
 
   else if (st.type === 'pfc') {
     on('m-pfc');
-    $('#pfc-sc').textContent = `${st.pfc[moi]} — ${st.pfc[autre]}`;
+    $('#pfc-sc').textContent = `${st.pfc.h} — ${st.pfc.g}`;
     const fait = !!st.ans[moi];
     $$('.pfc').forEach(b => { b.disabled = fait; b.classList.toggle('on', st.ans[moi] === b.dataset.v); });
     $('#pfc-w').textContent = st.pfc.res
@@ -629,10 +681,9 @@ $('#bra-b').addEventListener('pointerdown', e => {
 
 /* le pouls du bras de fer : l'hôte envoie les deux compteurs 8 fois par seconde */
 function poulsRecu(m) {
-  if (!st || st.type !== 'bra') return;
-  if (hote) return;
+  if (!st || st.type !== 'bra' || hote) return;
   st.bf = { h: m.h, g: m.g };
-  corde(st.bf[moi], st.bf[autre]);
+  corde(st.bf.h, st.bf.g);
 }
 
 /* --- pierre feuille ciseaux --- */
@@ -740,16 +791,16 @@ $('#des-in').addEventListener('keydown', e => {
    ========================================================= */
 function finPartie() {
   ecran('s-end');
-  const a = st.sc[moi], b = st.sc[autre];
+  const a = st.sc.h, b = st.sc.g;
   $('#end-sc').innerHTML =
-    `<div><small>${esc(st.nm[moi])}</small><b>${a}</b></div>` +
-    `<div><small>${esc(st.nm[autre])}</small><b>${b}</b></div>`;
+    `<div><small>${esc(st.nm.h)}</small><b>${a}</b></div>` +
+    `<div><small>${esc(st.nm.g)}</small><b>${b}</b></div>`;
   if (a === b) {
     $('#end-e').textContent = '🤝';
     $('#end-t').textContent = 'Égalité parfaite';
     $('#end-p').textContent = 'Franchement, c\'est le meilleur résultat possible pour un couple.';
   } else {
-    const gagne = a > b ? st.nm[moi] : st.nm[autre];
+    const gagne = a > b ? st.nm.h : st.nm.g;
     $('#end-e').textContent = '🏆';
     $('#end-t').textContent = `${gagne} gagne cette partie`;
     $('#end-p').textContent = 'L\'autre prendra sa revanche. Il y a toujours une revanche.';
