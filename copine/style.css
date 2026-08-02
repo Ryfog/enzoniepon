@@ -100,27 +100,16 @@ body.nuit .btn.ghost{color:#ffb9c9;border-color:#ffb9c9}
   transition:opacity .8s,visibility .8s;text-align:center;
 }
 .gate.gone{opacity:0;visibility:hidden}
-.gate-in{max-width:440px;animation:up .9s cubic-bezier(.2,.9,.3,1.4) both}
+.gate-in{width:min(540px,100%);animation:up .9s cubic-bezier(.2,.9,.3,1.4) both}
 @keyframes up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
 
-.sun-btn{
-  position:relative;border:none;background:none;cursor:pointer;
-  width:120px;height:120px;margin:0 auto 6px;display:block;
+.gate-billet{
+  display:block;width:100%;height:auto;cursor:pointer;margin-bottom:26px;
+  filter:drop-shadow(0 16px 30px rgba(170,100,80,.3));
+  transition:transform .3s cubic-bezier(.2,.9,.3,1.4);
 }
-.sun-core{font-size:4.6rem;line-height:1;display:block;animation:pulse 3.4s ease-in-out infinite}
-@keyframes pulse{0%,100%{transform:scale(1) rotate(-4deg)}50%{transform:scale(1.08) rotate(4deg)}}
-.sun-ray{
-  position:absolute;inset:-16px;border-radius:50%;
-  box-shadow:0 0 60px 20px rgba(255,190,110,.55);
-  animation:glow 3.4s ease-in-out infinite;
-}
-@keyframes glow{0%,100%{opacity:.5}50%{opacity:1}}
-
-.gate-t{
-  font-family:'Fraunces',serif;font-weight:700;
-  font-size:clamp(2.2rem,10vw,3rem);margin:6px 0 12px;line-height:1.05;
-}
-.gate-s{color:#8a6a5c;margin:0 0 26px}
+.gate-billet:hover{transform:rotate(-1.4deg) scale(1.025)}
+.gate-billet:active{transform:scale(.99)}
 
 /* =========================================================
    STRUCTURE

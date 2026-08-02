@@ -124,7 +124,7 @@ function entrer() {
   setTimeout(() => { $('#gate').style.display = 'none'; }, 850);
 }
 $('#gate-btn').addEventListener('click', entrer);
-$('#sun-btn').addEventListener('click', entrer);
+$('#gate-billet').addEventListener('click', entrer);   // le billet aussi est cliquable
 if (/[?&]nogate/.test(location.search)) $('#gate').style.display = 'none';
 
 /* =========================================================
