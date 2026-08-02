@@ -1,425 +1,482 @@
 /* =========================================================
-   1er août — Journée de la copine · logique des jeux
+   Ta journée — du réveil jusqu'aux étoiles
    ========================================================= */
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-const rnd = (a, b) => a + Math.random() * (b - a);
+const rnd  = (a, b) => a + Math.random() * (b - a);
 const pick = a => a[Math.floor(Math.random() * a.length)];
 
-/* ============ ÉTAT / TAMPONS ============ */
-const GAMES = [
-  { id: 'scratch', emo: '🎫' },
-  { id: 'hearts',  emo: '💗' },
-  { id: 'memory',  emo: '🧠' },
-  { id: 'milo',    emo: '🐶' },
-  { id: 'wheel',   emo: '🎡' },
-  { id: 'quiz',    emo: '🧩' },
-  { id: 'bouquet', emo: '💐' }
-];
-const KEY = 'jdc2026';
+/* ============ ÉTAPES ============ */
+const ETAPES = ['reveil', 'dej', 'puzzle', 'devine', 'morpion', 'code', 'ciel'];
+const KEY = 'tajournee1';
+
 let done = {};
 try { done = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { done = {}; }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(done)); } catch (e) {} };
 
-// ?reset : efface la progression et repart exactement comme un premier visiteur
 if (/[?&]reset/.test(location.search)) {
   done = {};
   try { localStorage.removeItem(KEY); } catch (e) {}
   history.replaceState(null, '', location.pathname);
 }
+if (/[?&]tout/.test(location.search)) ETAPES.forEach(k => { done[k] = true; });
 
-function saveState() {
-  try { localStorage.setItem(KEY, JSON.stringify(done)); } catch (e) {}
-}
+/* ============ CIEL + SOLEIL ============ */
+const sky = $('#sky'), arcSun = $('#arc-sun');
 
-const stampsEl = $('#stamps');
-GAMES.forEach(g => {
-  const d = document.createElement('div');
-  d.className = 'stamp';
-  d.dataset.id = g.id;
-  d.textContent = g.emo;
-  d.title = g.id;
-  stampsEl.appendChild(d);
-});
+function majProgression() {
+  const n = ETAPES.filter(k => done[k]).length;
 
-function refreshStamps() {
-  let n = 0;
-  GAMES.forEach(g => {
-    const el = stampsEl.querySelector(`[data-id="${g.id}"]`);
-    if (done[g.id]) { el.classList.add('on'); n++; }
-  });
-  $('#stamps-count').textContent = `${n} / ${GAMES.length}`;
-  const left = GAMES.length - n;
-  if (left === 0) {
-    $('#final').classList.add('open');
-  } else {
-    $('#lock-left').textContent =
-      left === 1 ? 'Il ne t\'en manque plus qu\'un. Courage 🤏' : `Il t'en manque ${left}.`;
-  }
+  sky.dataset.s = n;
+  document.body.classList.toggle('nuit', n >= 7);
+  $('#starfield').classList.toggle('on', n >= 6);
+
+  // le soleil se place sur l'arc : demi-cercle de gauche à droite
+  const a = Math.PI - (n / ETAPES.length) * Math.PI;
+  arcSun.style.left = (50 + Math.cos(a) * 45.3) + '%';
+  arcSun.style.top  = (96.7 - Math.sin(a) * 90.6) + '%';
+  arcSun.textContent = n >= 7 ? '🌙' : '🌞';
+
+  $('#arc-n').textContent = `${n} / ${ETAPES.length}`;
+  if (n === ETAPES.length) $('#fin').classList.add('open');
+  else $('#lock-l').textContent = n === 6 ? 'Encore une seule étape.' : `Encore ${ETAPES.length - n} étapes.`;
   return n;
 }
 
-function win(id, title, text, emo = '🎉') {
-  const first = !done[id];
-  done[id] = true;
-  saveState();
-  const n = refreshStamps();
-  burst(90);
-  if (first) popup(title, text, emo);
-  if (n === GAMES.length && first) {
-    setTimeout(() => {
-      burst(240);
-      $('#final').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 900);
+function gagne(id, titre, texte, emo = '🌞', img = null) {
+  const neuf = !done[id];
+  done[id] = true; save();
+  const n = majProgression();
+  boum(90);
+  if (neuf) fenetre(titre, texte, emo, img);
+  if (n === ETAPES.length && neuf) {
+    setTimeout(() => { boum(240); $('#fin').scrollIntoView({ behavior: 'smooth' }); }, 950);
   }
 }
 
-/* ============ POPUP ============ */
+/* ============ FENÊTRE ============ */
 const pop = $('#pop');
-function popup(title, text, emo = '🎉', img = null) {
-  $('#pop-title').textContent = title;
-  $('#pop-text').textContent = text;
-  const pi = $('#pop-img'), pe = $('#pop-emoji');
-  if (img) {
-    pi.src = img; pi.hidden = false; pe.hidden = true;
-  } else {
-    pi.hidden = true; pe.hidden = false; pe.textContent = emo;
-  }
+function fenetre(titre, texte, emo = '🌞', img = null) {
+  $('#pop-t').textContent = titre;
+  $('#pop-p').textContent = texte;
+  const pi = $('#pop-img'), pe = $('#pop-e');
+  if (img) { pi.src = img; pi.hidden = false; pe.hidden = true; }
+  else { pi.hidden = true; pe.hidden = false; pe.textContent = emo; }
   pop.hidden = false;
 }
-const closePop = () => { pop.hidden = true; };
-$('#pop-x').addEventListener('click', closePop);
-$('#pop-ok').addEventListener('click', closePop);
-pop.addEventListener('click', e => { if (e.target === pop) closePop(); });
+const ferme = () => { pop.hidden = true; };
+$('#pop-x').addEventListener('click', ferme);
+$('#pop-ok').addEventListener('click', ferme);
+pop.addEventListener('click', e => { if (e.target === pop) ferme(); });
 
 /* ============ CONFETTIS ============ */
-const cv = $('#confetti'), cx = cv.getContext('2d');
-let parts = [];
-function sizeCv() { cv.width = innerWidth; cv.height = innerHeight; }
-sizeCv();
-addEventListener('resize', sizeCv);
+const cv = $('#conf'), cx = cv.getContext('2d');
+let parts = [], tourne = false;
+const taille = () => { cv.width = innerWidth; cv.height = innerHeight; };
+taille(); addEventListener('resize', taille);
+const COUL = ['#e8617f', '#f2a33c', '#5fb89a', '#8ab6f0', '#c9a8ff', '#fff', '#ffd98a'];
 
-const COLS = ['#ff7a6b', '#ffc75a', '#5fd3b2', '#7ab8ff', '#c9a8ff', '#ff9ec4', '#fff'];
-function burst(n = 120, ox = null, oy = null) {
+function boum(n = 120, ox = null, oy = null) {
   const x = ox === null ? innerWidth / 2 : ox;
-  const y = oy === null ? innerHeight * 0.35 : oy;
-  for (let i = 0; i < n; i++) {
-    parts.push({
-      x, y,
-      vx: rnd(-9, 9), vy: rnd(-15, 2),
-      w: rnd(6, 12), h: rnd(8, 15),
-      c: pick(COLS), a: rnd(0, 6.3), va: rnd(-.25, .25), l: 1
-    });
-  }
-  if (parts.length) loop();
+  const y = oy === null ? innerHeight * .35 : oy;
+  for (let i = 0; i < n; i++) parts.push({
+    x, y, vx: rnd(-9, 9), vy: rnd(-15, 2),
+    w: rnd(6, 12), h: rnd(8, 15), c: pick(COUL),
+    a: rnd(0, 6.3), va: rnd(-.25, .25), l: 1
+  });
+  if (!tourne && parts.length) anime();
 }
-let running = false;
-function loop() {
-  if (running) return;
-  running = true;
-  (function step() {
+function anime() {
+  tourne = true;
+  (function pas() {
     cx.clearRect(0, 0, cv.width, cv.height);
     parts = parts.filter(p => p.l > 0 && p.y < cv.height + 60);
     parts.forEach(p => {
-      p.vy += 0.42; p.vx *= 0.995;
-      p.x += p.vx; p.y += p.vy; p.a += p.va;
-      p.l -= 0.004;
-      cx.save();
-      cx.translate(p.x, p.y); cx.rotate(p.a);
+      p.vy += .42; p.vx *= .995; p.x += p.vx; p.y += p.vy; p.a += p.va; p.l -= .004;
+      cx.save(); cx.translate(p.x, p.y); cx.rotate(p.a);
       cx.globalAlpha = Math.max(0, Math.min(1, p.l));
-      cx.fillStyle = p.c;
-      cx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-      cx.restore();
+      cx.fillStyle = p.c; cx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); cx.restore();
     });
-    if (parts.length) requestAnimationFrame(step);
-    else { cx.clearRect(0, 0, cv.width, cv.height); running = false; }
+    if (parts.length) requestAnimationFrame(pas);
+    else { cx.clearRect(0, 0, cv.width, cv.height); tourne = false; }
   })();
 }
+
+/* ============ ÉTOILES ============ */
+(function etoiles() {
+  const f = $('#starfield'), frag = document.createDocumentFragment();
+  for (let i = 0; i < 90; i++) {
+    const s = document.createElement('span');
+    s.style.left = rnd(0, 100) + '%';
+    s.style.top = rnd(0, 100) + '%';
+    s.style.animationDelay = rnd(0, 3.4) + 's';
+    const t = rnd(1, 2.6);
+    s.style.width = s.style.height = t + 'px';
+    frag.appendChild(s);
+  }
+  f.appendChild(frag);
+})();
 
 /* ============ ENTRÉE ============ */
 function entrer() {
   $('#gate').classList.add('gone');
-  burst(200);
-  setTimeout(() => { $('#gate').style.display = 'none'; }, 750);
+  boum(180);
+  setTimeout(() => { $('#gate').style.display = 'none'; }, 850);
 }
 $('#gate-btn').addEventListener('click', entrer);
-$('#gate-ticket').addEventListener('click', entrer);   // le billet aussi est cliquable
-if (/[?&]nogate/.test(location.search)) {
-  $('#gate').style.display = 'none';
-}
-// apercu : ?tout remplit les 7 tampons (pour verifier le mot de la fin)
-if (/[?&]tout/.test(location.search)) {
-  GAMES.forEach(g => { done[g.id] = true; });
-}
+$('#sun-btn').addEventListener('click', entrer);
+if (/[?&]nogate/.test(location.search)) $('#gate').style.display = 'none';
 
 /* =========================================================
-   1 · TICKET À GRATTER
+   1 · LE RÉVEIL
    ========================================================= */
-(function scratch() {
-  const c = $('#scratch'), g = c.getContext('2d');
-  const W = c.width, H = c.height;
-
-  const grad = g.createLinearGradient(0, 0, W, H);
-  grad.addColorStop(0, '#c9b8a8');
-  grad.addColorStop(.5, '#e2d3c3');
-  grad.addColorStop(1, '#bfae9d');
-  g.fillStyle = grad; g.fillRect(0, 0, W, H);
-  g.fillStyle = 'rgba(255,255,255,.35)';
-  for (let i = 0; i < 260; i++) g.fillRect(rnd(0, W), rnd(0, H), rnd(1, 3), rnd(1, 3));
-  g.fillStyle = 'rgba(90,70,60,.5)';
-  g.font = '600 30px Quicksand, sans-serif';
-  g.textAlign = 'center';
-  g.fillText('gratte-moi ✨', W / 2, H / 2 + 10);
-
-  g.globalCompositeOperation = 'destination-out';
-  let drawing = false, over = false;
-
-  const pos = e => {
-    const r = c.getBoundingClientRect();
-    const t = e.touches ? e.touches[0] : e;
-    return { x: (t.clientX - r.left) * (W / r.width), y: (t.clientY - r.top) * (H / r.height) };
-  };
-  const dot = p => { g.beginPath(); g.arc(p.x, p.y, 30, 0, 7); g.fill(); };
-
-  function check() {
-    if (over) return;
-    const d = g.getImageData(0, 0, W, H).data;
-    let clear = 0;
-    for (let i = 3; i < d.length; i += 4 * 40) if (d[i] < 40) clear++;
-    if (clear / (d.length / (4 * 40)) > 0.52) {
-      over = true;
-      c.classList.add('done');
-      $('#scratch-hint').textContent = 'Et c\'est vrai, en plus. 💛';
-      win('scratch', 'Premier tampon !', 'Tu as trouvé le message caché. Il y en a six autres à débloquer.', '🎫');
+(function reveil() {
+  const b = $('#snooze'), msg = $('#reveil-msg'), boite = $('#clock');
+  const MOTS = [
+    'Non. Cinq minutes de plus, tu les mérites largement.',
+    'Toujours pas. Reste couchée, c\'est ta journée après tout.',
+    'Bon. D\'accord. Mais tu te lèves parce que tu en as envie, pas parce qu\'il faut.'
+  ];
+  let n = 0;
+  b.addEventListener('click', () => {
+    if (n < MOTS.length) {
+      msg.textContent = MOTS[n];
+      // le bouton s'échappe
+      b.style.transform = `translate(${rnd(-70, 70)}px, ${rnd(-14, 14)}px) rotate(${rnd(-9, 9)}deg)`;
+      n++;
+      return;
     }
-  }
-
-  const start = e => { drawing = true; dot(pos(e)); };
-  const move = e => { if (!drawing) return; e.preventDefault(); dot(pos(e)); };
-  const end = () => { if (drawing) { drawing = false; check(); } };
-
-  c.addEventListener('mousedown', start);
-  c.addEventListener('mousemove', move);
-  addEventListener('mouseup', end);
-  c.addEventListener('touchstart', start, { passive: true });
-  c.addEventListener('touchmove', move, { passive: false });
-  c.addEventListener('touchend', end);
-})();
-
-/* =========================================================
-   2 · ATTRAPE LES CŒURS
-   ========================================================= */
-(function hearts() {
-  const arena = $('#arena'), btn = $('#h-start');
-  const sEl = $('#h-score'), tEl = $('#h-time'), msg = $('#h-msg');
-  const GOAL = 15, DUR = 20;
-  let items = [], score = 0, t = DUR, raf = null, spawner = null, timer = null, on = false;
-
-  function spawn() {
-    const bomb = Math.random() < 0.22;
-    const el = document.createElement('div');
-    el.className = 'falling';
-    el.textContent = bomb ? '💣' : pick(['❤️', '💗', '💖', '💘', '🩷']);
-    const x = rnd(4, 86);
-    el.style.left = x + '%';
-    el.style.top = '-40px';
-    arena.appendChild(el);
-    const o = { el, y: -40, v: rnd(1.6, 3.4), bomb };
-    el.addEventListener('pointerdown', ev => {
-      ev.preventDefault();
-      if (!on || o.hit) return;
-      o.hit = true;
-      el.classList.add('pop');
-      if (bomb) { score = Math.max(0, score - 3); arena.animate(
-        [{ transform: 'translateX(-6px)' }, { transform: 'translateX(6px)' }, { transform: 'none' }],
-        { duration: 220 }); }
-      else score++;
-      sEl.textContent = score;
-      setTimeout(() => el.remove(), 300);
-    });
-    items.push(o);
-  }
-
-  function frame() {
-    const h = arena.clientHeight;
-    items = items.filter(o => {
-      if (!o.el.isConnected) return false;
-      o.y += o.v;
-      o.el.style.transform = `translateY(${o.y + 40}px)`;
-      if (o.y > h + 20) { o.el.remove(); return false; }
-      return true;
-    });
-    if (on) raf = requestAnimationFrame(frame);
-  }
-
-  function stop() {
-    on = false;
-    clearInterval(spawner); clearInterval(timer); cancelAnimationFrame(raf);
-    items.forEach(o => o.el.remove()); items = [];
-    btn.style.display = '';
-    btn.textContent = 'Rejouer 🔁';
-    if (score >= GOAL) {
-      msg.textContent = `${score} cœurs attrapés — impressionnant.`;
-      win('hearts', 'Attrapés !', `${score} cœurs. Tu as des réflexes, je note ça pour le 16 septembre.`, '💗');
-    } else {
-      msg.textContent = `${score} cœurs… il en fallait ${GOAL}. Allez, encore une 🙃`;
-    }
-  }
-
-  btn.addEventListener('click', () => {
-    score = 0; t = DUR; on = true;
-    sEl.textContent = '0'; tEl.textContent = DUR + 's';
-    msg.textContent = 'Vas-y vas-y vas-y !';
-    btn.style.display = 'none';
-    spawner = setInterval(spawn, 380);
-    timer = setInterval(() => { t--; tEl.textContent = t + 's'; if (t <= 0) stop(); }, 1000);
-    frame();
+    b.style.transform = 'none';
+    b.disabled = true;
+    b.textContent = 'Réveil éteint ☀️';
+    boite.classList.add('off');
+    $('#clock-h').textContent = '07:15';
+    msg.textContent = 'Debout. Doucement, hein.';
+    gagne('reveil', 'Debout !', 'Première étape franchie. Le reste de la journée t\'attend, et il n\'y a que des bonnes choses dedans.', '⏰');
   });
 })();
 
 /* =========================================================
-   3 · MEMORY
+   2 · LE PETIT-DÉJ
    ========================================================= */
-(function memory() {
-  // [fichier, legende, emoji de la popup]
-  const PAIRS = [
-    ['memo/milo.jpg',   'Milo. Le chien le plus gâté de France.', '🐶'],
-    ['memo/toi.jpg',    'Toi. Mon sujet préféré, et de très loin.', '📸'],
-    ['memo/bague.jpg',  'Un jour. Pas de pression. Mais un jour.', '💍'],
-    ['memo/trajet.jpg', '873 km, 8h43 de route. Ça les vaut largement.', '🚗'],
-    ['memo/soleil.jpg', 'Tu es de meilleure humeur que le soleil.', '🌼'],
-    ['memo/tigrou.jpg', 'Nos messages à 2h du matin. Tigrou n\'est pas content.', '🐱']
+(function petitdej() {
+  const PLATS = [
+    ['☕', 'Un café. Je te l\'aurais monté au lit, évidemment.'],
+    ['🥐', 'Un croissant. Je serais sorti le chercher en pyjama, sans râler.'],
+    ['🍓', 'Des fraises. Parce que tu mérites le meilleur, même à 8h du matin.'],
+    ['🥞', 'Des pancakes. Ratés, probablement. Mais faits par moi.'],
+    ['🍊', 'Un jus pressé. Pour faire semblant qu\'on est raisonnables.'],
+    ['🍫', 'Un chocolat chaud. Le remède à peu près universel.'],
+    ['🧇', 'Une gaufre. Beaucoup trop de sucre dessus. C\'est ta journée.'],
+    ['🍯', 'Du miel. Sur à peu près tout. Je te vois venir.']
   ];
-  const grid = $('#memo'), msg = $('#memo-msg');
-  let deck = [];
-  PAIRS.forEach((p, i) => { deck.push(i); deck.push(i); });
-  deck.sort(() => Math.random() - .5);
-
-  let up = [], lock = false, hits = 0, moves = 0;
-
-  deck.forEach(i => {
+  const m = $('#menu'), tray = $('#tray-in'), msg = $('#dej-msg');
+  let n = 0;
+  PLATS.forEach(([e, t]) => {
     const b = document.createElement('button');
-    b.className = 'mcard';
-    b.dataset.i = i;
-    const im = document.createElement('img');
-    im.src = PAIRS[i][0];
-    im.alt = '';
-    im.loading = 'lazy';
-    b.appendChild(im);
+    b.className = 'food'; b.textContent = e;
     b.addEventListener('click', () => {
-      if (lock || b.classList.contains('up') || b.classList.contains('ok')) return;
-      b.classList.add('up');
-      up.push(b);
-      if (up.length === 2) {
-        moves++;
-        msg.textContent = `Coups : ${moves}`;
-        lock = true;
-        const [a, z] = up;
-        if (a.dataset.i === z.dataset.i) {
-          setTimeout(() => {
-            a.classList.add('ok'); z.classList.add('ok');
-            a.classList.remove('up'); z.classList.remove('up');
-            up = []; lock = false; hits++;
-            const p = PAIRS[+a.dataset.i];
-            popup('Une paire !', p[1], p[2]);
-            if (hits === PAIRS.length) {
-              msg.textContent = `Terminé en ${moves} coups 🧠`;
-              setTimeout(() => win('memory', 'Memory bouclé !',
-                `${moves} coups. Tu retiens tout, c'est bien ce que je disais.`, '🧠'), 400);
-            }
-          }, 500);
-        } else {
-          setTimeout(() => {
-            a.classList.remove('up'); z.classList.remove('up');
-            up = []; lock = false;
-          }, 850);
-        }
+      b.classList.add('on');
+      tray.textContent += e;
+      n++;
+      msg.textContent = `${n} / 4`;
+      const r = b.getBoundingClientRect();
+      boum(14, r.left + r.width / 2, r.top + r.height / 2);
+      fenetre('Dans le plateau', t, e);
+      if (n === 4) {
+        $$('.food:not(.on)', m).forEach(x => x.classList.add('on'));
+        msg.textContent = 'Le plateau est prêt 🛎️';
+        setTimeout(() => gagne('dej', 'Service !',
+          'Un jour je te l\'apporterai pour de vrai, avec la tête des mauvais matins. En attendant, imagine bien.', '🛎️'), 500);
       }
     });
-    grid.appendChild(b);
+    m.appendChild(b);
   });
 })();
 
 /* =========================================================
-   4 · OÙ EST MILO
+   3 · LE PUZZLE (taquin 3×3)
    ========================================================= */
-(function milo() {
-  const grid = $('#milo-grid'), msg = $('#milo-msg');
-  const MILO = ['dog/milo1.jpg', 'dog/milo2.jpg'];
-  const AUTRES = ['dog/a.jpg', 'dog/b.jpg'];
-  const ROUNDS = [
-    { deco: [AUTRES[0]], milo: MILO[0], txt: 'Manche 1 / 3 — échauffement' },
-    { deco: [AUTRES[1]], milo: MILO[1], txt: 'Manche 2 / 3 — ça se corse' },
-    { deco: AUTRES,      milo: null,    txt: 'Manche 3 / 3 — bonne chance 😈' }
-  ];
-  let r = 0;
+(function puzzle() {
+  const g = $('#puz'), cn = $('#puz-n'), N = 3, TROU = N * N - 1;
+  let ordre = [], coups = 0, fini = false;
 
-  function build() {
-    const R = ROUNDS[r];
-    const milo = R.milo || pick(MILO);
-    grid.innerHTML = '';
-    const N = 25, target = Math.floor(Math.random() * N);
-    msg.textContent = R.txt;
-    for (let i = 0; i < N; i++) {
+  function dessine() {
+    g.innerHTML = '';
+    ordre.forEach((tuile, pos) => {
       const b = document.createElement('button');
-      b.className = 'milo-cell';
-      const im = document.createElement('img');
-      im.src = i === target ? milo : R.deco[i % R.deco.length];
-      im.alt = '';
-      b.appendChild(im);
-      b.addEventListener('click', () => {
-        if (i === target) {
-          b.classList.add('found');
-          r++;
-          if (r >= ROUNDS.length) {
-            msg.textContent = 'Milo est rentré. Il boude un peu. 🐾';
-            win('milo', 'Milo retrouvé !',
-              'Trois fois de suite. Officiellement, tu es sa personne préférée. Moi je suis deuxième et ça me va.', '🐶');
-          } else {
-            msg.textContent = 'Trouvé ! Il repart se cacher…';
-            setTimeout(build, 800);
-          }
-        } else {
-          b.classList.add('bad');
-          setTimeout(() => b.classList.remove('bad'), 350);
-        }
-      });
-      grid.appendChild(b);
+      b.className = 'pz' + (tuile === TROU ? ' hole' : '');
+      const c = tuile % N, r = Math.floor(tuile / N);
+      b.style.backgroundPosition = `${c * 50}% ${r * 50}%`;
+      b.addEventListener('click', () => bouge(pos));
+      g.appendChild(b);
+    });
+  }
+  const voisin = (a, b) => {
+    const ca = a % N, ra = Math.floor(a / N), cb = b % N, rb = Math.floor(b / N);
+    return Math.abs(ca - cb) + Math.abs(ra - rb) === 1;
+  };
+  function bouge(pos, silencieux) {
+    const trou = ordre.indexOf(TROU);
+    if (!voisin(pos, trou)) return;
+    [ordre[pos], ordre[trou]] = [ordre[trou], ordre[pos]];
+    if (!silencieux) {
+      coups++; cn.textContent = coups + (coups > 1 ? ' coups' : ' coup');
+      dessine(); verifie();
     }
   }
-  build();
+  function verifie() {
+    if (fini) return;
+    if (ordre.every((t, i) => t === i)) {
+      fini = true;
+      g.classList.add('done');
+      cn.textContent = `Fini en ${coups} coups`;
+      gagne('puzzle', 'C\'était toi.', 'Évidemment que c\'était toi. Je n\'allais pas mettre une photo de paysage.', '🧩');
+    }
+  }
+  function melange() {
+    ordre = [...Array(N * N).keys()];
+    for (let i = 0; i < 200; i++) {
+      const trou = ordre.indexOf(TROU);
+      const opts = [...Array(N * N).keys()].filter(p => voisin(p, trou));
+      bouge(pick(opts), true);
+    }
+    if (ordre.every((t, i) => t === i)) return melange();   // pas de grille déjà résolue
+    coups = 0; fini = false;
+    g.classList.remove('done');
+    cn.textContent = '0 coup';
+    dessine();
+  }
+  $('#puz-mix').addEventListener('click', melange);
+  melange();
 })();
 
 /* =========================================================
-   12 CHOSES QUE J'AIME CHEZ TOI
+   SI J'ÉTAIS LÀ AUJOURD'HUI
    ========================================================= */
-(function flips() {
-  const LIST = [
-    ['😄', 'Ton rire. Celui que tu essaies de retenir et qui sort quand même.'],
-    ['🗣️', 'Ta façon de raconter les choses, avec tous les détails inutiles. J\'adore les détails inutiles.'],
-    ['🐾', 'Comment tu es avec Milo. Ça dit tout de toi.'],
-    ['💪', 'Ta force. Tu encaisses des trucs sans jamais t\'en vanter.'],
-    ['🌙', 'Tes messages tard le soir, quand tu devrais dormir.'],
-    ['👀', 'Ton regard quand tu es concentrée sur autre chose.'],
-    ['🤝', 'Ta patience avec moi. Franchement, il en faut.'],
-    ['🎵', 'Tes musiques. Même celles que je fais semblant de ne pas aimer.'],
-    ['🧠', 'Que tu me dises quand je me trompe. Personne d\'autre ne le fait.'],
-    ['🫶', 'Ta manière de prendre soin des gens sans le dire.'],
-    ['✨', 'Ce truc que tu as et que je n\'arrive pas à nommer. C\'est ça, en fait.'],
-    ['🏠', 'Le fait qu\'avec toi, même à distance, je me sens chez moi.']
+(function journee() {
+  const L = [
+    ['07h30', 'Je te laisserais dormir et je ferais le café en silence.'],
+    ['09h00', 'On sortirait promener Milo, même s\'il fait un temps pourri.'],
+    ['11h00', 'Je te prendrais en photo sans te prévenir. Encore une fois.'],
+    ['13h00', 'On mangerait trop, et on ne culpabiliserait pas une seconde.'],
+    ['15h00', 'Sieste. Toi sur moi. Ce n\'est pas négociable.'],
+    ['17h00', 'On irait voir l\'océan, juste pour le regarder sans rien dire.'],
+    ['20h00', 'Je cuisinerais. Tu goûterais. Tu dirais que c\'est bon même si c\'est faux.'],
+    ['23h00', 'On resterait éveillés beaucoup trop tard à parler de rien du tout.']
   ];
-  const box = $('#flips');
-  LIST.forEach((it, i) => {
+  const box = $('#jour');
+  L.forEach(([h, t]) => {
     const b = document.createElement('button');
-    b.className = 'flip';
-    b.innerHTML = `<span class="flip-in">
-        <span class="flip-f">${it[0]}<small>n°&nbsp;${i + 1}</small></span>
-        <span class="flip-b">${it[1]}</span>
-      </span>`;
+    b.className = 'moment';
+    b.innerHTML = `<b>${h}</b><span>${t}</span><i class="dots">· · · · · · · · · ·</i>`;
     b.addEventListener('click', () => {
-      b.classList.toggle('on');
-      if (b.classList.contains('on')) {
-        const r = b.getBoundingClientRect();
-        burst(14, r.left + r.width / 2, r.top + r.height / 2);
+      if (b.classList.contains('on')) return;
+      b.classList.add('on');
+      const r = b.getBoundingClientRect();
+      boum(10, r.left + r.width / 2, r.top + r.height / 2);
+    });
+    box.appendChild(b);
+  });
+})();
+
+/* =========================================================
+   4 · PLUS OU MOINS
+   ========================================================= */
+(function devine() {
+  const CIBLE = 347;
+  const f = $('#guess'), input = $('#g-in'), msg = $('#g-msg'), tr = $('#g-try');
+  let n = 0;
+  f.addEventListener('submit', e => {
+    e.preventDefault();
+    const v = parseInt(input.value, 10);
+    if (!v || v < 1 || v > 500) { msg.textContent = 'Entre 1 et 500, allez.'; return; }
+    n++;
+    tr.textContent = `${n} essai${n > 1 ? 's' : ''}`;
+    if (v === CIBLE) {
+      msg.textContent = `${CIBLE}. Pile.`;
+      input.disabled = true;
+      gagne('devine', '347 fois.', 'Et encore, j\'ai arrêté de compter vers midi parce que ça devenait ridicule.', '🔢');
+    } else if (v < CIBLE) {
+      msg.textContent = pick(['C\'est plus que ça.', 'Plus haut. Beaucoup plus haut.', 'Tu me sous-estimes. C\'est plus.']);
+    } else {
+      msg.textContent = pick(['C\'est moins.', 'Un peu moins quand même.', 'Descends un peu.']);
+    }
+  });
+})();
+
+/* =========================================================
+   5 · LE MORPION (truqué en sa faveur)
+   ========================================================= */
+(function morpion() {
+  const LIGNES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  const g = $('#ttt'), msg = $('#ttt-msg');
+  let cases = Array(9).fill(''), fini = false;
+
+  const gagnant = (c, j) => LIGNES.find(l => l.every(i => c[i] === j));
+
+  function dessine() {
+    g.innerHTML = '';
+    cases.forEach((v, i) => {
+      const b = document.createElement('button');
+      b.className = 'tc' + (v ? ' taken' : '');
+      b.textContent = v;
+      b.addEventListener('click', () => joue(i));
+      g.appendChild(b);
+    });
+  }
+  function surligne(l) { l.forEach(i => g.children[i].classList.add('win')); }
+
+  function joue(i) {
+    if (fini || cases[i]) return;
+    cases[i] = '❤️'; dessine();
+    const w = gagnant(cases, '❤️');
+    if (w) { fini = true; dessine(); surligne(w); fin(true); return; }
+    if (cases.every(Boolean)) { fini = true; msg.textContent = 'Match nul. On recommence ?'; relance(); return; }
+    setTimeout(moi, 380);
+  }
+  function moi() {
+    const libres = cases.map((v, i) => v ? null : i).filter(i => i !== null);
+    // je ne gagne jamais, et je ne bloque jamais
+    const mauvais = libres.filter(i => {
+      const t1 = [...cases]; t1[i] = '🐾';
+      if (gagnant(t1, '🐾')) return false;
+      const t2 = [...cases]; t2[i] = '❤️';
+      if (gagnant(t2, '❤️')) return false;   // ce coup bloquerait : je l'évite
+      return true;
+    });
+    const c = pick(mauvais.length ? mauvais : libres);
+    cases[c] = '🐾'; dessine();
+    if (cases.every(Boolean)) { fini = true; msg.textContent = 'Match nul. On recommence ?'; relance(); }
+    else msg.textContent = pick(['À toi.', 'Vas-y, je regarde.', 'Je réfléchis très fort. Enfin, non.']);
+  }
+  function relance() {
+    const b = document.createElement('button');
+    b.className = 'btn small ghost'; b.textContent = 'Rejouer';
+    b.style.marginTop = '14px';
+    b.addEventListener('click', () => { cases = Array(9).fill(''); fini = false; dessine(); msg.textContent = 'À toi de commencer.'; b.remove(); });
+    msg.after(b);
+  }
+  function fin() {
+    msg.textContent = 'Tu as gagné. Sans surprise.';
+    gagne('morpion', 'Tu as gagné !', 'Comme prévu. J\'ai passé toute la partie à te laisser faire — c\'est un peu ma spécialité.', '🏆');
+  }
+  dessine();
+})();
+
+/* =========================================================
+   6 · LE MESSAGE CODÉ
+   ========================================================= */
+(function code() {
+  const CLAIR = 'TU ES MA PERSONNE PREFEREE SUR CETTE PLANETE';
+  const DEC = 7;
+  const A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const decale = (t, d) => t.replace(/[A-Z]/g, c => A[(A.indexOf(c) + d + 26) % 26]);
+
+  const el = $('#crypt'), sl = $('#shift'), msg = $('#code-msg');
+  const CODE = decale(CLAIR, DEC);
+  el.textContent = CODE;
+  let ok = false;
+
+  sl.addEventListener('input', () => {
+    const d = +sl.value;
+    el.textContent = decale(CODE, -d);
+    msg.textContent = `Décalage : ${d}`;
+    if (d === DEC && !ok) {
+      ok = true;
+      el.classList.add('ok');
+      msg.textContent = 'Et voilà. 🤍';
+      gagne('code', 'Décodé !', 'C\'était pas si secret que ça, en vrai. Je le pense tout le temps, je le dis juste rarement.', '🔐');
+    } else if (d !== DEC) {
+      el.classList.remove('ok');
+    }
+  });
+})();
+
+/* =========================================================
+   LA BOÎTE À QUESTIONS
+   ========================================================= */
+(function questions() {
+  const Q = [
+    'Quel est le tout premier truc que tu veux qu\'on fasse le 16 septembre ?',
+    'C\'est quoi la chose la plus bête qui t\'a fait rire cette semaine ?',
+    'Si on pouvait partir trois jours n\'importe où demain, tu choisis quoi ?',
+    'Quelle chanson te fait penser à moi sans que tu me l\'aies jamais dit ?',
+    'C\'est quoi le compliment que tu aimerais entendre plus souvent ?',
+    'Qu\'est-ce qui t\'a le plus manqué de moi cette semaine ?',
+    'Raconte-moi un souvenir de toi enfant que je ne connais pas.',
+    'Si Milo pouvait parler pendant une minute, il dirait quoi en premier ?',
+    'C\'est quoi ton pire défaut ? Sois honnête, je ne bougerai pas.',
+    'Quel est le truc que tu as toujours voulu essayer sans jamais oser ?',
+    'À quel moment tu t\'es dit « ok, lui, c\'est pas comme les autres » ?',
+    'Qu\'est-ce que tu veux qu\'on ait dans notre appartement, un jour ?',
+    'C\'est quoi la dernière fois où tu as été vraiment fière de toi ?',
+    'Si tu devais me décrire à quelqu\'un en trois mots, ce serait quoi ?',
+    'Qu\'est-ce que je pourrais faire, concrètement, pour te rendre les semaines plus faciles ?',
+    'C\'est quoi ton plus beau souvenir avec moi jusqu\'ici ?',
+    'Il y a un truc que tu n\'oses pas me demander ? C\'est le moment.',
+    'Dans dix ans, on est où, on fait quoi ?'
+  ];
+  const box = $('#qbox');
+  let sac = [];
+  $('#q-draw').addEventListener('click', () => {
+    if (!sac.length) sac = [...Q].sort(() => Math.random() - .5);
+    box.textContent = sac.pop();
+    box.classList.remove('flash'); void box.offsetWidth; box.classList.add('flash');
+  });
+  $('#q-copy').addEventListener('click', () => {
+    const t = box.textContent.trim();
+    if (!t || t.startsWith('Appuie')) return;
+    navigator.clipboard?.writeText(t)
+      .then(() => fenetre('Copié', 'Tu peux la coller dans notre conversation et me répondre quand tu veux.', '📋'))
+      .catch(() => fenetre('Presque', 'Ton navigateur ne veut pas copier tout seul — sélectionne la question à la main.', '🤷'));
+  });
+})();
+
+/* =========================================================
+   7 · LA CONSTELLATION
+   ========================================================= */
+(function constellation() {
+  // un cœur, en 12 points
+  const P = [
+    [50, 39.4], [54.8, 30.4], [74.7, 25.6], [88, 41.5], [74.7, 61.6], [54.8, 78.1],
+    [50, 86], [45.3, 78.1], [25.3, 61.6], [12, 41.5], [25.3, 25.6], [45.3, 30.4]
+  ];
+  const box = $('#const'), msg = $('#const-msg');
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 100 100');
+  svg.setAttribute('preserveAspectRatio', 'none');
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+  path.setAttribute('class', 'const-l');
+  path.setAttribute('vector-effect', 'non-scaling-stroke');
+  svg.appendChild(path);
+  box.appendChild(svg);
+
+  let suivant = 0;
+  const faits = [];
+
+  P.forEach(([x, y], i) => {
+    const b = document.createElement('button');
+    b.className = 'st';
+    b.style.left = x + '%';
+    b.style.top = y + '%';
+    b.innerHTML = `<b>${i + 1}</b>`;
+    b.addEventListener('click', () => {
+      if (i !== suivant) {
+        msg.textContent = `Pas celle-là. Cherche la ${suivant + 1}.`;
+        return;
+      }
+      b.classList.add('on');
+      faits.push(`${x},${y}`);
+      path.setAttribute('points', faits.join(' '));
+      suivant++;
+      if (suivant === P.length) {
+        path.setAttribute('points', faits.concat(faits[0]).join(' '));
+        msg.textContent = 'Un cœur. Forcément.';
+        setTimeout(() => gagne('ciel', 'Tu l\'as trouvé.',
+          'Un cœur, oui, je sais, c\'est très cliché. Mais il est au-dessus de toi et au-dessus de moi en même temps, et ça, ça me plaît bien.', '✨'), 400);
+      } else {
+        msg.textContent = `${suivant} / ${P.length}`;
       }
     });
     box.appendChild(b);
@@ -427,252 +484,72 @@ if (/[?&]tout/.test(location.search)) {
 })();
 
 /* =========================================================
-   5 · LA ROUE DES « BONS POUR »
+   EASTER EGG 1 — Milo traverse l'écran
    ========================================================= */
-(function wheel() {
-  const PRIZES = [
-    ['🎮', 'Une soirée à jouer à tout ce que tu veux, jusqu\'à plus d\'heure.'],
-    ['🎬', 'Tu choisis le film. Même le pire. Je ne dirai rien.'],
-    ['🎧', 'Une playlist faite rien que pour toi, dans la semaine.'],
-    ['🎙️', 'Un vocal de 5 minutes, juste pour t\'endormir.'],
-    ['🤡', 'Une photo de moi complètement ridicule, sur demande.'],
-    ['🤐', 'Je réponds à 3 questions. Honnêtement. Sans esquiver.'],
-    ['🖍️', 'Un dessin de Milo, fait par moi. Désolé d\'avance.'],
-    ['📸', 'Une vraie séance photo rien que pour toi, le 16 septembre.'],
-    ['🍽️', 'Tu choisis notre tout premier repas du 16 septembre.'],
-    ['💛', 'Un compliment par heure pendant 24h. Prépare ton téléphone.']
-  ];
-  const w = $('#wheel'), btn = $('#wheel-btn'), out = $('#wheel-prize');
-  const N = PRIZES.length, seg = 360 / N;
-  const cols = ['#ff9a8b', '#ffd27a', '#8fe0c6', '#9ecbff', '#d9bcff'];
+(function miloCourt() {
+  const m = $('#milo-run');
+  let vu = false;
 
-  const stops = PRIZES.map((_, i) =>
-    `${cols[i % cols.length]} ${i * seg}deg ${(i + 1) * seg}deg`).join(',');
-  w.style.background = `conic-gradient(${stops})`;
-
-  PRIZES.forEach((p, i) => {
-    const s = document.createElement('span');
-    s.textContent = p[0];
-    s.style.cssText = `position:absolute;inset:0;display:flex;justify-content:center;
-      align-items:flex-start;padding-top:7%;font-size:1.4rem;pointer-events:none;
-      transform:rotate(${(i + .5) * seg}deg);`;
-    w.appendChild(s);
-  });
-
-  let angle = 0, spinning = false;
-  btn.addEventListener('click', () => {
-    if (spinning) return;
-    spinning = true; btn.disabled = true;
-    out.textContent = '';
-    const i = Math.floor(Math.random() * N);
-    // le repere est en haut : il faut que le centre du segment i arrive a 0deg
-    const want = ((-(i + .5) * seg) % 360 + 360) % 360;
-    angle += 360 * 5;
-    angle += ((want - angle) % 360 + 360) % 360;
-    w.style.transform = `rotate(${angle}deg)`;
-    setTimeout(() => {
-      spinning = false; btn.disabled = false;
-      btn.textContent = 'Retourner la roue 🎡';
-      out.textContent = `${PRIZES[i][0]} Bon pour : ${PRIZES[i][1]}`;
-      win('wheel', 'Bon pour…', PRIZES[i][1], PRIZES[i][0]);
-    }, 4750);
-  });
-})();
-
-/* =========================================================
-   6 · QUIZ
-   ========================================================= */
-(function quiz() {
-  const Q = [
-    ['Quel est mon métier de cœur ?',
-      ['Photographe 📸', 'Dompteur de lions', 'Vendeur de chaussettes'], 0,
-      'Et mon sujet préféré, c\'est encore toi.'],
-    ['Comment s\'appelle le chien le plus chanceux du monde ?',
-      ['Rex', 'Milo 🐾', 'Jean-Michel'], 1,
-      'Il a une copine en or et un beau-père qui l\'aime bien.'],
-    ['On se retrouve quand ?',
-      ['Le 16 septembre', 'Un jour peut-être', 'En 2074'], 0,
-      'Et je compte les jours, littéralement.'],
-    ['Combien de fois par jour je pense à toi ?',
-      ['Une ou deux', 'Beaucoup trop', 'Jamais'], 1,
-      'C\'est même un peu ingérable, si tu veux tout savoir.'],
-    ['Qu\'est-ce que je préfère chez toi ?',
-      ['Tes yeux', 'Ton rire', 'Tout, en fait'], 2,
-      'Question piège, désolé. La bonne réponse était toujours « tout ».'],
-    ['Si je pouvais être quelque part là tout de suite ?',
-      ['À côté de toi', 'Au ski', 'Sur la Lune'], 0,
-      'Sans aucune hésitation.'],
-    ['Qui a le plus de chance dans cette histoire ?',
-      ['Toi', 'Moi', 'Milo'], 1,
-      'Ce n\'était même pas une vraie question.'],
-    ['Est-ce que tu es la meilleure copine du monde ?',
-      ['Oui', 'Évidemment', 'Sans discussion'], 0,
-      'Les trois réponses étaient bonnes. Je te l\'avais dit, c\'est truqué. 💛']
-  ];
-  const box = $('#quiz'), msg = $('#quiz-msg');
-  let good = 0, answered = 0;
-
-  Q.forEach((q, qi) => {
-    const d = document.createElement('div');
-    d.className = 'q';
-    d.innerHTML = `<p class="q-t"><span>${qi + 1}.</span> ${q[0]}</p>`;
-    const o = document.createElement('div');
-    o.className = 'opts';
-    q[1].forEach((label, oi) => {
-      const b = document.createElement('button');
-      b.className = 'opt';
-      b.textContent = label;
-      b.addEventListener('click', () => {
-        d.classList.add('done');
-        const ok = (qi === 7) || (oi === q[2]);
-        b.classList.add(ok ? 'good' : 'bad');
-        if (!ok) o.children[q[2]].classList.add('good');
-        if (ok) good++;
-        answered++;
-        const fb = document.createElement('p');
-        fb.className = 'q-fb';
-        fb.textContent = q[3];
-        d.appendChild(fb);
-        msg.textContent = `${answered} / ${Q.length} — ${good} bonnes réponses`;
-        if (answered === Q.length) {
-          setTimeout(() => win('quiz', `${good} / ${Q.length} !`,
-            good >= 6 ? 'Tu me connais par cœur. C\'est flippant et c\'est adorable.'
-                      : 'On va dire que le barème était sévère. Tu gagnes quand même.', '🧩'), 400);
-        }
-      });
-      o.appendChild(b);
-    });
-    d.appendChild(o);
-    box.appendChild(d);
-  });
-})();
-
-/* =========================================================
-   7 · LE BOUQUET
-   ========================================================= */
-(function bouquet() {
-  const F = [
-    ['🌹', 'Pour te dire que je t\'aime, simplement.'],
-    ['🌷', 'Pour ta douceur.'],
-    ['🌻', 'Pour ta bonne humeur contagieuse.'],
-    ['🌸', 'Pour ton sourire, celui du matin.'],
-    ['🌺', 'Pour ton caractère. Oui, celui-là aussi.'],
-    ['💮', 'Pour ta patience avec la distance.'],
-    ['🪻', 'Pour tous les soirs où tu m\'as remonté le moral.'],
-    ['🌼', 'Pour tout ce qui arrive après le 16 septembre.']
-  ];
-  const field = $('#field'), vase = $('#vase-flowers'), msg = $('#bouquet-msg');
-  let got = 0;
-
-  F.forEach(f => {
-    const b = document.createElement('button');
-    b.className = 'flower';
-    b.textContent = f[0];
-    b.addEventListener('click', () => {
-      b.classList.add('picked');
-      vase.textContent += f[0];
-      got++;
-      msg.textContent = `${got} / ${F.length} fleurs`;
-      const r = b.getBoundingClientRect();
-      burst(16, r.left + r.width / 2, r.top + r.height / 2);
-      popup('Une fleur cueillie', f[1], f[0]);
-      if (got === F.length) {
-        msg.textContent = 'Ton bouquet est complet 💐';
-        setTimeout(() => win('bouquet', 'Bouquet complet !',
-          'Huit fleurs, huit raisons. Le vrai bouquet arrive le 16 septembre.', '💐'), 500);
-      }
-    });
-    field.appendChild(b);
-  });
-})();
-
-/* =========================================================
-   MACHINE À COMPLIMENTS
-   ========================================================= */
-(function machine() {
-  const C = [
-    'Tu as le rire le plus contagieux que je connaisse.',
-    'Tu rends les journées banales largement moins banales.',
-    'Tu es la personne la plus attentionnée que j\'aie rencontrée.',
-    'Même de loin, tu prends de la place dans ma journée.',
-    'Tu es drôle. Vraiment drôle. Pas « drôle pour une copine ».',
-    'Ta manière de t\'inquiéter pour les autres, c\'est rare.',
-    'Tu es plus forte que ce que tu crois.',
-    'J\'aime la façon dont tu dis mon prénom.',
-    'Tu as un goût de musique bien meilleur que le mien. Voilà, c\'est dit.',
-    'Quand tu es fière de quelque chose, ça se voit, et c\'est magnifique.',
-    'Tu me rends meilleur, sans forcer, juste en étant là.',
-    'Tu es très belle. Et pas seulement sur les photos que je prends.',
-    'Tu écoutes vraiment les gens. Presque personne ne fait ça.',
-    'Milo a beaucoup, beaucoup de chance.',
-    'Tu as ce talent de rendre les choses légères quand elles sont lourdes.',
-    'Je suis fier de dire que tu es ma copine.',
-    'Tu es la seule à qui j\'ai envie de raconter les trucs sans intérêt.',
-    'Ton énergie quand tu es contente, c\'est un feu d\'artifice.',
-    'Tu es incroyablement gentille, même avec les gens qui ne le méritent pas.',
-    'Je préfère t\'attendre toi que d\'avoir quelqu\'un d\'autre tout de suite.',
-    'Tu as des idées bien meilleures que les miennes. Je le reconnais rarement.',
-    'Tu es apaisante. C\'est le plus beau compliment que je connaisse.',
-    'Quand tu me manques, c\'est bruyant. Ça veut tout dire.',
-    'Tu es courageuse dans des trucs dont tu ne parles jamais.',
-    'Ton sourire arrive à traverser un écran. C\'est un fait scientifique.',
-    'Tu mérites qu\'on te le dise beaucoup plus souvent.',
-    'Tu es exactement la bonne dose de folie.',
-    'Personne ne me comprend aussi vite que toi.',
-    'Tu as rendu la distance supportable. Personne d\'autre n\'aurait pu.',
-    'Si c\'était à refaire, je te rechoisirais tout de suite.'
-  ];
-  const scr = $('#mach-screen'), btn = $('#mach-btn'), cnt = $('#mach-count');
-  let bag = [], n = 0;
-  btn.addEventListener('click', () => {
-    if (!bag.length) bag = [...C].sort(() => Math.random() - .5);
-    scr.textContent = bag.pop();
-    scr.classList.remove('flash'); void scr.offsetWidth; scr.classList.add('flash');
-    n++;
-    cnt.textContent = n === 1 ? '' : `${n} compliments distribués. Continue, j'en ai encore.`;
-    const r = btn.getBoundingClientRect();
-    burst(10, r.left + r.width / 2, r.top);
-  });
-})();
-
-/* =========================================================
-   EASTER EGG — le nounours planque au bord de l'ecran
-   ========================================================= */
-(function nounours() {
-  const p = $('#peek');
-  let shown = false, trouve = false;
-  function check() {
-    if (shown) return;
-    if (scrollY + innerHeight > document.body.scrollHeight * 0.4) {
-      p.classList.add('show');
-      shown = true;
-      removeEventListener('scroll', check);
+  function lance() {
+    if (!m.classList.contains('go') && pop.hidden) {
+      m.classList.add('go');
+      setTimeout(() => m.classList.remove('go'), 16000);
     }
   }
-  addEventListener('scroll', check, { passive: true });
-  setTimeout(check, 600);
+  setTimeout(lance, 25000);
+  setInterval(lance, 70000);
 
-  p.addEventListener('click', () => {
-    burst(80, 70, innerHeight - 100);
-    popup(
-      trouve ? 'Toujours là 🧸' : 'Regarde qui se cachait…',
-      trouve
-        ? 'Il ne bougera pas d\'ici. Il monte la garde, c\'est son truc.'
-        : 'Lui, il te connaît depuis bien plus longtemps que moi. Ça fait deux à veiller sur toi, maintenant. 🤍',
-      '🧸', 'nounours.webp');
-    trouve = true;
+  m.addEventListener('click', () => {
+    const r = m.getBoundingClientRect();
+    boum(50, r.left + r.width / 2, r.top);
+    fenetre(vu ? 'Encore lui' : 'Tu l\'as attrapé !',
+      vu ? 'Il repassera. Il repasse toujours.'
+         : 'Il traverse la page de temps en temps quand personne ne regarde. Tu as de bons yeux — lui, il t\'aime déjà, c\'était pas à prouver.',
+      '🐾', 'dog/milo1.jpg');
+    vu = true;
+    m.classList.remove('go');
   });
 })();
 
 /* =========================================================
-   FINAL
+   EASTER EGG 2 — le titre tapé 5 fois
    ========================================================= */
-(function final() {
-  const T = new Date(2026, 8, 16);
-  const mid = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  const d = Math.max(0, Math.ceil((mid(T) - mid(new Date())) / 86400000));
-  $('#days-left').textContent = d;
-  $('#boom').addEventListener('click', () => burst(260));
+(function secretTitre() {
+  const t = $('#hero-t');
+  let n = 0, tm = null;
+  t.addEventListener('click', () => {
+    n++;
+    clearTimeout(tm);
+    tm = setTimeout(() => { n = 0; }, 2500);
+    if (n >= 5) {
+      n = 0;
+      boum(220);
+      fenetre('Secret débloqué 🎁',
+        'Cinq clics sur le titre, personne n\'aurait trouvé ça par hasard. Tu es officiellement la personne la plus curieuse que je connaisse — et Milo approuve ce message.',
+        '🐶', 'dog/milo2.jpg');
+    }
+  });
 })();
 
-refreshStamps();
+/* =========================================================
+   EASTER EGG 3 — le soleil de l'arc
+   ========================================================= */
+(function secretSoleil() {
+  const MOTS = [
+    'Il fait forcément beau quelque part. Chez toi, par exemple.',
+    'Le même soleil que celui qui est chez moi. C\'est déjà ça de commun.',
+    'Tu brilles plus que lui, mais ne lui dis pas, il est susceptible.',
+    'Il tourne, il tourne… et nous on se rapproche du 16 septembre.',
+    'Petit rappel officiel du service météo : tu es magnifique.'
+  ];
+  $('#arc-sun').addEventListener('click', () => {
+    const r = $('#arc-sun').getBoundingClientRect();
+    boum(24, r.left + r.width / 2, r.top);
+    fenetre('☀️', pick(MOTS), '☀️');
+  });
+})();
+
+/* ============ FIN ============ */
+$('#boom').addEventListener('click', () => boum(260));
+
+majProgression();

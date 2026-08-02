@@ -3,27 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>1er août — Ta journée 🎉</title>
-  <meta name="description" content="Le 1er août, c'est la journée de la copine. Donc c'est ta journée.">
+  <title>Ta journée 🌞</title>
+  <meta name="description" content="Une journée entière, du réveil jusqu'aux étoiles.">
   <meta name="robots" content="noindex">
-  <meta name="theme-color" content="#fff8f0">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎉</text></svg>">
+  <meta name="theme-color" content="#ffd9c0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌞</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Gloria+Hallelujah&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=5">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Kalam:wght@400;700&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
 
-<canvas id="confetti" aria-hidden="true"></canvas>
-<div class="blobs" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i><i class="b4"></i></div>
+<!-- le ciel, il change au fil de la journée -->
+<div class="sky" id="sky" aria-hidden="true">
+  <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+</div>
+<div class="stars" id="starfield" aria-hidden="true"></div>
+<canvas id="conf" aria-hidden="true"></canvas>
 
 <!-- ============ ENTRÉE ============ -->
 <div class="gate" id="gate">
-  <div class="gate-inner">
-    <img class="gate-ticket" id="gate-ticket" src="ticket.webp" width="900" height="661"
-         alt="Billet d'entrée, 1 personne. Le 1er août, c'est ta journée. Journée internationale de la copine, officiellement. Au nom de : Stacy">
-    <button class="btn big" id="gate-btn">Entrer dans ma journée 🎉</button>
+  <div class="gate-in">
+    <button class="sun-btn" id="sun-btn" aria-label="Commencer la journée">
+      <span class="sun-core">🌞</span>
+      <span class="sun-ray"></span>
+    </button>
+    <h1 class="gate-t">Bonjour toi</h1>
+    <p class="gate-s">
+      Il n'y a pas de fête aujourd'hui, pas de date à cocher.<br>
+      C'est juste ta journée. Je te l'ai fabriquée entière.
+    </p>
+    <button class="btn" id="gate-btn">Lever le soleil</button>
   </div>
 </div>
 
@@ -31,197 +42,203 @@
 
   <!-- ============ HERO ============ -->
   <header class="hero">
-    <p class="kicker">1<sup>er</sup> août 2026</p>
-    <h1 class="hero-title">Bonne journée<br><span class="hl">de la copine</span></h1>
-    <p class="hero-txt">
-      Aujourd'hui il y a une journée pour toi, alors je t'ai fabriqué la tienne.
-      Il y a des jeux, des mots, des trucs à gratter, un chien à retrouver
-      et une bonne quantité de bêtises. Prends ton temps, tout t'attend. 💛
+    <p class="kick">Rien que pour toi</p>
+    <h1 class="hero-t" id="hero-t">C'est <em>ta</em><br>journée</h1>
+    <p class="hero-p">
+      Pas d'occasion, pas d'anniversaire, aucune bonne raison.
+      Justement. J'en avais assez d'attendre une bonne raison.
+      Elle commence au réveil et elle finit dans les étoiles —
+      il n'y a rien à réussir, prends-la comme elle vient. 🌻
     </p>
-    <p class="signed">— Enzo</p>
-    <div class="scroll-cue" aria-hidden="true">↓</div>
+    <p class="sig">— Enzo</p>
+    <div class="cue" aria-hidden="true">↓</div>
   </header>
 
-  <!-- ============ CARTE DU JOUR ============ -->
-  <section class="card stamps-card">
-    <h2 class="h2">Ta carte du jour</h2>
-    <p class="sub">Un tampon par jeu terminé. Les 7 tampons débloquent le mot de la fin. 🔒</p>
-    <div class="stamps" id="stamps"></div>
-    <p class="stamps-count" id="stamps-count">0 / 7</p>
+  <!-- ============ PROGRESSION : LE SOLEIL ============ -->
+  <section class="card arc-card">
+    <h2 class="h2 c">Le soleil de ta journée</h2>
+    <p class="sub c">Il avance à chaque étape. Emmène-le jusqu'aux étoiles.</p>
+    <div class="arc">
+      <svg viewBox="0 0 300 150" class="arc-svg" aria-hidden="true">
+        <path d="M14,145 A136,136 0 0 1 286,145" class="arc-line"/>
+      </svg>
+      <button class="arc-sun" id="arc-sun" aria-label="Le soleil">🌞</button>
+    </div>
+    <p class="arc-n" id="arc-n">0 / 7</p>
   </section>
 
-  <!-- ============ 1 · GRATTAGE ============ -->
-  <section class="card tilt-l" id="g-scratch">
-    <span class="num">1</span>
-    <h2 class="h2">Le ticket à gratter</h2>
-    <p class="sub">Gratte avec le doigt (ou la souris). Il y a quelque chose dessous.</p>
-    <div class="scratch-wrap">
-      <div class="scratch-under" id="scratch-under">
-        <span class="su-emoji">💛</span>
-        <p class="su-txt">Tu es la meilleure chose qui me soit arrivée par hasard.</p>
-      </div>
-      <canvas id="scratch" width="600" height="320"></canvas>
+  <!-- ============ 1 · LE RÉVEIL ============ -->
+  <section class="card" id="j-reveil">
+    <span class="hr">07:00</span>
+    <h2 class="h2">Le réveil sonne</h2>
+    <p class="sub">Éteins-le. Enfin… essaie.</p>
+    <div class="clock" id="clock">
+      <div class="clock-face"><span id="clock-h">07:00</span><span class="clock-bell">⏰</span></div>
+      <button class="btn small" id="snooze">Éteindre le réveil</button>
     </div>
-    <p class="hint" id="scratch-hint">Gratte ici 👆</p>
+    <p class="hint" id="reveil-msg">Il sonne depuis un moment, là.</p>
   </section>
 
   <!-- ============ LA LETTRE ============ -->
-  <section class="card paper tilt-r">
-    <span class="tape"></span>
-    <h2 class="hand-title">Ce que je voulais te dire</h2>
-    <div class="letter">
+  <section class="card paper">
+    <span class="clip" aria-hidden="true"></span>
+    <h2 class="hand">Le mot du matin</h2>
+    <div class="lettre">
       <p>Stacy,</p>
       <p>
-        Je sais que la distance c'est nul. Que certains jours elle pèse plus lourd que
-        d'autres, et qu'un écran ne remplacera jamais le fait de pouvoir juste poser
-        ma tête contre toi.
+        Il n'y a pas d'occasion aujourd'hui. Pas d'anniversaire, pas de date
+        à retenir. C'est exactement pour ça que j'avais envie de le faire —
+        parce que tout le monde attend une bonne raison pour dire les choses,
+        et moi j'en ai un peu marre d'attendre.
       </p>
       <p>
-        Mais il y a un truc que je trouve fou&nbsp;: même à des kilomètres, tu arrives
-        à me rendre la journée meilleure. Un message, une photo de Milo, une journée
-        entière à jouer du matin au soir à tous les jeux possibles — et voilà, ça va
-        mieux. Tu fais ça sans même essayer.
+        Alors voilà ta journée. Elle démarre au réveil, elle finit dans les
+        étoiles, et entre les deux j'ai laissé des jeux, des bêtises, deux ou
+        trois trucs cachés, et quelques phrases que je n'aurais peut-être pas
+        réussi à te dire en face du premier coup.
       </p>
       <p>
-        Alors aujourd'hui je ne te demande rien. Juste de te laisser gâter un peu,
-        de cliquer partout, de rire toute seule devant ton téléphone, et de te
-        rappeler qu'à l'autre bout il y a quelqu'un qui pense à toi beaucoup plus
-        souvent qu'il ne le dit.
+        Tu n'as rien à faire de spécial. Pas besoin d'être de bonne humeur,
+        pas besoin de répondre vite. Fais-la dans le désordre, laisse-la
+        ouverte, reviens ce soir si tu veux.
       </p>
-      <p class="sign">Je t'aime.<br>— Enzo 🤍</p>
+      <p class="sign">Elle est à toi. Je t'aime.<br>— Enzo 🤍</p>
     </div>
   </section>
 
-  <!-- ============ 2 · ATTRAPE LES CŒURS ============ -->
-  <section class="card tilt-l" id="g-hearts">
-    <span class="num">2</span>
-    <h2 class="h2">Attrape mes cœurs</h2>
-    <p class="sub">Ils tombent, tu cliques. 20 secondes. Attention aux <b>💣</b>, elles piquent.</p>
-    <div class="arena" id="arena">
-      <div class="arena-hud"><span id="h-score">0</span> ❤️ <span class="arena-time" id="h-time">20s</span></div>
-      <button class="btn arena-start" id="h-start">C'est parti&nbsp;!</button>
+  <!-- ============ 2 · LE PETIT-DÉJ ============ -->
+  <section class="card" id="j-dej">
+    <span class="hr">08:30</span>
+    <h2 class="h2">Ton plateau du petit-déj</h2>
+    <p class="sub">Choisis 4 choses. Je te les aurais apportées au lit.</p>
+    <div class="menu" id="menu"></div>
+    <div class="tray"><span class="tray-in" id="tray-in"></span><span class="tray-b">🛎️</span></div>
+    <p class="hint" id="dej-msg">0 / 4</p>
+  </section>
+
+  <!-- ============ 3 · LE PUZZLE ============ -->
+  <section class="card" id="j-puzzle">
+    <span class="hr">12:00</span>
+    <h2 class="h2">Le puzzle du midi</h2>
+    <p class="sub">Glisse les morceaux pour remettre l'image d'aplomb. Indice&nbsp;: tu la connais très bien.</p>
+    <div class="puz" id="puz"></div>
+    <div class="row">
+      <button class="btn small ghost" id="puz-mix">Remélanger</button>
+      <span class="puz-n" id="puz-n">0 coup</span>
     </div>
-    <p class="hint" id="h-msg">Objectif&nbsp;: 15 cœurs 💗</p>
   </section>
 
-  <!-- ============ 3 · MEMORY ============ -->
-  <section class="card tilt-r" id="g-memory">
-    <span class="num">3</span>
-    <h2 class="h2">Le memory de nous</h2>
-    <p class="sub">Retrouve les 6 paires. Derrière chaque photo, un petit mot.</p>
-    <div class="memo" id="memo"></div>
-    <p class="hint" id="memo-msg">Coups&nbsp;: 0</p>
-  </section>
-
-  <!-- ============ 4 · OÙ EST MILO ============ -->
-  <section class="card tilt-l" id="g-milo">
-    <span class="num">4</span>
-    <h2 class="h2">Où est Milo&nbsp;?</h2>
-    <p class="sub">Il s'est encore échappé et il s'est mélangé aux autres. Retrouve le vrai Milo, 3 fois de suite. Attention, ça se complique.</p>
-    <div class="milo-grid" id="milo-grid"></div>
-    <p class="hint" id="milo-msg">Manche 1 / 3</p>
-  </section>
-
-  <!-- ============ 12 CHOSES ============ -->
+  <!-- ============ SI J'ÉTAIS LÀ ============ -->
   <section class="card">
-    <h2 class="h2 center">12 choses que j'aime chez toi</h2>
-    <p class="sub center">Retourne-les une par une. Il n'y a pas d'ordre, c'est toutes les 12 en même temps.</p>
-    <div class="flips" id="flips"></div>
+    <h2 class="h2 c">Si j'étais là aujourd'hui</h2>
+    <p class="sub c">Heure par heure. Touche pour voir.</p>
+    <div class="jour" id="jour"></div>
   </section>
 
-  <!-- ============ 5 · LA ROUE ============ -->
-  <section class="card tilt-r" id="g-wheel">
-    <span class="num">5</span>
-    <h2 class="h2">La roue des « bons pour »</h2>
-    <p class="sub">Tu tournes, tu gagnes, je m'exécute. Sans discuter. (Une fois par jour, sois raisonnable.)</p>
-    <div class="wheel-box">
-      <span class="wheel-pin">▼</span>
-      <div class="wheel" id="wheel"></div>
+  <!-- ============ 4 · PLUS OU MOINS ============ -->
+  <section class="card" id="j-devine">
+    <span class="hr">14:00</span>
+    <h2 class="h2">Plus ou moins</h2>
+    <p class="sub">Devine combien de fois j'ai pensé à toi depuis hier. Entre 1 et 500.</p>
+    <form class="guess" id="guess">
+      <input type="number" id="g-in" min="1" max="500" placeholder="ton chiffre" inputmode="numeric">
+      <button class="btn small" type="submit">Tenter</button>
+    </form>
+    <p class="hint" id="g-msg">Vas-y au feeling.</p>
+    <p class="tries" id="g-try"></p>
+  </section>
+
+  <!-- ============ 5 · LE MORPION ============ -->
+  <section class="card" id="j-morpion">
+    <span class="hr">16:00</span>
+    <h2 class="h2">Le morpion</h2>
+    <p class="sub">Toi les ❤️, moi les 🐾. Je te préviens, je suis très mauvais — et c'est volontaire.</p>
+    <div class="ttt" id="ttt"></div>
+    <p class="hint" id="ttt-msg">À toi de commencer.</p>
+  </section>
+
+  <!-- ============ 6 · LE MESSAGE CODÉ ============ -->
+  <section class="card" id="j-code">
+    <span class="hr">19:00</span>
+    <h2 class="h2">Le message codé</h2>
+    <p class="sub">J'ai décalé toutes les lettres de l'alphabet. Bouge le curseur jusqu'à ce que ça veuille dire quelque chose.</p>
+    <p class="crypt" id="crypt">…</p>
+    <input type="range" id="shift" min="0" max="25" value="0" class="slider">
+    <p class="hint" id="code-msg">Décalage&nbsp;: 0</p>
+  </section>
+
+  <!-- ============ LA BOÎTE À QUESTIONS ============ -->
+  <section class="card box-card">
+    <h2 class="h2 c">La boîte à questions</h2>
+    <p class="sub c">Tire une question. Réponds-moi quand tu veux, ou jamais — c'est toi qui vois.</p>
+    <div class="qbox" id="qbox">Appuie sur le bouton 👇</div>
+    <div class="row c">
+      <button class="btn small" id="q-draw">Tirer une question</button>
+      <button class="btn small ghost" id="q-copy">Copier</button>
     </div>
-    <button class="btn" id="wheel-btn">Tourner la roue 🎡</button>
-    <p class="prize" id="wheel-prize"></p>
   </section>
 
-  <!-- ============ 6 · QUIZ ============ -->
-  <section class="card tilt-l" id="g-quiz">
-    <span class="num">6</span>
-    <h2 class="h2">Le quiz « tu me connais&nbsp;? »</h2>
-    <p class="sub">8 questions. Je te préviens tout de suite&nbsp;: c'est truqué en ta faveur.</p>
-    <div class="quiz" id="quiz"></div>
-    <p class="hint" id="quiz-msg"></p>
+  <!-- ============ 7 · LA CONSTELLATION ============ -->
+  <section class="card night" id="j-ciel">
+    <span class="hr dark">23:00</span>
+    <h2 class="h2">La constellation</h2>
+    <p class="sub">Relie les étoiles dans l'ordre, de 1 à 12. Il y a un dessin caché dedans.</p>
+    <div class="const" id="const"></div>
+    <p class="hint" id="const-msg">Commence par la première.</p>
   </section>
 
-  <!-- ============ 7 · BOUQUET ============ -->
-  <section class="card tilt-r" id="g-bouquet">
-    <span class="num">7</span>
-    <h2 class="h2">Cueille ton bouquet</h2>
-    <p class="sub">Cueille les 8 fleurs. Chacune porte un mot.</p>
-    <div class="field" id="field"></div>
-    <div class="vase" id="vase"><span class="vase-flowers" id="vase-flowers"></span><span class="vase-body">🏺</span></div>
-    <p class="hint" id="bouquet-msg">0 / 8 fleurs</p>
-  </section>
-
-  <!-- ============ MACHINE À COMPLIMENTS ============ -->
-  <section class="card machine">
-    <h2 class="h2 center">La machine à compliments</h2>
-    <p class="sub center">Illimitée. Aucune limite. Appuie autant que tu veux, elle ne tombera pas en panne.</p>
-    <div class="mach-screen" id="mach-screen">Appuie sur le bouton 👇</div>
-    <button class="btn big" id="mach-btn">Donne-m'en un 💫</button>
-    <p class="mach-count" id="mach-count"></p>
-  </section>
-
-  <!-- ============ MOT FINAL ============ -->
-  <section class="card final locked" id="final">
+  <!-- ============ MOT DU SOIR ============ -->
+  <section class="card fin locked" id="fin">
     <div class="lock" id="lock">
-      <span class="lock-emoji">🔒</span>
-      <p>Le mot de la fin s'ouvre quand tes 7 tampons sont remplis.</p>
-      <p class="lock-left" id="lock-left">Il t'en manque 7.</p>
+      <span class="lock-e">🌙</span>
+      <p>Le mot du soir s'ouvre quand le soleil a fait toute sa course.</p>
+      <p class="lock-l" id="lock-l">Encore 7 étapes.</p>
     </div>
-    <div class="final-in" id="final-in">
-      <h2 class="h2 center">Le mot de la fin 🤍</h2>
+    <div class="fin-in" id="fin-in">
+      <h2 class="h2 c">Le mot du soir 🌙</h2>
       <p>
-        Tu es arrivée au bout. Bravo — même si, honnêtement, j'aurais tout donné pareil.
+        Voilà, ta journée est finie. Tu l'as menée du réveil jusqu'aux étoiles,
+        et honnêtement tu as été bien plus patiente que je ne l'aurais été.
       </p>
       <p>
-        Je voulais que cette journée existe quelque part, parce que je ne peux pas
-        t'offrir un vrai bouquet aujourd'hui, ni un vrai gâteau, ni te prendre dans
-        mes bras. Alors j'ai fait ce que je pouvais faire d'ici&nbsp;: te fabriquer
-        un endroit qui n'appartient qu'à toi, et le remplir de moi.
+        Je voulais qu'il existe un endroit qui soit à toi. Pas un cadeau pour
+        une occasion, pas un truc de circonstance — juste une preuve, quelque
+        part, que même sans raison particulière tu comptes énormément.
       </p>
       <p>
-        Garde le lien. Reviens quand la journée est mauvaise, quand je te manque,
-        ou quand tu veux juste faire tourner la roue une deuxième fois en douce
-        (je ne dirai rien).
+        Garde le lien. Reviens quand tu veux, la journée recommence à chaque
+        fois. Et si un soir ça ne va pas, ouvre-le et rappelle-toi qu'à l'autre
+        bout de la France il y a quelqu'un qui a passé des heures à te
+        fabriquer un coin de bonne humeur.
       </p>
-      <p class="big-line">Et surtout&nbsp;: plus que <b id="days-left">…</b> jours.</p>
-      <p class="sign">Bonne journée de la copine, ma Stacy.<br>Je t'aime. — Enzo</p>
-      <a class="btn ghost" href="../nous/">Voir le compte à rebours →</a>
-      <button class="btn" id="boom">Encore des confettis 🎊</button>
+      <img class="fin-ours" src="nounours.webp" alt="" loading="lazy">
+      <p class="fin-cap">Lui aussi il veille. On se relaie.</p>
+      <p class="sign">Bonne nuit, ma Stacy. Je t'aime.<br>— Enzo</p>
+      <div class="row c">
+        <a class="btn small ghost" href="../nous/">Le compte à rebours →</a>
+        <button class="btn small" id="boom">Encore 🎊</button>
+      </div>
     </div>
   </section>
 
-  <footer class="foot">
-    Fait pour toi le 1<sup>er</sup> août 2026 · Enzo &amp; Stacy · (et Milo 🐾)
-  </footer>
+  <footer class="foot">Une journée fabriquée à la main, à 873 km · Enzo &amp; Stacy (et Milo 🐾)</footer>
 </main>
 
-<!-- easter egg : le nounours qui se cache au bord de l'écran -->
-<button class="peek" id="peek" aria-label="Quelque chose se cache ici">
-  <img src="nounours.webp" alt="" width="440" height="587" loading="lazy">
-</button>
+<!-- easter egg : Milo qui traverse -->
+<button class="milo-run" id="milo-run" aria-label="Milo"><img src="dog/milo1.jpg" alt="" loading="lazy"></button>
 
-<!-- popup -->
+<!-- fenêtre -->
 <div class="pop" id="pop" hidden>
-  <div class="pop-card">
+  <div class="pop-c">
     <button class="pop-x" id="pop-x" aria-label="Fermer">✕</button>
     <img class="pop-img" id="pop-img" alt="" hidden>
-    <div class="pop-emoji" id="pop-emoji">🎉</div>
-    <h3 class="pop-title" id="pop-title"></h3>
-    <p class="pop-text" id="pop-text"></p>
-    <button class="btn" id="pop-ok">Merci 💛</button>
+    <div class="pop-e" id="pop-e">🌞</div>
+    <h3 class="pop-t" id="pop-t"></h3>
+    <p class="pop-p" id="pop-p"></p>
+    <button class="btn small" id="pop-ok">Merci 🤍</button>
   </div>
 </div>
 
-<script src="script.js?v=5"></script>
+<script src="script.js?v=10"></script>
 </body>
 </html>
