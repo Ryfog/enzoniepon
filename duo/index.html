@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Duo — le jeu de nous deux 💜</title>
-  <meta name="description" content="Un jeu à deux, chacun sur son écran, en même temps.">
+  <title>Duo — jeu pour ma princesse 💜</title>
+  <meta name="description" content="Un jeu que pour notre couple.">
   <meta name="robots" content="noindex">
   <meta name="theme-color" content="#1a1030">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💜</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=1">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
@@ -20,9 +20,9 @@
 <!-- ==================== LOBBY ==================== -->
 <section class="screen on" id="s-lobby">
   <div class="glass lobby">
-    <p class="kick">Chacun son écran · en même temps</p>
+    <p class="kick">Jeu que pour notre couple</p>
     <h1 class="big">DUO</h1>
-    <p class="tag">Le jeu de nous deux</p>
+    <p class="tag">Jeu pour ma princesse</p>
 
     <label class="lab" for="pseudo">Ton prénom</label>
     <input class="in" id="pseudo" maxlength="14" placeholder="Enzo" autocomplete="off">
@@ -55,6 +55,14 @@
       <div class="pl" id="pl-h"><span class="av">🫶</span><b>—</b></div>
       <div class="vs">×</div>
       <div class="pl off" id="pl-g"><span class="av">💭</span><b>—</b></div>
+    </div>
+    <div class="lens" id="lens" hidden>
+      <p class="lab">Longueur de la partie</p>
+      <div class="len-row">
+        <button class="len" data-n="10">10 manches<small>~15 min</small></button>
+        <button class="len on" data-n="16">16 manches<small>~25 min</small></button>
+        <button class="len" data-n="24">24 manches<small>~40 min</small></button>
+      </div>
     </div>
     <button class="btn" id="b-start" hidden>Commencer la partie</button>
   </div>
@@ -125,6 +133,57 @@
       <p class="guesses" id="des-live"></p>
     </div>
 
+    <!-- BRAS DE FER -->
+    <div class="mode" id="m-bra" hidden>
+      <p class="q">Bras de fer&nbsp;! Martèle le bouton.</p>
+      <div class="rope">
+        <span class="rope-end l" id="bra-nl">—</span>
+        <div class="rope-track"><span class="rope-heart" id="bra-h">💗</span></div>
+        <span class="rope-end r" id="bra-nr">—</span>
+      </div>
+      <button class="masher" id="bra-b">TIRE&nbsp;!</button>
+      <p class="wait-l" id="bra-w">—</p>
+    </div>
+
+    <!-- PUISSANCE 4 -->
+    <div class="mode" id="m-p4" hidden>
+      <p class="q" id="p4-q">Puissance 4</p>
+      <div class="p4" id="p4-grid"></div>
+      <p class="wait-l" id="p4-w">—</p>
+    </div>
+
+    <!-- PIERRE FEUILLE CISEAUX -->
+    <div class="mode" id="m-pfc" hidden>
+      <p class="q">Pierre, feuille, ciseaux — au meilleur des 3.</p>
+      <div class="pfc-sc" id="pfc-sc">0 — 0</div>
+      <div class="three">
+        <button class="pick pfc" data-v="pierre"><span class="av">✊</span><b>Pierre</b></button>
+        <button class="pick pfc" data-v="feuille"><span class="av">✋</span><b>Feuille</b></button>
+        <button class="pick pfc" data-v="ciseaux"><span class="av">✌️</span><b>Ciseaux</b></button>
+      </div>
+      <p class="wait-l" id="pfc-w">—</p>
+    </div>
+
+    <!-- VRAI OU FAUX -->
+    <div class="mode" id="m-vf" hidden>
+      <p class="q" id="vf-q">—</p>
+      <div id="vf-write" hidden>
+        <input class="in" id="vf-in" maxlength="90" placeholder="Ex : j'ai déjà mangé une pizza entière tout seul" autocomplete="off">
+        <div class="two vf-two">
+          <button class="btn" id="vf-true">C'est VRAI</button>
+          <button class="btn ghost" id="vf-false">C'est FAUX</button>
+        </div>
+      </div>
+      <div id="vf-guess" hidden>
+        <p class="vf-claim" id="vf-claim">—</p>
+        <div class="two vf-two">
+          <button class="btn" id="vf-gt">Je dis VRAI</button>
+          <button class="btn ghost" id="vf-gf">Je dis FAUX</button>
+        </div>
+      </div>
+      <p class="wait-l" id="vf-w">—</p>
+    </div>
+
     <!-- RÉVÉLATION -->
     <div class="mode reveal" id="m-rev" hidden>
       <div class="rev-e" id="rev-e">✨</div>
@@ -154,6 +213,6 @@
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<script src="game.js?v=1"></script>
+<script src="game.js?v=2"></script>
 </body>
 </html>

@@ -62,14 +62,27 @@ const MOTS = [
   'valise', 'lunettes', 'appareil photo', 'glace', 'soleil', 'maison'
 ];
 
-const SUITE = ['qui', 'ref', 'syn', 'qui', 'des', 'qui', 'ref', 'syn', 'qui', 'des'];
-const NOMS = { qui: 'Qui de nous deux', ref: 'Duel de réflexe', syn: 'Synchro', des: 'Dessine-moi' };
+/* 24 manches d'affilée, on coupe selon la longueur choisie */
+const MOTIF = [
+  'qui', 'ref', 'syn', 'p4', 'qui', 'des', 'pfc', 'vf', 'qui', 'bra',
+  'syn', 'des', 'qui', 'ref', 'p4', 'vf', 'qui', 'bra', 'syn', 'des',
+  'pfc', 'qui', 'vf', 'p4'
+];
+let SUITE = MOTIF.slice(0, 16);
+const NOMS = {
+  qui: 'Qui de nous deux', ref: 'Duel de réflexe', syn: 'Synchro',
+  des: 'Dessine-moi', bra: 'Bras de fer', p4: 'Puissance 4',
+  pfc: 'Pierre feuille ciseaux', vf: 'Vrai ou faux'
+};
+const BAT = { pierre: 'ciseaux', feuille: 'pierre', ciseaux: 'feuille' };
+const P4C = 7, P4L = 6;
 
 /* ============ ÉTAT ============ */
 let peer = null, conn = null, hote = false, moi = 'h', autre = 'g';
 let st = null, sacQui = [], sacSyn = [], sacMots = [], rtt = 60;
 let minuteur = null, chrono = null;
 
+let longueur = 16;
 const neuf = () => ({
   ph: 'round', i: 0, total: SUITE.length, type: 'qui',
   q: '', ans: { h: null, g: null }, sc: { h: 0, g: 0 },
@@ -98,6 +111,7 @@ function recois(m) {
   }
   else if (m.t === 'WELCOME') { st.nm[autre] = m.nom || 'L\'autre'; ecran('s-wait'); majAttente(); }
   else if (m.t === 'GO') topDepart();
+  else if (m.t === 'BF') poulsRecu(m);
   else if (m.t === 'D') dessineDistant(m);
   else if (m.t === 'PING') envoie({ t: 'PONG', k: m.k });
   else if (m.t === 'PONG') rtt = Math.min(400, Date.now() - m.k);
@@ -175,9 +189,20 @@ function majAttente() {
   $('#pl-g').classList.toggle('off', !st.nm.g);
   $('#wait-txt').textContent = pret ? 'Vous êtes deux. C\'est parti quand vous voulez.' : 'En attente de l\'autre…';
   $('#b-start').hidden = !(pret && hote);
+  $('#lens').hidden = !(pret && hote);
 }
 
-$('#b-start').addEventListener('click', () => { if (hote) manche(0); });
+$$('.len').forEach(b => b.addEventListener('click', () => {
+  longueur = +b.dataset.n;
+  $$('.len').forEach(x => x.classList.toggle('on', x === b));
+}));
+
+$('#b-start').addEventListener('click', () => {
+  if (!hote) return;
+  SUITE = MOTIF.slice(0, longueur);
+  st.total = SUITE.length;
+  manche(0);
+});
 
 /* =========================================================
    MOTEUR (hôte uniquement)
@@ -205,6 +230,43 @@ function manche(i) {
     st.fin = Date.now() + 90000;
     minuteur = setTimeout(() => { if (st.ph === 'round') reveler({ e: '⏰', t: 'Temps écoulé', p: `C\'était « ${st.q} ».` }); }, 90000);
   }
+  if (st.type === 'bra') {
+    st.bf = { h: 0, g: 0 };
+    diffuse();
+    clearInterval(pouls);
+    pouls = setInterval(() => envoie({ t: 'BF', h: st.bf.h, g: st.bf.g }), 120);
+    minuteur = setTimeout(() => {
+      clearInterval(pouls);
+      const a = st.bf.h, b = st.bf.g;
+      if (a === b) reveler({ e: '🤝', t: 'Parfaitement à égalité', p: `${a} coups chacun. Bien joué tous les deux.` });
+      else {
+        const w = a > b ? 'h' : 'g';
+        st.sc[w]++;
+        reveler({ e: '💪', t: `${st.nm[w]} l'emporte !`, p: `${Math.max(a, b)} coups contre ${Math.min(a, b)}.` });
+      }
+    }, 12000);
+    return;
+  }
+
+  if (st.type === 'p4') {
+    st.p4 = { b: Array(P4C * P4L).fill(''), tour: i % 2 === 0 ? 'h' : 'g', win: null };
+    diffuse();
+    return;
+  }
+
+  if (st.type === 'pfc') {
+    st.pfc = { h: 0, g: 0, n: 1, res: '' };
+    diffuse();
+    return;
+  }
+
+  if (st.type === 'vf') {
+    st.vf = { teller: i % 2 === 0 ? 'h' : 'g', txt: '', truth: null };
+    st.sub = 'write';
+    diffuse();
+    return;
+  }
+
   if (st.type === 'ref') {
     st.q = '';
     diffuse();
@@ -268,12 +330,92 @@ function action(qui, a) {
     } else diffuse();
   }
 
+  /* --- bras de fer --- */
+  else if (a.k === 'bf' && st.ph === 'round' && st.type === 'bra') {
+    st.bf[qui] = Math.max(st.bf[qui], a.n | 0);
+  }
+
+  /* --- puissance 4 --- */
+  else if (a.k === 'p4' && st.ph === 'round' && st.type === 'p4') {
+    const P = st.p4;
+    if (P.tour !== qui) return;
+    let pos = -1;
+    for (let l = P4L - 1; l >= 0; l--) { const idx = l * P4C + a.c; if (!P.b[idx]) { pos = idx; break; } }
+    if (pos < 0) return;
+    P.b[pos] = qui;
+    const w = gagneP4(P.b, pos);
+    if (w) {
+      P.win = w;
+      st.sc[qui]++;
+      reveler({ e: '🔴', t: `${st.nm[qui]} aligne 4 jetons !`, p: 'Puissance 4, sans discussion.' });
+      return;
+    }
+    if (P.b.every(Boolean)) { reveler({ e: '⚖️', t: 'Grille pleine', p: 'Match nul, personne ne marque.' }); return; }
+    P.tour = qui === 'h' ? 'g' : 'h';
+    diffuse();
+  }
+
+  /* --- pierre feuille ciseaux --- */
+  else if (a.k === 'pfc' && st.ph === 'round' && st.type === 'pfc') {
+    st.ans[qui] = a.v;
+    if (!st.ans.h || !st.ans.g) { diffuse(); return; }
+    const A = st.ans.h, B = st.ans.g;
+    if (A === B) st.pfc.res = `Égalité : ${A} contre ${B}.`;
+    else if (BAT[A] === B) { st.pfc.h++; st.pfc.res = `${A} bat ${B} — point pour ${st.nm.h}.`; }
+    else { st.pfc.g++; st.pfc.res = `${B} bat ${A} — point pour ${st.nm.g}.`; }
+    st.ans = { h: null, g: null };
+    if (st.pfc.h === 2 || st.pfc.g === 2) {
+      const w = st.pfc.h === 2 ? 'h' : 'g';
+      st.sc[w]++;
+      reveler({ e: '✌️', t: `${st.nm[w]} gagne la manche`, p: `${st.pfc.h} — ${st.pfc.g}. ${st.pfc.res}` });
+      return;
+    }
+    st.pfc.n++;
+    diffuse();
+  }
+
+  /* --- vrai ou faux --- */
+  else if (a.k === 'vfw' && st.sub === 'write' && qui === st.vf.teller) {
+    st.vf.txt = (a.txt || '').slice(0, 90);
+    st.vf.truth = !!a.v;
+    st.sub = 'guess';
+    diffuse();
+  }
+  else if (a.k === 'vfg' && st.sub === 'guess' && qui !== st.vf.teller) {
+    const bon = a.v === st.vf.truth;
+    st.sc[bon ? qui : st.vf.teller]++;
+    st.sub = null;
+    reveler({
+      e: bon ? '🕵️' : '🎭',
+      t: bon ? 'Bien vu !' : 'Raté !',
+      p: `« ${st.vf.txt} » — c'était ${st.vf.truth ? 'VRAI' : 'FAUX'}. Le point va à ${st.nm[bon ? qui : st.vf.teller]}.`
+    });
+  }
+
   else if (a.k === 'next' && st.ph === 'rev') manche(st.i + 1);
   else if (a.k === 'again') { st = { ...neuf(), nm: st.nm }; sacQui = []; sacSyn = []; sacMots = []; manche(0); }
 }
 
+/* 4 alignés à partir de la case qu'on vient de poser */
+function gagneP4(b, pos) {
+  const c0 = pos % P4C, l0 = Math.floor(pos / P4C), j = b[pos];
+  const DIRS = [[1, 0], [0, 1], [1, 1], [1, -1]];
+  for (const [dc, dl] of DIRS) {
+    const suite = [pos];
+    for (const s of [1, -1]) {
+      let c = c0 + dc * s, l = l0 + dl * s;
+      while (c >= 0 && c < P4C && l >= 0 && l < P4L && b[l * P4C + c] === j) {
+        suite.push(l * P4C + c); c += dc * s; l += dl * s;
+      }
+    }
+    if (suite.length >= 4) return suite;
+  }
+  return null;
+}
+
 function reveler(r) {
   clearTimeout(minuteur);
+  clearInterval(pouls);
   st.go = false;
   st.ph = 'rev';
   st.rev = r;
@@ -375,6 +517,64 @@ function rendu() {
     $('#ref-w').textContent = st.go ? 'MAINTENANT !' : 'Attends le signal… ne clique pas trop tôt.';
   }
 
+  else if (st.type === 'bra') {
+    on('m-bra');
+    $('#bra-nl').textContent = st.nm[moi];
+    $('#bra-nr').textContent = st.nm[autre];
+    $('#bra-b').disabled = false;
+    if (manchePrec !== st.i) { manchePrec = st.i; mesCoups = 0; finLocale = Date.now() + 12000; }
+    corde(st.bf ? st.bf[moi] : 0, st.bf ? st.bf[autre] : 0);
+    lanceChronoBra();
+  }
+
+  else if (st.type === 'p4') {
+    on('m-p4');
+    const P = st.p4, aMoi = P.tour === moi;
+    $('#p4-q').textContent = aMoi ? 'À toi de jouer.' : `${st.nm[autre]} réfléchit…`;
+    const g = $('#p4-grid');
+    g.classList.toggle('off', !aMoi);
+    if (g.children.length !== P4C * P4L) {
+      g.innerHTML = '';
+      for (let k = 0; k < P4C * P4L; k++) {
+        const b = document.createElement('button');
+        b.addEventListener('click', () => jouer({ k: 'p4', c: k % P4C }));
+        g.appendChild(b);
+      }
+    }
+    [...g.children].forEach((b, k) => {
+      b.className = P.b[k] ? (P.b[k] === moi ? 'h' : 'g') : '';
+      if (P.win && P.win.includes(k)) b.classList.add('win');
+    });
+    $('#p4-w').textContent = aMoi ? 'Clique dans la colonne de ton choix.' : 'Patience…';
+  }
+
+  else if (st.type === 'pfc') {
+    on('m-pfc');
+    $('#pfc-sc').textContent = `${st.pfc[moi]} — ${st.pfc[autre]}`;
+    const fait = !!st.ans[moi];
+    $$('.pfc').forEach(b => { b.disabled = fait; b.classList.toggle('on', st.ans[moi] === b.dataset.v); });
+    $('#pfc-w').textContent = st.pfc.res
+      ? `${st.pfc.res} — duel ${st.pfc.n}/3`
+      : (fait ? 'Choisi. On attend l\'autre…' : `Duel ${st.pfc.n} : choisis vite.`);
+  }
+
+  else if (st.type === 'vf') {
+    on('m-vf');
+    const jeRaconte = st.vf.teller === moi;
+    $('#vf-write').hidden = !(jeRaconte && st.sub === 'write');
+    $('#vf-guess').hidden = !(!jeRaconte && st.sub === 'guess');
+    if (st.sub === 'write') {
+      $('#vf-q').textContent = jeRaconte
+        ? 'Raconte un truc sur toi. Vrai ou complètement inventé, à toi de voir.'
+        : `${st.nm[autre]} prépare quelque chose sur lui…`;
+      $('#vf-w').textContent = jeRaconte ? 'Écris, puis dis-moi si c\'est vrai ou faux.' : 'Ça arrive…';
+    } else {
+      $('#vf-claim').textContent = st.vf.txt;
+      $('#vf-q').textContent = jeRaconte ? 'À elle/lui de deviner…' : `${st.nm[autre]} affirme :`;
+      $('#vf-w').textContent = jeRaconte ? 'On verra bien si ça passe.' : 'Vrai, ou bien il/elle t\'embrouille ?';
+    }
+  }
+
   else if (st.type === 'des') {
     on('m-des');
     const jeDessine = st.drawer === moi;
@@ -401,6 +601,54 @@ function lanceChrono() {
     $('#des-w').textContent = `${r} s`;
   }, 250);
 }
+
+/* --- bras de fer --- */
+let mesCoups = 0, dernierEnvoi = 0, chronoBra = null, pouls = null;
+
+function corde(a, b) {
+  const t = a + b;
+  const p = t ? (a / t) : .5;                 // 0 = tout à gauche
+  $('#bra-h').style.left = (12 + p * 76) + '%';
+}
+function lanceChronoBra() {
+  clearInterval(chronoBra);
+  chronoBra = setInterval(() => {
+    if (!st || st.type !== 'bra' || st.ph !== 'round') { clearInterval(chronoBra); return; }
+    const r = Math.max(0, Math.ceil((finLocale - Date.now()) / 1000));
+    $('#bra-w').textContent = `${r} s — ${mesCoups} coups`;
+    if (r === 0) $('#bra-b').disabled = true;
+  }, 150);
+}
+$('#bra-b').addEventListener('pointerdown', e => {
+  e.preventDefault();
+  if (!st || st.type !== 'bra' || st.ph !== 'round' || Date.now() > finLocale) return;
+  mesCoups++;
+  const now = Date.now();
+  if (now - dernierEnvoi > 110) { dernierEnvoi = now; jouer({ k: 'bf', n: mesCoups }); }
+});
+
+/* le pouls du bras de fer : l'hôte envoie les deux compteurs 8 fois par seconde */
+function poulsRecu(m) {
+  if (!st || st.type !== 'bra') return;
+  if (hote) return;
+  st.bf = { h: m.h, g: m.g };
+  corde(st.bf[moi], st.bf[autre]);
+}
+
+/* --- pierre feuille ciseaux --- */
+$$('.pfc').forEach(b => b.addEventListener('click', () => jouer({ k: 'pfc', v: b.dataset.v })));
+
+/* --- vrai ou faux --- */
+function envoieVF(v) {
+  const t = $('#vf-in').value.trim();
+  if (!t) { toast('Écris quelque chose d\'abord'); return; }
+  jouer({ k: 'vfw', txt: t, v });
+  $('#vf-in').value = '';
+}
+$('#vf-true').addEventListener('click', () => envoieVF(true));
+$('#vf-false').addEventListener('click', () => envoieVF(false));
+$('#vf-gt').addEventListener('click', () => jouer({ k: 'vfg', v: true }));
+$('#vf-gf').addEventListener('click', () => jouer({ k: 'vfg', v: false }));
 
 /* --- réflexe --- */
 function topDepart() {
