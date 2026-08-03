@@ -71,10 +71,12 @@ function recois(m) {
     envoie({ t: 'WELCOME', nom: st.nm[moi] });
     if (!st.demarree) { ecran('s-wait'); majAttente(); }
     diffuse();
+    setTimeout(renvoieDessin, 250);      // l'autre revient : on lui rend le dessin
   }
   else if (m.t === 'WELCOME') {
     st.nm[autre] = m.nom || 'L\'autre';
     if (!st.demarree) { ecran('s-wait'); majAttente(); }
+    setTimeout(renvoieDessin, 250);
   }
   else if (m.t === 'GO') topDepart();
   else if (m.t === 'BF') poulsRecu(m);
@@ -717,10 +719,10 @@ function rendu() {
     const jeDessine = st.drawer === moi;
     $('#des-q').textContent = jeDessine ? `Fais-lui deviner : « ${st.q} »` : `${st.nm[st.drawer]} dessine. À toi de trouver.`;
     $('#des-tools').hidden = !jeDessine;
-    $('#des-guessbox').hidden = jeDessine;
+    $('#des-form').hidden = jeDessine;
     pad.style.cursor = jeDessine ? 'crosshair' : 'default';
     $('#des-live').innerHTML = (st.guesses || []).map(g => `<b>${esc(g)}</b>`).join(' · ');
-    if (manchePrec !== st.i) { manchePrec = st.i; finLocale = Date.now() + (st.dur.des || 90000); raz(); }
+    if (manchePrec !== st.i) { manchePrec = st.i; finLocale = Date.now() + (st.dur.des || 90000); raz(); histTrace = []; }
     lanceChrono();
   }
 }
@@ -846,6 +848,9 @@ $('#bra-b').addEventListener('pointerdown', e => {
 /* dessin */
 const pad = $('#pad'), ctx = pad.getContext('2d');
 let trace = false, coul = '#ffffff', buf = [], dernier = null;
+/* on garde tout le tracé de la manche pour pouvoir le renvoyer
+   si l'autre perd la connexion en plein milieu */
+let histTrace = [];
 function raz() { ctx.clearRect(0, 0, pad.width, pad.height); }
 function segment(a, b, c) {
   ctx.strokeStyle = c; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
@@ -867,7 +872,19 @@ pad.addEventListener('pointermove', e => {
   if (buf.length > 6) purge();
 });
 addEventListener('pointerup', () => { if (trace) { trace = false; purge(); } });
-function purge() { if (!buf.length) return; envoie({ t: 'D', s: buf, c: coul }); buf = []; }
+function purge() {
+  if (!buf.length) return;
+  const m = { t: 'D', s: buf, c: coul };
+  histTrace.push(m);
+  envoie(m);
+  buf = [];
+}
+/* renvoie tout le dessin en cours (après une reconnexion) */
+function renvoieDessin() {
+  if (!st || st.type !== 'des' || st.drawer !== moi || !histTrace.length) return;
+  envoie({ t: 'D', raz: true });
+  histTrace.forEach(m => envoie(m));
+}
 function dessineDistant(m) {
   if (m.raz) { raz(); return; }
   (m.s || []).forEach(s => segment([s[0], s[1]], [s[2], s[3]], m.c));
@@ -877,12 +894,16 @@ $$('.tool').forEach(b => b.addEventListener('click', () => {
   $$('.tool').forEach(x => x.classList.remove('on'));
   b.classList.add('on');
 }));
-$('#des-clear').addEventListener('click', () => { raz(); envoie({ t: 'D', raz: true }); });
-$('#des-in').addEventListener('keydown', e => {
-  if (e.key !== 'Enter') return;
-  const v = e.target.value.trim();
-  if (!v) return;
-  jouer({ k: 'guess', v }); e.target.value = '';
+$('#des-clear').addEventListener('click', () => { raz(); histTrace = []; envoie({ t: 'D', raz: true }); });
+
+/* formulaire : marche au bouton ET à la touche entrée du clavier mobile */
+$('#des-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const el = $('#des-in'), v = el.value.trim();
+  if (!v) { el.focus(); return; }
+  jouer({ k: 'guess', v });
+  el.value = '';
+  el.focus();
 });
 
 /* =========================================================

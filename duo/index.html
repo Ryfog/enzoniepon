@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 
@@ -143,9 +143,11 @@
           <button class="tool" data-c="#ffd76e" style="--c:#ffd76e"></button>
           <button class="btn ghost small" id="des-clear">Effacer</button>
         </div>
-        <div class="guessbox" id="des-guessbox" hidden>
-          <input class="in" id="des-in" maxlength="30" placeholder="c'est quoi ?" autocomplete="off">
-        </div>
+        <form class="guessbox" id="des-form" hidden>
+          <input class="in" id="des-in" maxlength="30" placeholder="c'est quoi ?"
+                 autocomplete="off" autocapitalize="off" enterkeyhint="send">
+          <button class="btn small" type="submit" id="des-send">Envoyer</button>
+        </form>
       </div>
       <p class="wait-l" id="des-w"></p>
       <p class="guesses" id="des-live"></p>
@@ -269,7 +271,7 @@
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<script src="contenu.js?v=4"></script>
-<script src="game.js?v=4"></script>
+<script src="contenu.js?v=5"></script>
+<script src="game.js?v=5"></script>
 </body>
 </html>
