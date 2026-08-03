@@ -3,26 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Parkour — à deux 🏃</title>
+  <title>Le Grand Ouvrage — à deux 🧶</title>
   <meta name="description" content="Un jeu de plateforme coopératif, chacun son personnage.">
   <meta name="robots" content="noindex">
-  <meta name="theme-color" content="#0d1b26">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏃</text></svg>">
+  <meta name="theme-color" content="#2a1f18">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧶</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=1">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
-<div class="grid" aria-hidden="true"></div>
+<div class="toile" aria-hidden="true"></div>
 
 <!-- ==================== ACCUEIL ==================== -->
 <section class="screen on" id="s-menu">
   <div class="panel">
-    <p class="pix small">CO-OP · 2 JOUEURS</p>
-    <h1 class="pix titre">PARKOUR</h1>
-    <p class="sous">Chacun son personnage, chacun son clavier.<br>Il faut arriver au bout <b>à deux</b>.</p>
+    <p class="petit">Coopératif · 2 joueurs · chacun son écran</p>
+    <h1 class="titre">Le Grand<br>Ouvrage</h1>
+    <p class="sous">Deux bonshommes de laine, cinq mondes cousus main.<br>Il faut arriver au bout <b>à deux</b>.</p>
 
     <label class="lab" for="pseudo">Ton prénom</label>
     <input class="in" id="pseudo" maxlength="12" placeholder="Enzo" autocomplete="off">
@@ -42,9 +42,9 @@
     <p class="err" id="err"></p>
 
     <div class="touches">
-      <span><b>Q</b> <b>D</b> ou <b>←</b> <b>→</b> — courir</span>
-      <span><b>Z</b> <b>Espace</b> ou <b>↑</b> — sauter</span>
-      <span><b>R</b> — recommencer le niveau</span>
+      <span><b>Q</b><b>D</b> ou <b>←</b><b>→</b> courir</span>
+      <span><b>Z</b><b>Espace</b> ou <b>↑</b> sauter</span>
+      <span><b>R</b> recommencer le niveau</span>
     </div>
   </div>
 </section>
@@ -52,7 +52,7 @@
 <!-- ==================== ATTENTE ==================== -->
 <section class="screen" id="s-wait">
   <div class="panel">
-    <p class="pix small">SALON OUVERT</p>
+    <p class="petit">Partie ouverte</p>
     <div class="code-big" id="code-big">····</div>
     <button class="btn ghost small" id="b-copy">Copier le code</button>
     <p class="sous" id="wait-txt">En attente de l'autre joueur…</p>
@@ -67,15 +67,16 @@
 <!-- ==================== JEU ==================== -->
 <section class="screen" id="s-jeu">
   <div class="hud">
-    <span class="pix small" id="h-niv">NIVEAU 1</span>
+    <span class="badge" id="h-niv">NIVEAU 1</span>
     <span class="hud-nom" id="h-titre">—</span>
-    <span class="pix small" id="h-coeurs">♥ 0</span>
+    <span class="badge or" id="h-boutons">● 0 / 0</span>
   </div>
   <div class="scene">
     <canvas id="cv" width="1280" height="720"></canvas>
     <div class="aide" id="aide"></div>
     <div class="fin" id="fin" hidden>
-      <p class="pix" id="fin-t">BRAVO !</p>
+      <p class="fin-t" id="fin-t">NIVEAU TERMINÉ</p>
+      <div class="fin-stats" id="fin-stats"></div>
       <p class="sous" id="fin-p"></p>
       <button class="btn" id="b-next">Niveau suivant →</button>
     </div>
@@ -86,7 +87,8 @@
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<script src="niveaux.js?v=1"></script>
-<script src="jeu.js?v=1"></script>
+<script src="mondes.js?v=2"></script>
+<script src="rendu.js?v=2"></script>
+<script src="jeu.js?v=2"></script>
 </body>
 </html>
