@@ -1,93 +1,53 @@
 /* =========================================================
-   DUO — jeu de couple en temps réel (WebRTC pair-à-pair)
-   L'hôte tient l'état du jeu, l'invité envoie ses actions.
+   DUO — moteur du jeu (WebRTC pair-à-pair)
+   L'hôte tient l'état, l'invité envoie ses actions.
+   Les banques de contenu sont dans contenu.js
    ========================================================= */
 const $  = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const pick = a => a[Math.floor(Math.random() * a.length)];
 const melange = a => [...a].sort(() => Math.random() - .5);
+const esc = s => String(s).replace(/[<>&"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]));
 const PREFIXE = 'duo-es-';
 
-/* ============ CONTENU ============ */
-const QUI = [
-  'Qui dit « je t\'aime » en premier le matin ?',
-  'Qui met le plus de temps à se préparer ?',
-  'Qui est le plus jaloux des deux ?',
-  'Qui craquerait en premier après une dispute ?',
-  'Qui mange le plus ?',
-  'Qui est le plus bordélique ?',
-  'Qui prend le plus de place dans le lit ?',
-  'Qui rigole le plus pour rien ?',
-  'Qui est le plus tête en l\'air ?',
-  'Qui ferait le plus de bêtises si l\'autre n\'était pas là ?',
-  'Qui a le plus de mal à se lever ?',
-  'Qui pleure devant les films ?',
-  'Qui est le plus rancunier ?',
-  'Qui parle le plus au téléphone ?',
-  'Qui a le pire goût musical ?',
-  'Qui serait le plus perdu sans l\'autre ?',
-  'Qui gagnerait à un bras de fer ?',
-  'Qui est le meilleur en cuisine ?',
-  'Qui râle le plus ?',
-  'Qui offre les meilleurs cadeaux ?',
-  'Qui a dit « je t\'aime » en premier, au tout début ?',
-  'Qui est le plus jaloux de Milo ?',
-  'Qui chante le plus faux ?',
-  'Qui conduirait le mieux sur un long trajet ?',
-  'Qui s\'endort en premier le soir ?',
-  'Qui est le plus doué pour consoler l\'autre ?',
-  'Qui envoie le plus de messages dans la journée ?',
-  'Qui serait incapable de garder un secret ?'
-];
-
-const SYNCHRO = [
-  'Notre meilleur souvenir, en un mot.',
-  'Le tout premier truc qu\'on fait le 16 septembre ?',
-  'Un plat qu\'on mangera ensemble.',
-  'Un endroit où on doit absolument aller tous les deux.',
-  'Un mot pour décrire l\'autre.',
-  'Notre chanson, s\'il fallait en choisir une.',
-  'Un animal en plus de Milo, ce serait quoi ?',
-  'Le prénom de notre futur chat imaginaire.',
-  'Une couleur pour notre futur salon.',
-  'Ce qui te manque le plus, là, maintenant.',
-  'Un film qu\'on doit revoir ensemble.',
-  'Notre pire habitude à tous les deux.'
-];
-
-const MOTS = [
-  'chien', 'bague', 'gâteau', 'voiture', 'coeur', 'lune', 'pizza', 'lit',
-  'train', 'parapluie', 'café', 'avion', 'fleur', 'étoile', 'chat', 'guitare',
-  'vélo', 'montagne', 'plage', 'cadeau', 'clé', 'fantôme', 'robot', 'château',
-  'valise', 'lunettes', 'appareil photo', 'glace', 'soleil', 'maison'
-];
-
-/* 24 manches d'affilée, on coupe selon la longueur choisie */
-const MOTIF = [
-  'qui', 'ref', 'syn', 'p4', 'qui', 'des', 'pfc', 'vf', 'qui', 'bra',
-  'syn', 'des', 'qui', 'ref', 'p4', 'vf', 'qui', 'bra', 'syn', 'des',
-  'pfc', 'qui', 'vf', 'p4'
-];
-let SUITE = MOTIF.slice(0, 16);
+const TYPES = ['qui', 'syn', 'des', 'ref', 'bra', 'p4', 'pfc', 'vf', 'pre', 'int', 'cha', 'mem', 'qz'];
 const NOMS = {
-  qui: 'Qui de nous deux', ref: 'Duel de réflexe', syn: 'Synchro',
-  des: 'Dessine-moi', bra: 'Bras de fer', p4: 'Puissance 4',
-  pfc: 'Pierre feuille ciseaux', vf: 'Vrai ou faux'
+  qui: 'Qui de nous deux', syn: 'Synchro', des: 'Dessine-moi', ref: 'Duel de réflexe',
+  bra: 'Bras de fer', p4: 'Puissance 4', pfc: 'Pierre feuille ciseaux', vf: 'Vrai ou faux',
+  pre: 'Tu préfères', int: 'Trouve l\'intrus', cha: 'Chasse aux cœurs',
+  mem: 'Memory à deux', qz: 'Quiz éclair'
 };
 const BAT = { pierre: 'ciseaux', feuille: 'pierre', ciseaux: 'feuille' };
 const P4C = 7, P4L = 6;
 
+/* ============ MÉMOIRE ANTI-RÉPÉTITION ============ */
+const CLE_H = 'duo_hist';
+let HIST = {};
+try { HIST = JSON.parse(localStorage.getItem(CLE_H) || '{}'); } catch (e) { HIST = {}; }
+const sauveHist = () => { try { localStorage.setItem(CLE_H, JSON.stringify(HIST)); } catch (e) {} };
+
+/* tire un élément jamais vu ; quand le stock est épuisé on repart à zéro */
+function tirer(cat, arr) {
+  let vus = HIST[cat] || [];
+  let libres = arr.map((_, i) => i).filter(i => !vus.includes(i));
+  if (libres.length < 2) { vus = []; libres = arr.map((_, i) => i); }
+  const i = pick(libres);
+  vus.push(i);
+  HIST[cat] = vus; sauveHist();
+  return arr[i];
+}
+
 /* ============ ÉTAT ============ */
 let peer = null, conn = null, hote = false, moi = 'h', autre = 'g';
-let st = null, sacQui = [], sacSyn = [], sacMots = [], rtt = 60;
-let minuteur = null, chrono = null;
+let st = null, rtt = 60, longueur = 16, rythme = 1;
+let actifs = TYPES.slice();
+let minuteur = null, chrono = null, pouls = null, bonQz = 0, tempo = null;
+let SUITE = [];
 
-let longueur = 16;
 const neuf = () => ({
-  demarree: false,
-  ph: 'round', i: 0, total: SUITE.length, type: 'qui',
+  demarree: false, ph: 'round', i: 0, total: longueur, type: 'qui',
   q: '', ans: { h: null, g: null }, sc: { h: 0, g: 0 },
-  nm: { h: '', g: '' }, rev: null, drawer: 'h', fin: 0
+  nm: { h: '', g: '' }, rev: null, drawer: 'h', dur: {}
 });
 
 /* ============ RÉSEAU ============ */
@@ -95,64 +55,20 @@ function envoie(m) { if (conn && conn.open) conn.send(m); }
 function diffuse() { envoie({ t: 'S', st }); rendu(); }
 
 function brancher(c) {
-  if (conn && conn !== c) {
-    conn.remplacee = true;                 // fermeture volontaire : pas d'alerte
-    try { conn.close(); } catch (e) {}
-  }
+  if (conn && conn !== c) { conn.remplacee = true; try { conn.close(); } catch (e) {} }
   conn = c;
   c.on('data', m => recois(m));
-  c.on('close', () => {
-    if (c.remplacee) return;
-    toast('Connexion perdue — reconnexion…');
-    relance();
-  });
+  c.on('close', () => { if (c.remplacee) return; toast('Connexion perdue — reconnexion…'); relance(); });
   c.on('error', () => { if (!c.remplacee) relance(); });
-}
-
-/* ---------- reconnexion ----------
-   Le mobile coupe la liaison dès que l'écran se verrouille ou que le
-   réseau change. On retente tout seul, et l'hôte renvoie l'état complet
-   pour que la partie reprenne exactement où elle en était. */
-let codeSalon = '', boucleRetour = null, essais = 0, garde = null;
-
-function relance() {
-  if (hote || !codeSalon || boucleRetour) return;
-  essais = 0;
-  boucleRetour = setInterval(() => {
-    if (conn && conn.open) {
-      clearInterval(boucleRetour); boucleRetour = null;
-      toast('Reconnecté 💜'); return;
-    }
-    if (++essais > 25) {
-      clearInterval(boucleRetour); boucleRetour = null;
-      toast('Reconnexion impossible. Recharge la page.'); return;
-    }
-    try {
-      if (peer.disconnected && !peer.destroyed) peer.reconnect();
-      const c = peer.connect(PREFIXE + codeSalon, { reliable: true });
-      brancher(c);
-      c.on('open', () => envoie({ t: 'HELLO', nom: monNom() }));
-    } catch (e) {}
-  }, 2500);
-}
-
-/* on garde la liaison éveillée, sinon elle s'endort toute seule */
-function surveille() {
-  clearInterval(garde);
-  garde = setInterval(() => {
-    if (conn && conn.open) envoie({ t: 'KA' });
-    else relance();
-  }, 10000);
 }
 
 function recois(m) {
   if (m.t === 'S') { st = m.st; rendu(); }
   else if (m.t === 'A' && hote) action(autre, m.a);
-  else if (m.t === 'KA') { /* juste un battement de cœur */ }
+  else if (m.t === 'KA') { /* battement de cœur */ }
   else if (m.t === 'HELLO') {
     st.nm[autre] = m.nom || 'L\'autre';
     envoie({ t: 'WELCOME', nom: st.nm[moi] });
-    // si la partie tourne déjà, c'est une reconnexion : on ne repart pas au salon
     if (!st.demarree) { ecran('s-wait'); majAttente(); }
     diffuse();
   }
@@ -166,19 +82,35 @@ function recois(m) {
   else if (m.t === 'PING') envoie({ t: 'PONG', k: m.k });
   else if (m.t === 'PONG') rtt = Math.min(400, Date.now() - m.k);
 }
+function ping() { envoie({ t: 'PING', k: Date.now() }); }
 
-function ping() {
-  const k = Date.now();
-  envoie({ t: 'PING', k });
+/* ---------- reconnexion ---------- */
+let codeSalon = '', boucleRetour = null, essais = 0, garde = null;
+
+function relance() {
+  if (hote || !codeSalon || boucleRetour) return;
+  essais = 0;
+  boucleRetour = setInterval(() => {
+    if (conn && conn.open) { clearInterval(boucleRetour); boucleRetour = null; toast('Reconnecté 💜'); return; }
+    if (++essais > 25) { clearInterval(boucleRetour); boucleRetour = null; toast('Reconnexion impossible. Recharge la page.'); return; }
+    try {
+      if (peer.disconnected && !peer.destroyed) peer.reconnect();
+      const c = peer.connect(PREFIXE + codeSalon, { reliable: true });
+      brancher(c);
+      c.on('open', () => envoie({ t: 'HELLO', nom: monNom() }));
+    } catch (e) {}
+  }, 2500);
+}
+function surveille() {
+  clearInterval(garde);
+  garde = setInterval(() => { if (conn && conn.open) envoie({ t: 'KA' }); else relance(); }, 10000);
 }
 
 /* ============ LOBBY ============ */
 const codeAlea = () => Array.from({ length: 4 }, () => 'ABCDEFGHJKMNPQRSTUVWXYZ'[Math.floor(Math.random() * 23)]).join('');
-
-function monNom() {
-  const v = $('#pseudo').value.trim();
-  return v || 'Moi';
-}
+const monNom = () => $('#pseudo').value.trim() || 'Moi';
+const erreur = t => { $('#lobby-err').textContent = t; };
+function ecran(id) { $$('.screen').forEach(s => s.classList.toggle('on', s.id === id)); }
 
 $('#b-joinmode').addEventListener('click', () => {
   $('#joinbox').hidden = !$('#joinbox').hidden;
@@ -191,13 +123,9 @@ $('#b-create').addEventListener('click', () => {
   st = neuf(); st.nm.h = monNom();
   erreur('Ouverture du salon…');
   peer = new Peer(PREFIXE + code, { debug: 0 });
-  peer.on('open', () => {
-    erreur('');
-    $('#code-big').textContent = code;
-    ecran('s-wait'); majAttente();
-  });
+  peer.on('open', () => { erreur(''); $('#code-big').textContent = code; ecran('s-wait'); majAttente(); });
   peer.on('connection', c => {
-    brancher(c);                              // accepte aussi une reconnexion
+    brancher(c);
     c.on('open', () => { ping(); surveille(); if (st.demarree) diffuse(); });
   });
   peer.on('error', e => {
@@ -224,12 +152,8 @@ $('#b-join').addEventListener('click', () => {
 
 $('#code').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase(); });
 $('#b-copy').addEventListener('click', () => {
-  navigator.clipboard?.writeText($('#code-big').textContent.trim())
-    .then(() => toast('Code copié 📋')).catch(() => {});
+  navigator.clipboard?.writeText($('#code-big').textContent.trim()).then(() => toast('Code copié 📋')).catch(() => {});
 });
-
-const erreur = t => { $('#lobby-err').textContent = t; };
-function ecran(id) { $$('.screen').forEach(s => s.classList.toggle('on', s.id === id)); }
 
 function majAttente() {
   $('#pl-h').querySelector('b').textContent = st.nm.h || '—';
@@ -241,14 +165,58 @@ function majAttente() {
   $('#lens').hidden = !(pret && hote);
 }
 
+/* ---------- options ---------- */
 $$('.len').forEach(b => b.addEventListener('click', () => {
   longueur = +b.dataset.n;
   $$('.len').forEach(x => x.classList.toggle('on', x === b));
 }));
+$$('.ryt').forEach(b => b.addEventListener('click', () => {
+  rythme = +b.dataset.r;
+  $$('.ryt').forEach(x => x.classList.toggle('on', x === b));
+}));
+$('#b-opt').addEventListener('click', () => { $('#opts').hidden = !$('#opts').hidden; });
+
+(function construitOptions() {
+  const g = $('#opt-grid');
+  TYPES.forEach(t => {
+    const b = document.createElement('button');
+    b.className = 'opt on';
+    b.dataset.t = t;
+    b.innerHTML = `<span class="tick"></span>${NOMS[t]}`;
+    b.addEventListener('click', () => {
+      b.classList.toggle('on');
+      actifs = $$('.opt.on').map(x => x.dataset.t);
+      if (!actifs.length) { b.classList.add('on'); actifs = [t]; }
+      $('#opt-info').textContent = `${actifs.length} épreuve${actifs.length > 1 ? 's' : ''} sur ${TYPES.length}`;
+    });
+    g.appendChild(b);
+  });
+})();
+$('#b-all').addEventListener('click', () => {
+  $$('.opt').forEach(x => x.classList.add('on'));
+  actifs = TYPES.slice();
+  $('#opt-info').textContent = `${TYPES.length} épreuves sur ${TYPES.length}`;
+});
+$('#b-hist').addEventListener('click', () => {
+  HIST = {}; sauveHist();
+  toast('Historique vidé — tout le contenu redevient possible');
+});
+
+/* mélange l'ordre des manches, sans jamais deux fois le même type d'affilée */
+function construitSuite(n, types) {
+  const out = []; let sac = [];
+  while (out.length < n) {
+    if (!sac.length) sac = melange(types);
+    const t = sac.pop();
+    if (out.length && out[out.length - 1] === t && sac.length) { sac.unshift(t); continue; }
+    out.push(t);
+  }
+  return out;
+}
 
 $('#b-start').addEventListener('click', () => {
   if (!hote) return;
-  SUITE = MOTIF.slice(0, longueur);
+  SUITE = construitSuite(longueur, actifs);
   st.total = SUITE.length;
   manche(0);
 });
@@ -257,83 +225,113 @@ $('#b-start').addEventListener('click', () => {
    MOTEUR (hôte uniquement)
    ========================================================= */
 function manche(i) {
-  clearTimeout(minuteur);
+  clearTimeout(minuteur); clearInterval(pouls); clearTimeout(tempo);
   if (i >= SUITE.length) { st.ph = 'end'; diffuse(); return; }
-  if (!sacQui.length) sacQui = melange(QUI);
-  if (!sacSyn.length) sacSyn = melange(SYNCHRO);
-  if (!sacMots.length) sacMots = melange(MOTS);
 
   st.demarree = true;
   st.i = i;
   st.type = SUITE[i];
   st.ph = 'round';
   st.ans = { h: null, g: null };
-  st.rev = null;
-  st.guesses = [];
-  st.go = false;
+  st.rev = null; st.guesses = []; st.go = false; st.sub = null;
+  st.dur = { des: 90000 * rythme, bra: 12000 * rythme, cha: 25000 * rythme };
 
-  if (st.type === 'qui') st.q = sacQui.pop();
-  if (st.type === 'syn') st.q = sacSyn.pop();
-  if (st.type === 'des') {
-    st.drawer = (i % 4 === 0) ? 'h' : 'g';
-    st.q = sacMots.pop();
-    st.fin = Date.now() + 90000;
-    minuteur = setTimeout(() => { if (st.ph === 'round') reveler({ e: '⏰', t: 'Temps écoulé', p: `C\'était « ${st.q} ».` }); }, 90000);
+  const T = st.type;
+
+  if (T === 'qui') { st.q = tirer('qui', QUI); diffuse(); return; }
+  if (T === 'syn') { st.q = tirer('syn', SYNCHRO); diffuse(); return; }
+  if (T === 'pre') { st.q = tirer('pre', PREFERE); diffuse(); return; }
+
+  if (T === 'des') {
+    st.drawer = i % 2 === 0 ? 'h' : 'g';
+    st.q = tirer('mot', MOTS);
+    minuteur = setTimeout(() => { if (st.ph === 'round') reveler({ e: '⏰', t: 'Temps écoulé', p: `C'était « ${st.q} ».` }); }, st.dur.des);
+    diffuse(); return;
   }
-  if (st.type === 'bra') {
-    st.bf = { h: 0, g: 0 };
-    diffuse();
-    clearInterval(pouls);
+
+  if (T === 'ref') {
+    st.q = ''; diffuse();
+    minuteur = setTimeout(() => {
+      envoie({ t: 'GO' });
+      setTimeout(topDepart, Math.round(rtt / 2));
+    }, (1800 + Math.random() * 4200) * rythme);
+    return;
+  }
+
+  if (T === 'bra') {
+    st.bf = { h: 0, g: 0 }; diffuse();
     pouls = setInterval(() => envoie({ t: 'BF', h: st.bf.h, g: st.bf.g }), 120);
     minuteur = setTimeout(() => {
       clearInterval(pouls);
       const a = st.bf.h, b = st.bf.g;
-      if (a === b) reveler({ e: '🤝', t: 'Parfaitement à égalité', p: `${a} coups chacun. Bien joué tous les deux.` });
-      else {
-        const w = a > b ? 'h' : 'g';
-        st.sc[w]++;
-        reveler({ e: '💪', t: `${st.nm[w]} l'emporte !`, p: `${Math.max(a, b)} coups contre ${Math.min(a, b)}.` });
+      if (a === b) reveler({ e: '🤝', t: 'Parfaitement à égalité', p: `${a} coups chacun.` });
+      else { const w = a > b ? 'h' : 'g'; st.sc[w]++; reveler({ e: '💪', t: `${st.nm[w]} l'emporte !`, p: `${Math.max(a, b)} coups contre ${Math.min(a, b)}.` }); }
+    }, st.dur.bra);
+    return;
+  }
+
+  if (T === 'p4') { st.p4 = { b: Array(P4C * P4L).fill(''), tour: i % 2 === 0 ? 'h' : 'g', win: null }; diffuse(); return; }
+  if (T === 'pfc') { st.pfc = { h: 0, g: 0, n: 1, res: '' }; diffuse(); return; }
+  if (T === 'vf') { st.vf = { teller: i % 2 === 0 ? 'h' : 'g', txt: '', truth: null }; st.sub = 'write'; diffuse(); return; }
+
+  if (T === 'int') {
+    const [a, b] = tirer('int', INTRUS);
+    const n = 36;
+    st.int = { base: a, cible: b, idx: Math.floor(Math.random() * n), n, bloque: {} };
+    diffuse(); return;
+  }
+
+  if (T === 'cha') {
+    st.cha = { pris: 0, act: [], but: 14 };
+    let id = 0;
+    const spawn = () => {
+      if (st.ph !== 'round' || st.type !== 'cha') return;
+      if (st.cha.act.length < 3) {
+        const libres = [...Array(16).keys()].filter(c => !st.cha.act.some(x => x.c === c));
+        if (libres.length) {
+          const o = { id: ++id, c: pick(libres) };
+          st.cha.act.push(o);
+          setTimeout(() => {
+            st.cha.act = st.cha.act.filter(x => x.id !== o.id);
+            if (st.ph === 'round' && st.type === 'cha') diffuse();
+          }, 2600 * rythme);
+          diffuse();
+        }
       }
-    }, 12000);
-    return;
-  }
-
-  if (st.type === 'p4') {
-    st.p4 = { b: Array(P4C * P4L).fill(''), tour: i % 2 === 0 ? 'h' : 'g', win: null };
-    diffuse();
-    return;
-  }
-
-  if (st.type === 'pfc') {
-    st.pfc = { h: 0, g: 0, n: 1, res: '' };
-    diffuse();
-    return;
-  }
-
-  if (st.type === 'vf') {
-    st.vf = { teller: i % 2 === 0 ? 'h' : 'g', txt: '', truth: null };
-    st.sub = 'write';
-    diffuse();
-    return;
-  }
-
-  if (st.type === 'ref') {
-    st.q = '';
-    diffuse();
-    const d = 1800 + Math.random() * 4200;
+    };
+    pouls = setInterval(spawn, 640 * rythme);
+    spawn();
     minuteur = setTimeout(() => {
-      envoie({ t: 'GO' });
-      setTimeout(topDepart, Math.round(rtt / 2));   // on compense la latence
-    }, d);
+      clearInterval(pouls);
+      const ok = st.cha.pris >= st.cha.but;
+      if (ok) { st.sc.h++; st.sc.g++; }
+      reveler({ e: ok ? '💘' : '😅', t: `${st.cha.pris} cœurs attrapés`, p: ok ? `Objectif ${st.cha.but} atteint. +1 pour chacun.` : `Il en fallait ${st.cha.but}. Ce sera pour la prochaine.` });
+    }, st.dur.cha);
     return;
   }
-  diffuse();
+
+  if (T === 'mem') {
+    const six = melange(PAIRES).slice(0, 6);
+    st.mem = { c: melange([...six, ...six]), up: [], ok: [], tour: i % 2 === 0 ? 'h' : 'g', coups: 0 };
+    diffuse(); return;
+  }
+
+  if (T === 'qz') {
+    const [q, opts, bon] = tirer('qz', QUIZ);
+    const ordre = melange(opts.map((o, k) => [o, k]));
+    bonQz = ordre.findIndex(([, k]) => k === bon);
+    st.q = { t: q, o: ordre.map(([o]) => o) };
+    st.qzKO = {};
+    diffuse(); return;
+  }
 }
 
 function action(qui, a) {
   if (!hote || !st) return;
+  const adv = qui === 'h' ? 'g' : 'h';
 
-  if (a.k === 'qui' && st.ph === 'round' && st.type === 'qui') {
+  /* --- qui de nous deux / tu préfères --- */
+  if ((a.k === 'qui' || a.k === 'pre') && st.ph === 'round') {
     st.ans[qui] = a.v;
     if (st.ans.h && st.ans.g) {
       const ok = st.ans.h === st.ans.g;
@@ -341,51 +339,44 @@ function action(qui, a) {
       reveler({
         e: ok ? '💞' : '🙃',
         t: ok ? 'Vous êtes d\'accord !' : 'Pas du tout d\'accord…',
-        p: ok ? '+1 pour chacun. Vous vous connaissez bien.' : 'Il va falloir en parler, là.',
-        deux: true
+        p: ok ? '+1 pour chacun.' : 'Il va falloir en parler.',
+        deux: true, pre: a.k === 'pre'
       });
     } else diffuse();
   }
 
-  else if (a.k === 'syn' && st.ph === 'round' && st.type === 'syn') {
+  else if (a.k === 'syn' && st.ph === 'round') {
     st.ans[qui] = (a.v || '').slice(0, 60);
-    if (st.ans.h !== null && st.ans.g !== null) {
+    if (st.ans.h !== null && st.ans.g !== null)
       reveler({ e: '👀', t: 'Vos réponses', p: 'Vous aviez pareil ? À vous de juger.', deux: true, juge: true });
-    } else diffuse();
+    else diffuse();
   }
 
   else if (a.k === 'juge' && st.ph === 'rev' && st.rev && st.rev.juge) {
     if (a.v) { st.sc.h++; st.sc.g++; st.rev.p = '+1 pour chacun 💞'; st.rev.e = '💞'; }
     else { st.rev.p = 'Tant pis. Ça fera un sujet de conversation.'; st.rev.e = '🙃'; }
-    st.rev.juge = false;
-    diffuse();
+    st.rev.juge = false; diffuse();
   }
 
   else if (a.k === 'hit' && st.ph === 'round' && st.type === 'ref') {
-    if (!st.go) {   // faux départ
-      st.sc[qui === 'h' ? 'g' : 'h']++;
-      reveler({ e: '🚨', t: 'Faux départ !', p: `${st.nm[qui]} a cliqué trop tôt. Le point va à ${st.nm[qui === 'h' ? 'g' : 'h']}.` });
-      return;
-    }
+    if (!st.go) { st.sc[adv]++; reveler({ e: '🚨', t: 'Faux départ !', p: `${st.nm[qui]} a cliqué trop tôt. Le point va à ${st.nm[adv]}.` }); return; }
     st.sc[qui]++;
     reveler({ e: '⚡', t: `${st.nm[qui]} gagne le duel !`, p: 'Des réflexes de compétition.' });
   }
 
   else if (a.k === 'guess' && st.ph === 'round' && st.type === 'des') {
     const g = norm(a.v), cible = norm(st.q);
-    ajouteGuess(a.v);
+    st.guesses = (st.guesses || []).concat(a.v).slice(-4);
     if (g && cible.includes(g) && g.length >= Math.min(3, cible.length)) {
       st.sc.h++; st.sc.g++;
-      reveler({ e: '🎨', t: 'Trouvé !', p: `C\'était bien « ${st.q} ». +1 pour chacun.` });
+      reveler({ e: '🎨', t: 'Trouvé !', p: `C'était bien « ${st.q} ». +1 pour chacun.` });
     } else diffuse();
   }
 
-  /* --- bras de fer --- */
   else if (a.k === 'bf' && st.ph === 'round' && st.type === 'bra') {
     st.bf[qui] = Math.max(st.bf[qui], a.n | 0);
   }
 
-  /* --- puissance 4 --- */
   else if (a.k === 'p4' && st.ph === 'round' && st.type === 'p4') {
     const P = st.p4;
     if (P.tour !== qui) return;
@@ -394,18 +385,11 @@ function action(qui, a) {
     if (pos < 0) return;
     P.b[pos] = qui;
     const w = gagneP4(P.b, pos);
-    if (w) {
-      P.win = w;
-      st.sc[qui]++;
-      reveler({ e: '🔴', t: `${st.nm[qui]} aligne 4 jetons !`, p: 'Puissance 4, sans discussion.' });
-      return;
-    }
-    if (P.b.every(Boolean)) { reveler({ e: '⚖️', t: 'Grille pleine', p: 'Match nul, personne ne marque.' }); return; }
-    P.tour = qui === 'h' ? 'g' : 'h';
-    diffuse();
+    if (w) { P.win = w; st.sc[qui]++; reveler({ e: '🔴', t: `${st.nm[qui]} aligne 4 jetons !`, p: 'Puissance 4, sans discussion.' }); return; }
+    if (P.b.every(Boolean)) { reveler({ e: '⚖️', t: 'Grille pleine', p: 'Match nul.' }); return; }
+    P.tour = adv; diffuse();
   }
 
-  /* --- pierre feuille ciseaux --- */
   else if (a.k === 'pfc' && st.ph === 'round' && st.type === 'pfc') {
     st.ans[qui] = a.v;
     if (!st.ans.h || !st.ans.g) { diffuse(); return; }
@@ -415,48 +399,102 @@ function action(qui, a) {
     else { st.pfc.g++; st.pfc.res = `${B} bat ${A} — point pour ${st.nm.g}.`; }
     st.ans = { h: null, g: null };
     if (st.pfc.h === 2 || st.pfc.g === 2) {
-      const w = st.pfc.h === 2 ? 'h' : 'g';
-      st.sc[w]++;
+      const w = st.pfc.h === 2 ? 'h' : 'g'; st.sc[w]++;
       reveler({ e: '✌️', t: `${st.nm[w]} gagne la manche`, p: `${st.pfc.h} — ${st.pfc.g}. ${st.pfc.res}` });
       return;
     }
-    st.pfc.n++;
-    diffuse();
+    st.pfc.n++; diffuse();
   }
 
-  /* --- vrai ou faux --- */
   else if (a.k === 'vfw' && st.sub === 'write' && qui === st.vf.teller) {
-    st.vf.txt = (a.txt || '').slice(0, 90);
-    st.vf.truth = !!a.v;
-    st.sub = 'guess';
-    diffuse();
+    st.vf.txt = (a.txt || '').slice(0, 90); st.vf.truth = !!a.v; st.sub = 'guess'; diffuse();
   }
   else if (a.k === 'vfg' && st.sub === 'guess' && qui !== st.vf.teller) {
     const bon = a.v === st.vf.truth;
     st.sc[bon ? qui : st.vf.teller]++;
     st.sub = null;
-    reveler({
-      e: bon ? '🕵️' : '🎭',
-      t: bon ? 'Bien vu !' : 'Raté !',
-      p: `« ${st.vf.txt} » — c'était ${st.vf.truth ? 'VRAI' : 'FAUX'}. Le point va à ${st.nm[bon ? qui : st.vf.teller]}.`
-    });
+    reveler({ e: bon ? '🕵️' : '🎭', t: bon ? 'Bien vu !' : 'Raté !',
+      p: `« ${st.vf.txt} » — c'était ${st.vf.truth ? 'VRAI' : 'FAUX'}. Le point va à ${st.nm[bon ? qui : st.vf.teller]}.` });
+  }
+
+  /* --- trouve l'intrus --- */
+  else if (a.k === 'int' && st.ph === 'round' && st.type === 'int') {
+    if (st.int.bloque[qui]) return;
+    if (a.c === st.int.idx) {
+      st.sc[qui]++;
+      reveler({ e: '🔍', t: `${st.nm[qui]} l'a repéré !`, p: `L'intrus était le ${st.int.cible}.` });
+    } else {
+      st.int.bloque[qui] = true;
+      diffuse();
+      setTimeout(() => { if (st.int) { st.int.bloque[qui] = false; if (st.ph === 'round') diffuse(); } }, 1400);
+    }
+  }
+
+  /* --- chasse aux cœurs --- */
+  else if (a.k === 'cha' && st.ph === 'round' && st.type === 'cha') {
+    const av = st.cha.act.length;
+    st.cha.act = st.cha.act.filter(x => x.id !== a.id);
+    if (st.cha.act.length < av) { st.cha.pris++; diffuse(); }
+  }
+
+  /* --- memory --- */
+  else if (a.k === 'mem' && st.ph === 'round' && st.type === 'mem') {
+    const M = st.mem;
+    if (M.tour !== qui || M.up.length >= 2) return;
+    if (M.up.includes(a.c) || M.ok.includes(a.c)) return;
+    M.up.push(a.c);
+    if (M.up.length < 2) { diffuse(); return; }
+    M.coups++;
+    const [x, y] = M.up;
+    if (M.c[x] === M.c[y]) {
+      M.ok.push(x, y); M.up = [];
+      if (M.ok.length === M.c.length) {
+        st.sc.h++; st.sc.g++;
+        reveler({ e: '🧠', t: `Toutes les paires !`, p: `Trouvées en ${M.coups} coups, à vous deux. +1 pour chacun.` });
+        return;
+      }
+      diffuse();
+    } else {
+      diffuse();
+      tempo = setTimeout(() => {
+        if (st.type !== 'mem' || st.ph !== 'round') return;
+        M.up = []; M.tour = adv; diffuse();
+      }, 1100 * rythme);
+    }
+  }
+
+  /* --- quiz éclair --- */
+  else if (a.k === 'qz' && st.ph === 'round' && st.type === 'qz') {
+    if (st.qzKO[qui]) return;
+    if (a.c === bonQz) {
+      st.sc[qui]++;
+      reveler({ e: '⚡', t: `${st.nm[qui]} a la bonne réponse !`, p: `C'était « ${st.q.o[bonQz]} ».` });
+    } else {
+      st.qzKO[qui] = true;
+      if (st.qzKO.h && st.qzKO.g) reveler({ e: '🤷', t: 'Personne n\'a trouvé', p: `C'était « ${st.q.o[bonQz]} ».` });
+      else diffuse();
+    }
   }
 
   else if (a.k === 'next' && st.ph === 'rev') manche(st.i + 1);
-  else if (a.k === 'again') { st = { ...neuf(), nm: st.nm }; sacQui = []; sacSyn = []; sacMots = []; manche(0); }
+  else if (a.k === 'again') {
+    st = { ...neuf(), nm: st.nm };
+    SUITE = construitSuite(longueur, actifs);
+    st.total = SUITE.length;
+    manche(0);
+  }
 }
 
-/* 4 alignés à partir de la case qu'on vient de poser */
+/* NFD sépare les accents, le filtre a-z0-9 les élimine ensuite */
+const norm = s => (s || '').toLowerCase().normalize('NFD').replace(/[^a-z0-9]/g, '');
+
 function gagneP4(b, pos) {
   const c0 = pos % P4C, l0 = Math.floor(pos / P4C), j = b[pos];
-  const DIRS = [[1, 0], [0, 1], [1, 1], [1, -1]];
-  for (const [dc, dl] of DIRS) {
+  for (const [dc, dl] of [[1, 0], [0, 1], [1, 1], [1, -1]]) {
     const suite = [pos];
     for (const s of [1, -1]) {
       let c = c0 + dc * s, l = l0 + dl * s;
-      while (c >= 0 && c < P4C && l >= 0 && l < P4L && b[l * P4C + c] === j) {
-        suite.push(l * P4C + c); c += dc * s; l += dl * s;
-      }
+      while (c >= 0 && c < P4C && l >= 0 && l < P4L && b[l * P4C + c] === j) { suite.push(l * P4C + c); c += dc * s; l += dl * s; }
     }
     if (suite.length >= 4) return suite;
   }
@@ -464,34 +502,24 @@ function gagneP4(b, pos) {
 }
 
 function reveler(r) {
-  clearTimeout(minuteur);
-  clearInterval(pouls);
-  st.go = false;
-  st.ph = 'rev';
-  st.rev = r;
+  clearTimeout(minuteur); clearInterval(pouls); clearTimeout(tempo);
+  st.go = false; st.ph = 'rev'; st.rev = r;
   diffuse();
 }
 
-const norm = s => (s || '').toLowerCase().normalize('NFD')
-  .replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '');
-// NFD sépare les accents, puis on ne garde que a-z0-9 : les diacritiques sautent d'eux-mêmes
-function ajouteGuess(t) {
-  st.guesses = (st.guesses || []).concat(t).slice(-4);
-}
-
-/* action locale (marche des deux côtés) */
 function jouer(a) { if (hote) action('h', a); else envoie({ t: 'A', a }); }
 
 /* =========================================================
    RENDU
    ========================================================= */
+let manchePrec = -1, finLocale = 0, mesCoups = 0, dernierEnvoi = 0, chronoBra = null;
+
 function rendu() {
   if (!st) return;
   if (st.ph === 'end') { finPartie(); return; }
   ecran('s-game');
 
-  /* couleurs et cotes ABSOLUS : les deux ecrans sont identiques,
-     sinon impossible de se parler au telephone pendant la partie */
+  /* couleurs et côtés ABSOLUS : les deux écrans sont identiques */
   $('#n1').textContent = (st.nm.h || 'Hôte') + (moi === 'h' ? ' (toi)' : '');
   $('#n2').textContent = (st.nm.g || 'Invité') + (moi === 'g' ? ' (toi)' : '');
   $('#p1').textContent = st.sc.h;
@@ -501,85 +529,59 @@ function rendu() {
 
   const on = id => $$('.mode').forEach(m => { m.hidden = m.id !== id; });
 
-  if (st.ph === 'rev') {
-    on('m-rev');
-    $('#rev-e').textContent = st.rev.e;
-    $('#rev-t').textContent = st.rev.t;
-    $('#rev-p').textContent = st.rev.p;
-    const box = $('#rev-two'); box.innerHTML = '';
-    if (st.rev.deux) {
-      ['h', 'g'].forEach(k => {
-        const v = st.type === 'qui' ? (st.nm[st.ans[k]] || '?') : (st.ans[k] || '—');
-        const d = document.createElement('div');
-        d.className = 'rev-c';
-        d.innerHTML = `<small>${st.nm[k]}</small><span>${esc(v)}</span>`;
-        box.appendChild(d);
-      });
-    }
-    const btn = $('#rev-next');
-    if (st.rev.juge) {
-      btn.textContent = 'On avait pareil ✅';
-      btn.onclick = () => jouer({ k: 'juge', v: true });
-      if (!$('#rev-no')) {
-        const no = document.createElement('button');
-        no.className = 'btn ghost'; no.id = 'rev-no'; no.textContent = 'Pas pareil ❌';
-        no.style.marginLeft = '10px';
-        no.onclick = () => jouer({ k: 'juge', v: false });
-        btn.after(no);
-      }
-      $('#rev-w').textContent = 'L\'un de vous deux tranche.';
-    } else {
-      $('#rev-no')?.remove();
-      btn.textContent = 'Manche suivante →';
-      btn.onclick = () => jouer({ k: 'next' });
-      $('#rev-w').textContent = hote ? '' : 'Vous pouvez cliquer tous les deux.';
-    }
-    return;
-  }
+  if (st.ph === 'rev') { renduRev(on); return; }
 
-  /* --- manches --- */
-  if (st.type === 'qui') {
+  const T = st.type;
+
+  if (T === 'qui') {
     on('m-qui');
     $('#qui-q').textContent = st.q;
     $('#qui-an').textContent = st.nm.h;
     $('#qui-bn').textContent = st.nm.g;
-    const fait = st.ans[moi];
-    $('#qui-a').classList.toggle('on', fait === 'h');
-    $('#qui-b').classList.toggle('on', fait === 'g');
-    $('#qui-a').disabled = !!fait;
-    $('#qui-b').disabled = !!fait;
-    $('#qui-w').textContent = fait ? 'C\'est noté. On attend l\'autre…' : 'Répondez tous les deux, sans vous concerter.';
+    const f = st.ans[moi];
+    $('#qui-a').classList.toggle('on', f === 'h');
+    $('#qui-b').classList.toggle('on', f === 'g');
+    $('#qui-a').disabled = !!f; $('#qui-b').disabled = !!f;
+    $('#qui-w').textContent = f ? 'C\'est noté. On attend l\'autre…' : 'Répondez tous les deux, sans vous concerter.';
   }
 
-  else if (st.type === 'syn') {
+  else if (T === 'pre') {
+    on('m-pre');
+    $('#pre-an').textContent = st.q[0];
+    $('#pre-bn').textContent = st.q[1];
+    const f = st.ans[moi];
+    $('#pre-a').classList.toggle('on', f === 'a');
+    $('#pre-b').classList.toggle('on', f === 'b');
+    $('#pre-a').disabled = !!f; $('#pre-b').disabled = !!f;
+    $('#pre-w').textContent = f ? 'Choisi. On attend l\'autre…' : 'Le but : tomber sur le même choix.';
+  }
+
+  else if (T === 'syn') {
     on('m-syn');
     $('#syn-q').textContent = st.q;
-    const fait = st.ans[moi] !== null;
-    $('#syn-in').disabled = fait;
-    $('#syn-ok').disabled = fait;
-    $('#syn-w').textContent = fait ? 'Envoyé. On attend l\'autre…' : 'Le but : écrire exactement la même chose.';
+    const f = st.ans[moi] !== null;
+    $('#syn-in').disabled = f; $('#syn-ok').disabled = f;
+    $('#syn-w').textContent = f ? 'Envoyé. On attend l\'autre…' : 'Le but : écrire exactement la même chose.';
   }
 
-  else if (st.type === 'ref') {
+  else if (T === 'ref') {
     on('m-ref');
-    const t = $('#ref-t');
-    t.classList.toggle('go', !!st.go);
-    t.disabled = false;
+    $('#ref-t').classList.toggle('go', !!st.go);
+    $('#ref-t').disabled = false;
     $('#ref-face').textContent = st.go ? '💗' : '⏳';
     $('#ref-w').textContent = st.go ? 'MAINTENANT !' : 'Attends le signal… ne clique pas trop tôt.';
   }
 
-  else if (st.type === 'bra') {
+  else if (T === 'bra') {
     on('m-bra');
-    $('#bra-nl').textContent = st.nm.h;
-    $('#bra-nr').textContent = st.nm.g;
+    $('#bra-nl').textContent = st.nm.h; $('#bra-nr').textContent = st.nm.g;
     $('#bra-b').disabled = false;
-    if (manchePrec !== st.i) { manchePrec = st.i; mesCoups = 0; finLocale = Date.now() + 12000; }
+    if (manchePrec !== st.i) { manchePrec = st.i; mesCoups = 0; finLocale = Date.now() + (st.dur.bra || 12000); }
     corde(st.bf ? st.bf.h : 0, st.bf ? st.bf.g : 0);
     lanceChronoBra();
   }
 
-  else if (st.type === 'p4') {
+  else if (T === 'p4') {
     on('m-p4');
     const P = st.p4, aMoi = P.tour === moi;
     $('#p4-q').textContent = aMoi ? 'À toi de jouer.' : `${st.nm[autre]} réfléchit…`;
@@ -594,40 +596,123 @@ function rendu() {
       }
     }
     [...g.children].forEach((b, k) => {
-      b.className = P.b[k] || '';        // 'h' = cyan, 'g' = rose, pareil des deux cotes
+      b.className = P.b[k] || '';
       if (P.win && P.win.includes(k)) b.classList.add('win');
     });
     $('#p4-w').textContent = aMoi ? 'Clique dans la colonne de ton choix.' : 'Patience…';
   }
 
-  else if (st.type === 'pfc') {
+  else if (T === 'pfc') {
     on('m-pfc');
     $('#pfc-sc').textContent = `${st.pfc.h} — ${st.pfc.g}`;
-    const fait = !!st.ans[moi];
-    $$('.pfc').forEach(b => { b.disabled = fait; b.classList.toggle('on', st.ans[moi] === b.dataset.v); });
-    $('#pfc-w').textContent = st.pfc.res
-      ? `${st.pfc.res} — duel ${st.pfc.n}/3`
-      : (fait ? 'Choisi. On attend l\'autre…' : `Duel ${st.pfc.n} : choisis vite.`);
+    const f = !!st.ans[moi];
+    $$('.pfc').forEach(b => { b.disabled = f; b.classList.toggle('on', st.ans[moi] === b.dataset.v); });
+    $('#pfc-w').textContent = st.pfc.res ? `${st.pfc.res} — duel ${st.pfc.n}/3`
+      : (f ? 'Choisi. On attend l\'autre…' : `Duel ${st.pfc.n} : choisis vite.`);
   }
 
-  else if (st.type === 'vf') {
+  else if (T === 'vf') {
     on('m-vf');
     const jeRaconte = st.vf.teller === moi;
     $('#vf-write').hidden = !(jeRaconte && st.sub === 'write');
     $('#vf-guess').hidden = !(!jeRaconte && st.sub === 'guess');
     if (st.sub === 'write') {
-      $('#vf-q').textContent = jeRaconte
-        ? 'Raconte un truc sur toi. Vrai ou complètement inventé, à toi de voir.'
+      $('#vf-q').textContent = jeRaconte ? 'Raconte un truc sur toi. Vrai ou complètement inventé, à toi de voir.'
         : `${st.nm[autre]} prépare quelque chose sur lui…`;
-      $('#vf-w').textContent = jeRaconte ? 'Écris, puis dis-moi si c\'est vrai ou faux.' : 'Ça arrive…';
+      $('#vf-w').textContent = jeRaconte ? 'Écris, puis dis si c\'est vrai ou faux.' : 'Ça arrive…';
     } else {
       $('#vf-claim').textContent = st.vf.txt;
-      $('#vf-q').textContent = jeRaconte ? 'À elle/lui de deviner…' : `${st.nm[autre]} affirme :`;
-      $('#vf-w').textContent = jeRaconte ? 'On verra bien si ça passe.' : 'Vrai, ou bien il/elle t\'embrouille ?';
+      $('#vf-q').textContent = jeRaconte ? 'À l\'autre de deviner…' : `${st.nm[autre]} affirme :`;
+      $('#vf-w').textContent = jeRaconte ? 'On verra bien si ça passe.' : 'Vrai, ou bien on t\'embrouille ?';
     }
   }
 
-  else if (st.type === 'des') {
+  else if (T === 'int') {
+    on('m-int');
+    const I = st.int, g = $('#int-grid');
+    g.style.setProperty('--n', 6);
+    g.classList.toggle('off', !!I.bloque[moi]);
+    if (g.children.length !== I.n || g.dataset.r !== String(st.i)) {
+      g.dataset.r = String(st.i);
+      g.innerHTML = '';
+      for (let k = 0; k < I.n; k++) {
+        const b = document.createElement('button');
+        b.textContent = k === I.idx ? I.cible : I.base;
+        b.addEventListener('click', () => {
+          if (k !== I.idx) { b.classList.add('bad'); setTimeout(() => b.classList.remove('bad'), 350); }
+          jouer({ k: 'int', c: k });
+        });
+        g.appendChild(b);
+      }
+    }
+    $('#int-w').textContent = I.bloque[moi] ? 'Raté — tu es bloqué une seconde.' : 'Cherche bien…';
+  }
+
+  else if (T === 'cha') {
+    on('m-cha');
+    const C = st.cha, g = $('#cha-grid');
+    if (g.children.length !== 16) {
+      g.innerHTML = '';
+      for (let k = 0; k < 16; k++) {
+        const b = document.createElement('button');
+        b.addEventListener('click', () => {
+          const o = (st.cha.act || []).find(x => x.c === k);
+          if (o) jouer({ k: 'cha', id: o.id });
+        });
+        g.appendChild(b);
+      }
+    }
+    [...g.children].forEach((b, k) => {
+      const o = (C.act || []).find(x => x.c === k);
+      b.className = o ? 'up' : '';
+      b.textContent = o ? '💗' : '';
+    });
+    if (manchePrec !== st.i) { manchePrec = st.i; finLocale = Date.now() + (st.dur.cha || 25000); }
+    $('#cha-q').textContent = `Attrapez ${C.but} cœurs à deux !`;
+    lanceChronoCha();
+  }
+
+  else if (T === 'mem') {
+    on('m-mem');
+    const M = st.mem, g = $('#mem-grid'), aMoi = M.tour === moi;
+    g.classList.toggle('off', !aMoi || M.up.length >= 2);
+    if (g.children.length !== M.c.length || g.dataset.r !== String(st.i)) {
+      g.dataset.r = String(st.i);
+      g.innerHTML = '';
+      M.c.forEach((_, k) => {
+        const b = document.createElement('button');
+        b.addEventListener('click', () => jouer({ k: 'mem', c: k }));
+        g.appendChild(b);
+      });
+    }
+    [...g.children].forEach((b, k) => {
+      const vis = M.up.includes(k) || M.ok.includes(k);
+      b.className = M.ok.includes(k) ? 'ok' : (M.up.includes(k) ? 'up' : '');
+      b.textContent = vis ? M.c[k] : '💜';
+    });
+    $('#mem-q').textContent = aMoi ? 'À toi de retourner une carte.' : `${st.nm[autre]} joue…`;
+    $('#mem-w').textContent = `${M.ok.length / 2} paire(s) sur ${M.c.length / 2} — ${M.coups} coups`;
+  }
+
+  else if (T === 'qz') {
+    on('m-qz');
+    $('#qz-q').textContent = st.q.t;
+    const g = $('#qz-opts');
+    g.classList.toggle('off', !!st.qzKO[moi]);
+    if (g.dataset.r !== String(st.i)) {
+      g.dataset.r = String(st.i);
+      g.innerHTML = '';
+      st.q.o.forEach((o, k) => {
+        const b = document.createElement('button');
+        b.textContent = o;
+        b.addEventListener('click', () => { b.classList.add('bad'); jouer({ k: 'qz', c: k }); });
+        g.appendChild(b);
+      });
+    }
+    $('#qz-w').textContent = st.qzKO[moi] ? 'Raté — laisse l\'autre tenter.' : 'Le premier qui trouve marque le point.';
+  }
+
+  else if (T === 'des') {
     on('m-des');
     const jeDessine = st.drawer === moi;
     $('#des-q').textContent = jeDessine ? `Fais-lui deviner : « ${st.q} »` : `${st.nm[st.drawer]} dessine. À toi de trouver.`;
@@ -635,32 +720,63 @@ function rendu() {
     $('#des-guessbox').hidden = jeDessine;
     pad.style.cursor = jeDessine ? 'crosshair' : 'default';
     $('#des-live').innerHTML = (st.guesses || []).map(g => `<b>${esc(g)}</b>`).join(' · ');
+    if (manchePrec !== st.i) { manchePrec = st.i; finLocale = Date.now() + (st.dur.des || 90000); raz(); }
     lanceChrono();
   }
 }
 
-const esc = s => String(s).replace(/[<>&"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]));
+function renduRev(on) {
+  on('m-rev');
+  $('#rev-e').textContent = st.rev.e;
+  $('#rev-t').textContent = st.rev.t;
+  $('#rev-p').textContent = st.rev.p;
+  const box = $('#rev-two'); box.innerHTML = '';
+  if (st.rev.deux) {
+    ['h', 'g'].forEach(k => {
+      let v;
+      if (st.rev.pre) v = st.ans[k] === 'a' ? st.q[0] : st.q[1];
+      else if (st.type === 'qui') v = st.nm[st.ans[k]] || '?';
+      else v = st.ans[k] || '—';
+      const d = document.createElement('div');
+      d.className = 'rev-c';
+      d.innerHTML = `<small>${esc(st.nm[k])}</small><span>${esc(v)}</span>`;
+      box.appendChild(d);
+    });
+  }
+  const btn = $('#rev-next');
+  if (st.rev.juge) {
+    btn.textContent = 'On avait pareil ✅';
+    btn.onclick = () => jouer({ k: 'juge', v: true });
+    if (!$('#rev-no')) {
+      const no = document.createElement('button');
+      no.className = 'btn ghost'; no.id = 'rev-no'; no.textContent = 'Pas pareil ❌';
+      no.style.marginLeft = '10px';
+      no.onclick = () => jouer({ k: 'juge', v: false });
+      btn.after(no);
+    }
+    $('#rev-w').textContent = 'L\'un de vous deux tranche.';
+  } else {
+    $('#rev-no')?.remove();
+    btn.textContent = 'Manche suivante →';
+    btn.onclick = () => jouer({ k: 'next' });
+    $('#rev-w').textContent = 'Vous pouvez cliquer tous les deux.';
+  }
+}
 
-/* le compte à rebours est calculé localement : les deux PC n'ont pas
-   forcément la même heure système, on ne peut pas se fier à st.fin */
-let manchePrec = -1, finLocale = 0;
+/* ---------- chronos locaux (les deux PC n'ont pas la même heure) ---------- */
 function lanceChrono() {
-  if (manchePrec !== st.i) { manchePrec = st.i; finLocale = Date.now() + 90000; raz(); }
   clearInterval(chrono);
   chrono = setInterval(() => {
     if (!st || st.type !== 'des' || st.ph !== 'round') { clearInterval(chrono); return; }
-    const r = Math.max(0, Math.ceil((finLocale - Date.now()) / 1000));
-    $('#des-w').textContent = `${r} s`;
+    $('#des-w').textContent = `${Math.max(0, Math.ceil((finLocale - Date.now()) / 1000))} s`;
   }, 250);
 }
-
-/* --- bras de fer --- */
-let mesCoups = 0, dernierEnvoi = 0, chronoBra = null, pouls = null;
-
-function corde(a, b) {
-  const t = a + b;
-  const p = t ? (a / t) : .5;                 // 0 = tout à gauche
-  $('#bra-h').style.left = (12 + p * 76) + '%';
+function lanceChronoCha() {
+  clearInterval(chrono);
+  chrono = setInterval(() => {
+    if (!st || st.type !== 'cha' || st.ph !== 'round') { clearInterval(chrono); return; }
+    $('#cha-w').textContent = `${Math.max(0, Math.ceil((finLocale - Date.now()) / 1000))} s — ${st.cha.pris} / ${st.cha.but}`;
+  }, 200);
 }
 function lanceChronoBra() {
   clearInterval(chronoBra);
@@ -671,37 +787,8 @@ function lanceChronoBra() {
     if (r === 0) $('#bra-b').disabled = true;
   }, 150);
 }
-$('#bra-b').addEventListener('pointerdown', e => {
-  e.preventDefault();
-  if (!st || st.type !== 'bra' || st.ph !== 'round' || Date.now() > finLocale) return;
-  mesCoups++;
-  const now = Date.now();
-  if (now - dernierEnvoi > 110) { dernierEnvoi = now; jouer({ k: 'bf', n: mesCoups }); }
-});
 
-/* le pouls du bras de fer : l'hôte envoie les deux compteurs 8 fois par seconde */
-function poulsRecu(m) {
-  if (!st || st.type !== 'bra' || hote) return;
-  st.bf = { h: m.h, g: m.g };
-  corde(st.bf.h, st.bf.g);
-}
-
-/* --- pierre feuille ciseaux --- */
-$$('.pfc').forEach(b => b.addEventListener('click', () => jouer({ k: 'pfc', v: b.dataset.v })));
-
-/* --- vrai ou faux --- */
-function envoieVF(v) {
-  const t = $('#vf-in').value.trim();
-  if (!t) { toast('Écris quelque chose d\'abord'); return; }
-  jouer({ k: 'vfw', txt: t, v });
-  $('#vf-in').value = '';
-}
-$('#vf-true').addEventListener('click', () => envoieVF(true));
-$('#vf-false').addEventListener('click', () => envoieVF(false));
-$('#vf-gt').addEventListener('click', () => jouer({ k: 'vfg', v: true }));
-$('#vf-gf').addEventListener('click', () => jouer({ k: 'vfg', v: false }));
-
-/* --- réflexe --- */
+/* ---------- interactions ---------- */
 function topDepart() {
   if (!st) return;
   st.go = true;
@@ -711,43 +798,61 @@ function topDepart() {
 }
 $('#ref-t').addEventListener('click', () => {
   if (!st || st.type !== 'ref' || st.ph !== 'round') return;
-  $('#ref-t').disabled = true;
-  jouer({ k: 'hit' });
+  $('#ref-t').disabled = true; jouer({ k: 'hit' });
 });
 
-/* --- qui --- */
 $('#qui-a').addEventListener('click', () => jouer({ k: 'qui', v: 'h' }));
 $('#qui-b').addEventListener('click', () => jouer({ k: 'qui', v: 'g' }));
+$('#pre-a').addEventListener('click', () => jouer({ k: 'pre', v: 'a' }));
+$('#pre-b').addEventListener('click', () => jouer({ k: 'pre', v: 'b' }));
+$$('.pfc').forEach(b => b.addEventListener('click', () => jouer({ k: 'pfc', v: b.dataset.v })));
 
-/* --- synchro --- */
 function envoieSyn() {
   const v = $('#syn-in').value.trim();
   if (!v) return;
-  jouer({ k: 'syn', v });
-  $('#syn-in').value = '';
+  jouer({ k: 'syn', v }); $('#syn-in').value = '';
 }
 $('#syn-ok').addEventListener('click', envoieSyn);
 $('#syn-in').addEventListener('keydown', e => { if (e.key === 'Enter') envoieSyn(); });
 
-/* --- dessin --- */
-const pad = $('#pad'), ctx = pad.getContext('2d');
-let trace = false, coul = '#ffffff', buf = [];
+function envoieVF(v) {
+  const t = $('#vf-in').value.trim();
+  if (!t) { toast('Écris quelque chose d\'abord'); return; }
+  jouer({ k: 'vfw', txt: t, v }); $('#vf-in').value = '';
+}
+$('#vf-true').addEventListener('click', () => envoieVF(true));
+$('#vf-false').addEventListener('click', () => envoieVF(false));
+$('#vf-gt').addEventListener('click', () => jouer({ k: 'vfg', v: true }));
+$('#vf-gf').addEventListener('click', () => jouer({ k: 'vfg', v: false }));
 
+/* bras de fer */
+function corde(a, b) {
+  const t = a + b, p = t ? (a / t) : .5;
+  $('#bra-h').style.left = (12 + p * 76) + '%';
+}
+function poulsRecu(m) {
+  if (!st || st.type !== 'bra' || hote) return;
+  st.bf = { h: m.h, g: m.g };
+  corde(st.bf.h, st.bf.g);
+}
+$('#bra-b').addEventListener('pointerdown', e => {
+  e.preventDefault();
+  if (!st || st.type !== 'bra' || st.ph !== 'round' || Date.now() > finLocale) return;
+  mesCoups++;
+  const now = Date.now();
+  if (now - dernierEnvoi > 110) { dernierEnvoi = now; jouer({ k: 'bf', n: mesCoups }); }
+});
+
+/* dessin */
+const pad = $('#pad'), ctx = pad.getContext('2d');
+let trace = false, coul = '#ffffff', buf = [], dernier = null;
 function raz() { ctx.clearRect(0, 0, pad.width, pad.height); }
 function segment(a, b, c) {
-  ctx.strokeStyle = c; ctx.lineWidth = 4;
-  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  ctx.beginPath();
-  ctx.moveTo(a[0] * pad.width, a[1] * pad.height);
-  ctx.lineTo(b[0] * pad.width, b[1] * pad.height);
-  ctx.stroke();
+  ctx.strokeStyle = c; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.beginPath(); ctx.moveTo(a[0] * pad.width, a[1] * pad.height);
+  ctx.lineTo(b[0] * pad.width, b[1] * pad.height); ctx.stroke();
 }
-const posXY = e => {
-  const r = pad.getBoundingClientRect();
-  return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height];
-};
-let dernier = null;
-
+const posXY = e => { const r = pad.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; };
 pad.addEventListener('pointerdown', e => {
   if (!st || st.type !== 'des' || st.ph !== 'round' || st.drawer !== moi) return;
   trace = true; dernier = posXY(e); pad.setPointerCapture(e.pointerId);
@@ -762,12 +867,7 @@ pad.addEventListener('pointermove', e => {
   if (buf.length > 6) purge();
 });
 addEventListener('pointerup', () => { if (trace) { trace = false; purge(); } });
-
-function purge() {
-  if (!buf.length) return;
-  envoie({ t: 'D', s: buf, c: coul });
-  buf = [];
-}
+function purge() { if (!buf.length) return; envoie({ t: 'D', s: buf, c: coul }); buf = []; }
 function dessineDistant(m) {
   if (m.raz) { raz(); return; }
   (m.s || []).forEach(s => segment([s[0], s[1]], [s[2], s[3]], m.c));
@@ -782,12 +882,11 @@ $('#des-in').addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
   const v = e.target.value.trim();
   if (!v) return;
-  jouer({ k: 'guess', v });
-  e.target.value = '';
+  jouer({ k: 'guess', v }); e.target.value = '';
 });
 
 /* =========================================================
-   FIN DE PARTIE
+   FIN
    ========================================================= */
 function finPartie() {
   ecran('s-end');
@@ -800,9 +899,8 @@ function finPartie() {
     $('#end-t').textContent = 'Égalité parfaite';
     $('#end-p').textContent = 'Franchement, c\'est le meilleur résultat possible pour un couple.';
   } else {
-    const gagne = a > b ? st.nm.h : st.nm.g;
     $('#end-e').textContent = '🏆';
-    $('#end-t').textContent = `${gagne} gagne cette partie`;
+    $('#end-t').textContent = `${a > b ? st.nm.h : st.nm.g} gagne cette partie`;
     $('#end-p').textContent = 'L\'autre prendra sa revanche. Il y a toujours une revanche.';
   }
   boum(200);

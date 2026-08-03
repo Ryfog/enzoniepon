@@ -233,6 +233,89 @@ body{
 .len:hover{border-color:var(--violet)}
 .len.on{border-color:var(--gold);background:rgba(255,215,110,.14)}
 
+.three-row{grid-template-columns:repeat(3,1fr)}
+.ryt{
+  background:var(--glass);border:1.5px solid var(--edge);border-radius:14px;
+  padding:11px 6px;color:var(--ink);cursor:pointer;
+  font-family:'Outfit',sans-serif;font-size:.86rem;font-weight:600;transition:.2s;
+}
+.ryt:hover{border-color:var(--violet)}
+.ryt.on{border-color:var(--gold);background:rgba(255,215,110,.14)}
+.wide{width:100%;margin-top:16px}
+
+.opts{margin-top:14px;animation:up .4s both}
+.opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.opt{
+  display:flex;align-items:center;gap:8px;text-align:left;
+  background:var(--glass);border:1.5px solid var(--edge);border-radius:12px;
+  padding:10px 11px;color:var(--soft);cursor:pointer;
+  font-family:'Outfit',sans-serif;font-size:.8rem;font-weight:500;transition:.2s;
+}
+.opt .tick{
+  width:16px;height:16px;border-radius:5px;flex:0 0 auto;
+  border:1.5px solid var(--edge);display:grid;place-items:center;font-size:.62rem;color:#1a0f2e;
+}
+.opt.on{border-color:var(--violet);color:var(--ink);background:rgba(139,92,246,.16)}
+.opt.on .tick{background:var(--gold);border-color:var(--gold)}
+.opt.on .tick::after{content:'✓'}
+.opt-foot{display:flex;gap:8px;justify-content:center;margin-top:12px}
+
+/* ---------- tu préfères ---------- */
+#m-pre .pick b{font-size:.98rem;line-height:1.35}
+
+/* ---------- trouve l'intrus ---------- */
+.intru{
+  display:grid;gap:5px;max-width:420px;margin:0 auto;
+  grid-template-columns:repeat(var(--n,7),1fr);
+}
+.intru button{
+  aspect-ratio:1;border:none;border-radius:10px;cursor:pointer;
+  background:rgba(255,255,255,.05);font-size:clamp(.9rem,3.4vw,1.4rem);
+  display:grid;place-items:center;transition:.15s;padding:0;
+}
+.intru button:hover{background:rgba(139,92,246,.28);transform:scale(1.12)}
+.intru button.bad{animation:nope .35s}
+@keyframes nope{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.intru.off{pointer-events:none;opacity:.55}
+
+/* ---------- chasse aux cœurs ---------- */
+.chasse{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
+  max-width:380px;margin:0 auto;
+}
+.chasse button{
+  aspect-ratio:1;border:none;border-radius:16px;cursor:pointer;padding:0;
+  background:rgba(255,255,255,.05);font-size:2rem;
+  display:grid;place-items:center;transition:.15s;
+}
+.chasse button.up{
+  background:radial-gradient(circle at 40% 35%,#ff9ecb,#e4407f);
+  box-shadow:0 0 26px rgba(255,111,174,.6);animation:zap .7s ease-in-out infinite;
+}
+
+/* ---------- memory ---------- */
+.memo{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;max-width:380px;margin:0 auto}
+.memo button{
+  aspect-ratio:1;border:none;border-radius:14px;cursor:pointer;padding:0;
+  background:linear-gradient(140deg,var(--violet),var(--rose));
+  font-size:1.7rem;display:grid;place-items:center;transition:.22s;color:transparent;
+}
+.memo button.up,.memo button.ok{background:rgba(255,255,255,.1);color:inherit}
+.memo button.ok{background:rgba(94,224,230,.2);cursor:default}
+.memo.off{pointer-events:none}
+
+/* ---------- quiz éclair ---------- */
+.qz-opts{display:grid;grid-template-columns:1fr 1fr;gap:9px;max-width:520px;margin:0 auto}
+.qz-opts button{
+  padding:16px 12px;border-radius:16px;cursor:pointer;
+  background:var(--glass);border:1.5px solid var(--edge);color:var(--ink);
+  font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:500;transition:.2s;
+}
+.qz-opts button:hover{border-color:var(--violet);background:rgba(139,92,246,.16)}
+.qz-opts button.bad{border-color:#ff6b8a;background:rgba(255,107,138,.14);opacity:.6}
+.qz-opts button.good{border-color:var(--cyan);background:rgba(94,224,230,.18)}
+.qz-opts.off{pointer-events:none}
+
 /* ---------- bras de fer ---------- */
 .rope{display:flex;align-items:center;gap:12px;max-width:560px;margin:0 auto 26px}
 .rope-end{font-size:.85rem;color:var(--soft);max-width:8ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 
@@ -59,9 +59,27 @@
     <div class="lens" id="lens" hidden>
       <p class="lab">Longueur de la partie</p>
       <div class="len-row">
-        <button class="len" data-n="10">10 manches<small>~15 min</small></button>
-        <button class="len on" data-n="16">16 manches<small>~25 min</small></button>
-        <button class="len" data-n="24">24 manches<small>~40 min</small></button>
+        <button class="len" data-n="10">10<small>~15 min</small></button>
+        <button class="len on" data-n="16">16<small>~25 min</small></button>
+        <button class="len" data-n="24">24<small>~40 min</small></button>
+        <button class="len" data-n="32">32<small>~55 min</small></button>
+      </div>
+
+      <p class="lab">Rythme</p>
+      <div class="len-row three-row">
+        <button class="ryt" data-r="1.4">Tranquille</button>
+        <button class="ryt on" data-r="1">Normal</button>
+        <button class="ryt" data-r="0.7">Rapide</button>
+      </div>
+
+      <button class="btn ghost small wide" id="b-opt">⚙️ Choisir les épreuves</button>
+      <div class="opts" id="opts" hidden>
+        <div class="opt-grid" id="opt-grid"></div>
+        <div class="opt-foot">
+          <button class="btn ghost small" id="b-all">Tout cocher</button>
+          <button class="btn ghost small" id="b-hist">Vider l'historique</button>
+        </div>
+        <p class="mini" id="opt-info"></p>
       </div>
     </div>
     <button class="btn" id="b-start" hidden>Commencer la partie</button>
@@ -184,6 +202,44 @@
       <p class="wait-l" id="vf-w">—</p>
     </div>
 
+    <!-- TU PRÉFÈRES -->
+    <div class="mode" id="m-pre" hidden>
+      <p class="q">Tu préfères…</p>
+      <div class="two big-two">
+        <button class="pick" id="pre-a"><span class="av">🅰️</span><b id="pre-an">—</b></button>
+        <button class="pick" id="pre-b"><span class="av">🅱️</span><b id="pre-bn">—</b></button>
+      </div>
+      <p class="wait-l" id="pre-w"></p>
+    </div>
+
+    <!-- TROUVE L'INTRUS -->
+    <div class="mode" id="m-int" hidden>
+      <p class="q">Trouve l'intrus. Le plus rapide marque.</p>
+      <div class="intru" id="int-grid"></div>
+      <p class="wait-l" id="int-w">Cherche bien…</p>
+    </div>
+
+    <!-- CHASSE AUX CŒURS -->
+    <div class="mode" id="m-cha" hidden>
+      <p class="q" id="cha-q">Attrapez les cœurs à deux&nbsp;!</p>
+      <div class="chasse" id="cha-grid"></div>
+      <p class="wait-l" id="cha-w">—</p>
+    </div>
+
+    <!-- MEMORY À DEUX -->
+    <div class="mode" id="m-mem" hidden>
+      <p class="q" id="mem-q">Memory — à vous deux.</p>
+      <div class="memo" id="mem-grid"></div>
+      <p class="wait-l" id="mem-w">—</p>
+    </div>
+
+    <!-- QUIZ ÉCLAIR -->
+    <div class="mode" id="m-qz" hidden>
+      <p class="q" id="qz-q">—</p>
+      <div class="qz-opts" id="qz-opts"></div>
+      <p class="wait-l" id="qz-w">Le premier qui trouve marque le point.</p>
+    </div>
+
     <!-- RÉVÉLATION -->
     <div class="mode reveal" id="m-rev" hidden>
       <div class="rev-e" id="rev-e">✨</div>
@@ -213,6 +269,7 @@
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<script src="game.js?v=3"></script>
+<script src="contenu.js?v=4"></script>
+<script src="game.js?v=4"></script>
 </body>
 </html>
