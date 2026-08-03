@@ -6,5 +6,6 @@ Disallow: /copine/
 Disallow: /cine/
 Disallow: /duo/
 Disallow: /parkour/
+Disallow: /echos/
 
 Sitemap: https://enzoniepon.fr/sitemap.xml
