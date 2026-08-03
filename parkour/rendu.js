@@ -375,7 +375,7 @@ function bouton(g, o, temps) {
   g.fillStyle = '#ffd35c';
   g.beginPath(); g.arc(o.x, y, 11, 0, 7); g.fill();
   g.shadowBlur = 0;
-  g.fillStyle = '#e8a92c';
+  g.strokeStyle = '#e8a92c'; g.lineWidth = 2;   // il manquait strokeStyle : le contour héritait d'une couleur au hasard
   g.beginPath(); g.arc(o.x, y, 11, 0, 7); g.stroke();
   g.fillStyle = '#a97516';
   [[-3.5, -3.5], [3.5, -3.5], [-3.5, 3.5], [3.5, 3.5]].forEach(([a, b]) => {

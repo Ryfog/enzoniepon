@@ -410,7 +410,9 @@ function simule(p, idx, cmd) {
     }
   });
 
-  p.basAv = basAvant;
+  /* position du bas au DÉBUT du pas suivant : c'est cette valeur que
+     poseUneWay() compare pour savoir si on arrive par au-dessus */
+  p.basAv = p.y + PH;
 }
 
 function commandes(idx) {
@@ -441,14 +443,43 @@ function majParts() {
   parts.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += .18; p.v -= .022; });
 }
 
-/* ============ BOUCLE ============ */
+/* ============ BOUCLE ============
+   Pas de temps FIXE avec accumulateur. La simulation avance toujours
+   par pas de 1/60 s, quelle que soit la fréquence de l'écran : le
+   ressenti reste identique à 60 Hz et le jeu ne tourne plus 2,4× trop
+   vite sur un écran 144 Hz. Le dessin, lui, suit l'écran.            */
+const PAS = 1000 / 60;      // durée d'un pas de simulation, en ms
+const RETARD_MAX = 250;     // au-delà (onglet inactif) on abandonne le retard
+const PAS_MAX = 5;          // pas de simulation rattrapés au maximum par image
+
 let boucle = null, dernierEnvoi = 0, tempsMobile = 0, temps = 0;
+let dernierTs = 0, cumul = 0;
 
 function tour(ts) {
   boucle = requestAnimationFrame(tour);
   if (!enJeu) return;
   temps = ts / 1000;
 
+  if (!dernierTs) dernierTs = ts;
+  let ecoule = ts - dernierTs;
+  dernierTs = ts;
+  if (ecoule > RETARD_MAX) ecoule = PAS;   // retour d'onglet : on repart net
+  cumul += ecoule;
+
+  let n = 0;
+  while (cumul >= PAS && n < PAS_MAX) { simuleUnPas(ts); cumul -= PAS; n++; }
+  if (n === PAS_MAX) cumul = 0;
+
+  majCamera();
+  dessine();
+
+  $('#etat').textContent = solo
+    ? `Tu diriges ${noms[actif]} — Tab pour changer de personnage`
+    : `Tu es ${noms[moi]}`;
+}
+
+/* un pas de simulation = exactement ce que faisait l'ancienne image */
+function simuleUnPas(ts) {
   if (hote) {
     tempsMobile += 1 / 60;
     mobiles.forEach(o => {
@@ -501,13 +532,6 @@ function tour(ts) {
       p.y + PH > arriveePos.y - 10 && p.y < arriveePos.y + T + 24;
     if (sur(J[0]) && sur(J[1]) && (hote || solo)) { gagne(); if (!solo) envoie({ t: 'WIN' }); }
   }
-
-  majCamera();
-  dessine();
-
-  $('#etat').textContent = solo
-    ? `Tu diriges ${noms[actif]} — Tab pour changer de personnage`
-    : `Tu es ${noms[moi]}`;
 }
 
 /* ---------- caméra : suit le milieu, dézoome si vous vous éloignez ---------- */
@@ -563,7 +587,15 @@ $('#b-next').addEventListener('click', () => {
 });
 
 /* ============ CLAVIER ============ */
+/* on ne capture jamais le clavier pendant une saisie de texte,
+   sinon l'espace du prénom est avalé par le saut */
+const saisieEnCours = e => {
+  const t = e.target;
+  return t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
+};
+
 addEventListener('keydown', e => {
+  if (saisieEnCours(e)) return;
   const k = e.key.toLowerCase();
   if (k === 'tab') { e.preventDefault(); if (solo) actif = 1 - actif; return; }
   if (k === 'r' && enJeu) {
@@ -574,14 +606,28 @@ addEventListener('keydown', e => {
   if ([' ', 'arrowup', 'arrowleft', 'arrowright', 'arrowdown'].includes(k)) e.preventDefault();
   touches[k] = true;
 });
-addEventListener('keyup', e => { touches[e.key.toLowerCase()] = false; });
+addEventListener('keyup', e => { if (!saisieEnCours(e)) touches[e.key.toLowerCase()] = false; });
 addEventListener('blur', () => { for (const k in touches) touches[k] = false; });
 
 /* ============ DESSIN ============ */
 const cv = $('#cv'), g = cv.getContext('2d');
 
+/* écrans haute densité : on augmente la résolution réelle du canvas et
+   on compense par une échelle, sinon tout le décor est flou.
+   Le reste du code continue de raisonner en 1280×720. */
+let densite = 1;
+function ajusteDensite() {
+  const d = Math.min(2, window.devicePixelRatio || 1);
+  if (d === densite && cv.width === VUE_L * d) return;
+  densite = d;
+  cv.width = VUE_L * d;
+  cv.height = VUE_H * d;
+}
+ajusteDensite();
+addEventListener('resize', ajusteDensite);
+
 function dessine() {
-  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.setTransform(densite, 0, 0, densite, 0, 0);
   fond(g, cam.x, temps);
   arbres(g, cam.x, larg);
 
@@ -590,7 +636,16 @@ function dessine() {
   g.scale(cam.s, cam.s);
   g.translate(-cam.x, -cam.y);
 
-  if (fondFixe) g.drawImage(fondFixe, 0, 0);
+  /* on ne recopie que la portion visible du décor pré-dessiné :
+     sans ça, un canvas de 3520 px partait entier à chaque image */
+  if (fondFixe) {
+    const visL = VUE_L / cam.s, visH = VUE_H / cam.s;
+    const sx = Math.max(0, Math.floor(cam.x - visL / 2) - T);
+    const sy = Math.max(0, Math.floor(cam.y - visH / 2) - T);
+    const sw = Math.min(fondFixe.width - sx, Math.ceil(visL) + T * 2);
+    const sh = Math.min(fondFixe.height - sy, Math.ceil(visH) + T * 2);
+    if (sw > 0 && sh > 0) g.drawImage(fondFixe, sx, sy, sw, sh, sx, sy, sw, sh);
+  }
 
   for (let y = 0; y < HAUT; y++)
     for (let x = 0; x < larg; x++)
