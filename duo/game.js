@@ -10,12 +10,15 @@ const melange = a => [...a].sort(() => Math.random() - .5);
 const esc = s => String(s).replace(/[<>&"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]));
 const PREFIXE = 'duo-es-';
 
-const TYPES = ['qui', 'syn', 'des', 'ref', 'bra', 'p4', 'pfc', 'vf', 'pre', 'int', 'cha', 'mem', 'qz'];
+const TYPES = ['qui', 'syn', 'des', 'ref', 'bra', 'p4', 'pfc', 'vf', 'pre', 'int', 'cha', 'mem', 'qz',
+  'seq', 'bac', 'tap', 'mdp', 'non', 'bom'];
 const NOMS = {
   qui: 'Qui de nous deux', syn: 'Synchro', des: 'Dessine-moi', ref: 'Duel de réflexe',
   bra: 'Bras de fer', p4: 'Puissance 4', pfc: 'Pierre feuille ciseaux', vf: 'Vrai ou faux',
   pre: 'Tu préfères', int: 'Trouve l\'intrus', cha: 'Chasse aux cœurs',
-  mem: 'Memory à deux', qz: 'Quiz éclair'
+  mem: 'Memory à deux', qz: 'Quiz éclair',
+  seq: 'La séquence', bac: 'Petit bac', tap: 'Tape vite',
+  mdp: 'Mot de passe', non: 'Ni oui ni non', bom: 'Désamorçage'
 };
 const BAT = { pierre: 'ciseaux', feuille: 'pierre', ciseaux: 'feuille' };
 const P4C = 7, P4L = 6;
@@ -39,9 +42,11 @@ function tirer(cat, arr) {
 
 /* ============ ÉTAT ============ */
 let peer = null, conn = null, hote = false, moi = 'h', autre = 'g';
-let st = null, rtt = 60, longueur = 16, rythme = 1;
+let st = null, rtt = 60, longueur = 16, rythme = 1, piment = false;
 let actifs = TYPES.slice();
-let minuteur = null, chrono = null, pouls = null, bonQz = 0, tempo = null;
+let minuteur = null, chrono = null, pouls = null, tempo = null;
+/* réponses gardées côté hôte uniquement, pour qu'on ne puisse pas les lire */
+let bonQz = 0, bonFil = 0, motSecret = '';
 let SUITE = [];
 
 const neuf = () => ({
@@ -83,6 +88,7 @@ function recois(m) {
   else if (m.t === 'D') dessineDistant(m);
   else if (m.t === 'PING') envoie({ t: 'PONG', k: m.k });
   else if (m.t === 'PONG') rtt = Math.min(400, Date.now() - m.k);
+  else if (m.t === 'REFUS') toast('Interdit : ton indice contient le mot à faire deviner.');
 }
 function ping() { envoie({ t: 'PING', k: Date.now() }); }
 
@@ -177,6 +183,13 @@ $$('.ryt').forEach(b => b.addEventListener('click', () => {
   $$('.ryt').forEach(x => x.classList.toggle('on', x === b));
 }));
 $('#b-opt').addEventListener('click', () => { $('#opts').hidden = !$('#opts').hidden; });
+$('#b-piment').addEventListener('click', () => {
+  piment = !piment;
+  $('#b-piment').classList.toggle('on', piment);
+  toast(piment
+    ? 'Mode piment activé 🌶️ — « Qui de nous deux », « Tu préfères » et « Synchro » changent de registre.'
+    : 'Mode piment désactivé.');
+});
 
 (function construitOptions() {
   const g = $('#opt-grid');
@@ -240,14 +253,68 @@ function manche(i) {
 
   const T = st.type;
 
-  if (T === 'qui') { st.q = tirer('qui', QUI); diffuse(); return; }
-  if (T === 'syn') { st.q = tirer('syn', SYNCHRO); diffuse(); return; }
-  if (T === 'pre') { st.q = tirer('pre', PREFERE); diffuse(); return; }
+  /* en mode piment, ces trois épreuves puisent dans l'autre banque */
+  if (T === 'qui') { st.q = piment ? tirer('quiP', PIMENT.qui) : tirer('qui', QUI); diffuse(); return; }
+  if (T === 'syn') { st.q = piment ? tirer('synP', PIMENT.syn) : tirer('syn', SYNCHRO); diffuse(); return; }
+  if (T === 'pre') { st.q = piment ? tirer('preP', PIMENT.pre) : tirer('pre', PREFERE); diffuse(); return; }
 
   if (T === 'des') {
     st.drawer = i % 2 === 0 ? 'h' : 'g';
     st.q = tirer('mot', MOTS);
     minuteur = setTimeout(() => { if (st.ph === 'round') reveler({ e: '⏰', t: 'Temps écoulé', p: `C'était « ${st.q} ».` }); }, st.dur.des);
+    diffuse(); return;
+  }
+
+  if (T === 'seq') {
+    st.seq = { suite: Array.from({ length: 5 }, () => Math.floor(Math.random() * 4)), phase: 'montre', pos: { h: 0, g: 0 }, ko: {} };
+    diffuse();
+    minuteur = setTimeout(() => {
+      if (st.type !== 'seq' || st.ph !== 'round') return;
+      st.seq.phase = 'repete'; diffuse();
+    }, (st.seq.suite.length * 620 + 900) * rythme);
+    return;
+  }
+
+  if (T === 'bac') {
+    st.q = { lettre: pick(LETTRES), cat: tirer('bac', CATEGORIES) };
+    diffuse(); return;
+  }
+
+  if (T === 'tap') {
+    st.q = tirer('tap', PHRASES);
+    diffuse(); return;
+  }
+
+  if (T === 'mdp') {
+    motSecret = tirer('mdp', SECRETS);
+    st.mdp = { donneur: i % 2 === 0 ? 'h' : 'g', fil: [] };
+    st.q = motSecret;                        // seul le donneur l'affichera
+    st.fin = Date.now() + 75000 * rythme;
+    minuteur = setTimeout(() => {
+      if (st.ph === 'round') reveler({ e: '⏳', t: 'Temps écoulé', p: `Le mot était « ${motSecret} ».` });
+    }, 75000 * rythme);
+    diffuse(); return;
+  }
+
+  if (T === 'non') {
+    st.non = { demandeur: i % 2 === 0 ? 'h' : 'g', fil: [] };
+    minuteur = setTimeout(() => {
+      if (st.ph !== 'round' || st.type !== 'non') return;
+      const r = st.non.demandeur === 'h' ? 'g' : 'h';
+      st.sc[r]++;
+      reveler({ e: '🛡️', t: `${st.nm[r]} a tenu !`, p: 'Pas un seul oui, pas un seul non. Chapeau.' });
+    }, 45000 * rythme);
+    diffuse(); return;
+  }
+
+  if (T === 'bom') {
+    const fils = Array.from({ length: 4 }, () => pick(COULEURS_FILS));
+    const regle = pick(REGLES);
+    bonFil = regle.calcule(fils);
+    st.bom = { fils, regle: regle.texte, panneau: i % 2 === 0 ? 'h' : 'g', coupe: -1 };
+    minuteur = setTimeout(() => {
+      if (st.ph === 'round') reveler({ e: '💥', t: 'Trop tard !', p: `Il fallait couper le fil n° ${bonFil + 1}.` });
+    }, 60000 * rythme);
     diffuse(); return;
   }
 
@@ -475,6 +542,93 @@ function action(qui, a) {
       st.qzKO[qui] = true;
       if (st.qzKO.h && st.qzKO.g) reveler({ e: '🤷', t: 'Personne n\'a trouvé', p: `C'était « ${st.q.o[bonQz]} ».` });
       else diffuse();
+    }
+  }
+
+  /* --- la séquence --- */
+  else if (a.k === 'seq' && st.ph === 'round' && st.type === 'seq') {
+    const S = st.seq;
+    if (S.phase !== 'repete' || S.ko[qui]) return;
+    if (S.suite[S.pos[qui]] === a.i) {
+      S.pos[qui]++;
+      if (S.pos[qui] >= S.suite.length) {
+        st.sc[qui]++;
+        reveler({ e: '🧠', t: `${st.nm[qui]} a tout retenu !`, p: `Les ${S.suite.length} couleurs, dans l'ordre.` });
+        return;
+      }
+      diffuse();
+    } else {
+      S.ko[qui] = true;
+      if (S.ko.h && S.ko.g) reveler({ e: '😵', t: 'Ratée tous les deux', p: 'Personne ne marque, la séquence était vicieuse.' });
+      else diffuse();
+    }
+  }
+
+  /* --- petit bac --- */
+  else if (a.k === 'bac' && st.ph === 'round' && st.type === 'bac') {
+    st.ans[qui] = (a.v || '').slice(0, 24);
+    if (st.ans.h === null || st.ans.g === null) { diffuse(); return; }
+    const bon = v => norm(v).startsWith(norm(st.q.lettre));
+    const okH = bon(st.ans.h), okG = bon(st.ans.g);
+    if (okH) st.sc.h++;
+    if (okG) st.sc.g++;
+    const dire = (n, o) => `${n} : ${o ? '✅' : '❌ mauvaise lettre'}`;
+    reveler({
+      e: (okH && okG) ? '🎯' : '🔤',
+      t: (okH && okG) ? 'Les deux ont trouvé !' : 'Voyons voir…',
+      p: `${dire(st.nm.h, okH)} · ${dire(st.nm.g, okG)}`,
+      deux: true
+    });
+  }
+
+  /* --- tape vite --- */
+  else if (a.k === 'tap' && st.ph === 'round' && st.type === 'tap') {
+    st.sc[qui]++;
+    reveler({ e: '⌨️', t: `${st.nm[qui]} tape le plus vite !`, p: 'Phrase recopiée sans une faute.' });
+  }
+
+  /* --- mot de passe --- */
+  else if (a.k === 'mdp' && st.ph === 'round' && st.type === 'mdp') {
+    const v = (a.v || '').slice(0, 28);
+    const estDonneur = qui === st.mdp.donneur;
+    if (estDonneur) {
+      if (norm(v).includes(norm(motSecret))) { envoie({ t: 'REFUS' }); return; }
+      st.mdp.fil.push({ de: qui, txt: v, indice: true });
+    } else {
+      if (norm(v) === norm(motSecret)) {
+        st.sc.h++; st.sc.g++;
+        reveler({ e: '🔓', t: 'Trouvé !', p: `C'était bien « ${motSecret} ». +1 pour chacun.` });
+        return;
+      }
+      st.mdp.fil.push({ de: qui, txt: v, indice: false });
+    }
+    st.mdp.fil = st.mdp.fil.slice(-8);
+    diffuse();
+  }
+
+  /* --- ni oui ni non --- */
+  else if (a.k === 'non' && st.ph === 'round' && st.type === 'non') {
+    const v = (a.v || '').slice(0, 80);
+    const repond = qui !== st.non.demandeur;
+    if (repond && /(^|[^a-zà-ÿ])(oui|non|ouais|nan|si)([^a-zà-ÿ]|$)/i.test(v)) {
+      st.sc[st.non.demandeur]++;
+      reveler({ e: '🪤', t: 'Piégé !', p: `${st.nm[qui]} a lâché le mot interdit. Le point va à ${st.nm[st.non.demandeur]}.` });
+      return;
+    }
+    st.non.fil.push({ de: qui, txt: v });
+    st.non.fil = st.non.fil.slice(-8);
+    diffuse();
+  }
+
+  /* --- désamorçage --- */
+  else if (a.k === 'bom' && st.ph === 'round' && st.type === 'bom') {
+    if (qui !== st.bom.panneau || st.bom.coupe >= 0) return;
+    st.bom.coupe = a.i;
+    if (a.i === bonFil) {
+      st.sc.h++; st.sc.g++;
+      reveler({ e: '🧯', t: 'Désamorcée !', p: `Le fil n° ${bonFil + 1} était le bon. +1 pour chacun.` });
+    } else {
+      reveler({ e: '💥', t: 'Boum.', p: `C'était le fil n° ${bonFil + 1}. Vous vous êtes mal compris.` });
     }
   }
 
@@ -714,6 +868,83 @@ function rendu() {
     $('#qz-w').textContent = st.qzKO[moi] ? 'Raté — laisse l\'autre tenter.' : 'Le premier qui trouve marque le point.';
   }
 
+  else if (T === 'seq') {
+    on('m-seq');
+    const S = st.seq, montre = S.phase === 'montre';
+    $('#seq-pads').classList.toggle('off', !montre ? !!S.ko[moi] : true);
+    $('#seq-q').textContent = montre ? 'Retiens bien la séquence…' : 'À toi de la refaire.';
+    if (montre && seqJouee !== st.i) { seqJouee = st.i; rejoueSequence(S.suite); }
+    $('#seq-w').textContent = S.ko[moi]
+      ? 'Raté. On attend l\'autre.'
+      : (montre ? 'Regarde.' : `${S.pos[moi]} / ${S.suite.length}`);
+  }
+
+  else if (T === 'bac') {
+    on('m-bac');
+    $('#bac-lettre').textContent = st.q.lettre;
+    $('#bac-q').textContent = `Trouve ${st.q.cat} qui commence par…`;
+    const fait = st.ans[moi] !== null;
+    $('#bac-in').disabled = fait;
+    $('#bac-w').textContent = fait ? 'Envoyé. On attend l\'autre…' : 'Le premier mot qui te vient.';
+  }
+
+  else if (T === 'tap') {
+    on('m-tap');
+    $('#tap-phrase').textContent = st.q;
+    if (tapRound !== st.i) { tapRound = st.i; $('#tap-in').value = ''; $('#tap-jauge').style.width = '0%'; $('#tap-in').focus(); }
+    $('#tap-w').textContent = 'Le premier qui la recopie sans faute marque.';
+  }
+
+  else if (T === 'mdp') {
+    on('m-mdp');
+    const jeDonne = st.mdp.donneur === moi;
+    $('#mdp-q').textContent = jeDonne
+      ? `Fais-lui deviner : « ${st.q} »`
+      : `${st.nm[autre]} te donne des indices. Trouve le mot.`;
+    $('#mdp-in').placeholder = jeDonne ? 'un indice, un seul mot…' : 'ta proposition…';
+    if (manchePrec !== st.i) { manchePrec = st.i; finLocale = Date.now() + (75000 * 1); $('#mdp-in').value = ''; }
+    $('#mdp-fil').innerHTML = st.mdp.fil.map(m =>
+      `<span class="${m.de === moi ? 'moi' : ''}">${m.indice ? '💡 ' : '❓ '}${esc(m.txt)}</span>`).join('');
+    lanceChronoMdp();
+  }
+
+  else if (T === 'non') {
+    on('m-non');
+    const jeDemande = st.non.demandeur === moi;
+    $('#non-q').textContent = jeDemande
+      ? 'Pose-lui des questions. Fais-lui dire oui ou non.'
+      : 'Réponds à tout — mais jamais oui, jamais non.';
+    $('#non-in').placeholder = jeDemande ? 'ta question…' : 'ta réponse, sans le mot interdit…';
+    $('#non-fil').innerHTML = st.non.fil.map(m =>
+      `<span class="${m.de === moi ? 'moi' : ''}">${esc(m.txt)}</span>`).join('');
+    $('#non-w').textContent = jeDemande ? 'Sois retors.' : 'Interdits : oui, non, ouais, nan, si.';
+  }
+
+  else if (T === 'bom') {
+    on('m-bom');
+    const jeCoupe = st.bom.panneau === moi;
+    $('#bom-panneau').hidden = !jeCoupe;
+    $('#bom-manuel').hidden = jeCoupe;
+    $('#bom-q').textContent = jeCoupe
+      ? 'Tu as les fils. Décris-les à voix haute, c\'est l\'autre qui a le manuel.'
+      : 'Tu as le manuel. Lis-le à voix haute, c\'est l\'autre qui coupe.';
+    if (!jeCoupe) $('#bom-regle').textContent = st.bom.regle;
+    const box = $('#bom-fils');
+    if (box.dataset.r !== String(st.i)) {
+      box.dataset.r = String(st.i);
+      box.innerHTML = '';
+      st.bom.fils.forEach((c, k) => {
+        const b = document.createElement('button');
+        b.className = c; b.dataset.n = 'n° ' + (k + 1);
+        b.addEventListener('click', () => jouer({ k: 'bom', i: k }));
+        box.appendChild(b);
+      });
+    }
+    box.classList.toggle('off', st.bom.coupe >= 0);
+    [...box.children].forEach((b, k) => b.classList.toggle('coupe', st.bom.coupe === k));
+    $('#bom-w').textContent = 'Parlez-vous. Vous n\'avez pas les mêmes informations.';
+  }
+
   else if (T === 'des') {
     on('m-des');
     const jeDessine = st.drawer === moi;
@@ -826,6 +1057,69 @@ $('#vf-true').addEventListener('click', () => envoieVF(true));
 $('#vf-false').addEventListener('click', () => envoieVF(false));
 $('#vf-gt').addEventListener('click', () => jouer({ k: 'vfg', v: true }));
 $('#vf-gf').addEventListener('click', () => jouer({ k: 'vfg', v: false }));
+
+/* --- la séquence : rejoue l'animation en local --- */
+let seqJouee = -1, tapRound = -1;
+function rejoueSequence(suite) {
+  const pads = $$('#seq-pads .pad');
+  pads.forEach(p => p.classList.remove('vif'));
+  suite.forEach((v, k) => {
+    setTimeout(() => {
+      if (!st || st.type !== 'seq') return;
+      pads[v].classList.add('vif');
+      setTimeout(() => pads[v].classList.remove('vif'), 340);
+    }, 700 + k * 620);
+  });
+}
+$$('#seq-pads .pad').forEach(b => b.addEventListener('click', () => {
+  if (!st || st.type !== 'seq' || st.ph !== 'round' || st.seq.phase !== 'repete') return;
+  b.classList.add('vif');
+  setTimeout(() => b.classList.remove('vif'), 200);
+  jouer({ k: 'seq', i: +b.dataset.i });
+}));
+
+/* --- petit bac --- */
+$('#bac-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const el = $('#bac-in'), v = el.value.trim();
+  if (!v) { el.focus(); return; }
+  jouer({ k: 'bac', v }); el.value = '';
+});
+
+/* --- tape vite : on compare à chaque frappe --- */
+$('#tap-in').addEventListener('input', e => {
+  if (!st || st.type !== 'tap' || st.ph !== 'round') return;
+  const cible = norm(st.q), tape = norm(e.target.value);
+  const p = Math.min(100, (tape.length / Math.max(1, cible.length)) * 100);
+  $('#tap-jauge').style.width = p.toFixed(1) + '%';
+  if (tape === cible) { e.target.value = ''; jouer({ k: 'tap' }); }
+});
+$('#tap-form').addEventListener('submit', e => e.preventDefault());
+
+/* --- mot de passe --- */
+$('#mdp-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const el = $('#mdp-in'), v = el.value.trim();
+  if (!v) { el.focus(); return; }
+  jouer({ k: 'mdp', v }); el.value = ''; el.focus();
+});
+function lanceChronoMdp() {
+  clearInterval(chrono);
+  chrono = setInterval(() => {
+    if (!st || st.type !== 'mdp' || st.ph !== 'round') { clearInterval(chrono); return; }
+    const r = Math.max(0, Math.ceil((finLocale - Date.now()) / 1000));
+    const jeDonne = st.mdp.donneur === moi;
+    $('#mdp-w').textContent = `${r} s — ${jeDonne ? 'un seul mot par indice, et jamais le mot lui-même' : 'propose autant que tu veux'}`;
+  }, 250);
+}
+
+/* --- ni oui ni non --- */
+$('#non-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const el = $('#non-in'), v = el.value.trim();
+  if (!v) { el.focus(); return; }
+  jouer({ k: 'non', v }); el.value = ''; el.focus();
+});
 
 /* bras de fer */
 function corde(a, b) {

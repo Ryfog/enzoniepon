@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=5">
+  <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 
@@ -71,6 +71,12 @@
         <button class="ryt on" data-r="1">Normal</button>
         <button class="ryt" data-r="0.7">Rapide</button>
       </div>
+
+      <button class="piment" id="b-piment">
+        <span class="tick"></span>
+        <b>🌶️ Mode piment</b>
+        <small>Questions coquines · réservé à vous deux</small>
+      </button>
 
       <button class="btn ghost small wide" id="b-opt">⚙️ Choisir les épreuves</button>
       <div class="opts" id="opts" hidden>
@@ -242,6 +248,74 @@
       <p class="wait-l" id="qz-w">Le premier qui trouve marque le point.</p>
     </div>
 
+    <!-- LA SÉQUENCE -->
+    <div class="mode" id="m-seq" hidden>
+      <p class="q" id="seq-q">Retiens la séquence…</p>
+      <div class="pads" id="seq-pads">
+        <button class="pad p0" data-i="0"></button>
+        <button class="pad p1" data-i="1"></button>
+        <button class="pad p2" data-i="2"></button>
+        <button class="pad p3" data-i="3"></button>
+      </div>
+      <p class="wait-l" id="seq-w">—</p>
+    </div>
+
+    <!-- PETIT BAC -->
+    <div class="mode" id="m-bac" hidden>
+      <p class="q" id="bac-q">—</p>
+      <div class="lettre-geante" id="bac-lettre">A</div>
+      <form class="rangee" id="bac-form">
+        <input class="in" id="bac-in" maxlength="24" placeholder="ta réponse…" autocomplete="off" enterkeyhint="send">
+        <button class="btn small" type="submit">Valider</button>
+      </form>
+      <p class="wait-l" id="bac-w">—</p>
+    </div>
+
+    <!-- TAPE VITE -->
+    <div class="mode" id="m-tap" hidden>
+      <p class="q">Recopie cette phrase le plus vite possible.</p>
+      <p class="phrase" id="tap-phrase">—</p>
+      <form class="rangee large" id="tap-form">
+        <input class="in" id="tap-in" placeholder="tape ici…" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </form>
+      <div class="jauge"><span id="tap-jauge"></span></div>
+      <p class="wait-l" id="tap-w">—</p>
+    </div>
+
+    <!-- MOT DE PASSE -->
+    <div class="mode" id="m-mdp" hidden>
+      <p class="q" id="mdp-q">—</p>
+      <form class="rangee large" id="mdp-form">
+        <input class="in" id="mdp-in" maxlength="28" placeholder="…" autocomplete="off" enterkeyhint="send">
+        <button class="btn small" type="submit">Envoyer</button>
+      </form>
+      <p class="wait-l" id="mdp-w">—</p>
+      <p class="guesses" id="mdp-fil"></p>
+    </div>
+
+    <!-- NI OUI NI NON -->
+    <div class="mode" id="m-non" hidden>
+      <p class="q" id="non-q">—</p>
+      <form class="rangee large" id="non-form">
+        <input class="in" id="non-in" maxlength="80" placeholder="…" autocomplete="off" enterkeyhint="send">
+        <button class="btn small" type="submit">Envoyer</button>
+      </form>
+      <p class="wait-l" id="non-w">—</p>
+      <p class="guesses" id="non-fil"></p>
+    </div>
+
+    <!-- DÉSAMORÇAGE -->
+    <div class="mode" id="m-bom" hidden>
+      <p class="q" id="bom-q">—</p>
+      <div id="bom-panneau" hidden>
+        <div class="fils" id="bom-fils"></div>
+      </div>
+      <div id="bom-manuel" hidden>
+        <p class="manuel" id="bom-regle">—</p>
+      </div>
+      <p class="wait-l" id="bom-w">—</p>
+    </div>
+
     <!-- RÉVÉLATION -->
     <div class="mode reveal" id="m-rev" hidden>
       <div class="rev-e" id="rev-e">✨</div>
@@ -271,7 +345,7 @@
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<script src="contenu.js?v=5"></script>
-<script src="game.js?v=5"></script>
+<script src="contenu.js?v=6"></script>
+<script src="game.js?v=6"></script>
 </body>
 </html>

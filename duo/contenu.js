@@ -227,6 +227,169 @@ const QUIZ = [
 /* paires du memory */
 const PAIRES = ['🐶', '🍕', '🌙', '🎸', '🚗', '🌊', '🎁', '⭐', '🍓', '🐱', '☕', '🏠'];
 
+/* ---------- petit bac : une lettre + une catégorie ---------- */
+const LETTRES = 'ABCDEFGILMNOPRSTV'.split('');
+const CATEGORIES = [
+  'un animal', 'un plat', 'une ville', 'un pays', 'un prénom',
+  'une couleur', 'un métier', 'un objet de la maison', 'un fruit ou légume',
+  'un sport', 'un vêtement', 'un instrument de musique', 'quelque chose de froid',
+  'quelque chose qui fait du bruit', 'une partie du corps', 'un film',
+  'quelque chose qu\'on trouve dans une cuisine', 'un moyen de transport',
+  'quelque chose de rond', 'un mot doux'
+];
+
+/* ---------- tape vite : phrases à recopier au clavier ---------- */
+const PHRASES = [
+  'On se retrouve bientôt et ça change tout',
+  'Le chien dort déjà sur le canapé',
+  'Je pense à toi plus souvent que je ne le dis',
+  'Il reste encore quelques semaines à tenir',
+  'Un jour on aura notre propre cuisine',
+  'La distance ne dure pas toujours',
+  'Tu as encore gagné et je ne suis pas surpris',
+  'On devrait vraiment partir en vacances',
+  'Personne ne fait le café aussi mal que moi',
+  'Ce soir on regarde un film et rien d\'autre',
+  'Je te ramènerai des gâteaux la prochaine fois',
+  'Il fait toujours meilleur quand tu es là',
+  'On a encore parlé jusqu\'à deux heures du matin',
+  'Rien ne vaut un appel qui ne finit jamais',
+  'Tu es la meilleure partie de ma journée'
+];
+
+/* ---------- mot de passe : à faire deviner par des indices ---------- */
+const SECRETS = [
+  'plage', 'orage', 'valise', 'guitare', 'chocolat', 'montagne', 'facteur',
+  'bougie', 'miroir', 'chaussette', 'ascenseur', 'parapluie', 'boulangerie',
+  'aquarium', 'trampoline', 'cheminée', 'moustique', 'bibliothèque', 'confiture',
+  'télésiège', 'cactus', 'brouillard', 'cerf-volant', 'escargot', 'tondeuse',
+  'oreiller', 'chaussure', 'dentifrice', 'toboggan', 'girafe'
+];
+
+/* ---------- désamorçage : couleurs de fils + règles du manuel ----------
+   Chaque règle reçoit la liste des 4 fils et renvoie l'index à couper.
+   Toutes ont un cas de repli, elles renvoient donc toujours 0 à 3.      */
+const COULEURS_FILS = ['rouge', 'bleu', 'jaune', 'vert'];
+
+const REGLES = [
+  {
+    texte: 'Coupe le fil dont la couleur n\'apparaît qu\'UNE SEULE fois. S\'il y en a plusieurs, prends le plus à gauche. Si toutes les couleurs se répètent, coupe le premier.',
+    calcule: f => {
+      const i = f.findIndex(c => f.filter(x => x === c).length === 1);
+      return i === -1 ? 0 : i;
+    }
+  },
+  {
+    texte: 'Coupe le DERNIER fil rouge. S\'il n\'y a aucun rouge, coupe le tout premier fil.',
+    calcule: f => {
+      const i = f.lastIndexOf('rouge');
+      return i === -1 ? 0 : i;
+    }
+  },
+  {
+    texte: 'S\'il y a deux fils de la MÊME couleur côte à côte, coupe le second des deux. Sinon, coupe le troisième fil.',
+    calcule: f => {
+      for (let i = 0; i < f.length - 1; i++) if (f[i] === f[i + 1]) return i + 1;
+      return 2;
+    }
+  },
+  {
+    texte: 'Compte les fils BLEUS. Coupe le fil qui se trouve à cette position (1 = le premier). S\'il n\'y a aucun bleu, coupe le dernier.',
+    calcule: f => {
+      const n = f.filter(c => c === 'bleu').length;
+      return n === 0 ? f.length - 1 : n - 1;
+    }
+  },
+  {
+    texte: 'Si le premier et le dernier fil sont de la même couleur, coupe le deuxième. Sinon, coupe le fil juste avant le dernier.',
+    calcule: f => (f[0] === f[f.length - 1]) ? 1 : f.length - 2
+  },
+  {
+    texte: 'Coupe le fil VERT s\'il y en a exactement un. S\'il y en a zéro ou plusieurs, coupe le dernier fil jaune, et s\'il n\'y a pas de jaune, le premier fil.',
+    calcule: f => {
+      const verts = f.map((c, i) => c === 'vert' ? i : -1).filter(i => i >= 0);
+      if (verts.length === 1) return verts[0];
+      const j = f.lastIndexOf('jaune');
+      return j === -1 ? 0 : j;
+    }
+  }
+];
+
+/* =========================================================
+   MODE PIMENT — versions coquines, réservées au couple.
+   Désactivé par défaut, à cocher dans les options.
+   ========================================================= */
+const PIMENT = {
+  qui: [
+    'Qui embrasse le mieux ?',
+    'Qui craque le plus vite quand l\'autre insiste ?',
+    'Qui a le plus envie de l\'autre, là, maintenant ?',
+    'Qui prend le plus souvent l\'initiative ?',
+    'Qui est le plus timide des deux ?',
+    'Qui pense le plus souvent à l\'autre de façon pas très sage ?',
+    'Qui est le plus câlin une fois que tout est fini ?',
+    'Qui a le regard le plus troublant ?',
+    'Qui sait le mieux faire durer l\'attente ?',
+    'Qui rougit le plus facilement ?',
+    'Qui dirait oui à n\'importe quoi ce soir ?',
+    'Qui est le plus bavard au mauvais moment ?',
+    'Qui a le plus de mal à se concentrer quand l\'autre est là ?',
+    'Qui aime le plus être regardé ?',
+    'Qui fait le plus semblant de ne pas avoir envie ?',
+    'Qui est le plus doué pour rendre l\'autre fou ?',
+    'Qui envoie les messages les plus osés ?',
+    'Qui a la voix la plus troublante au téléphone ?',
+    'Qui gagnerait à un concours de patience ?',
+    'Qui serait le plus gêné si quelqu\'un entrait ?',
+    'Qui aime le plus les câlins qui ne mènent nulle part ?',
+    'Qui a le plus de fantasmes qu\'il n\'a jamais avoués ?',
+    'Qui embrasse dans le cou en premier ?',
+    'Qui a le plus de mal à dire ce qu\'il aime ?',
+    'Qui abandonnerait ses plans de la soirée pour l\'autre ?',
+    'Qui est le plus attaché aux premières fois ?',
+    'Qui parle le plus pendant ?',
+    'Qui s\'endort le premier après ?'
+  ],
+  pre: [
+    ['Un très long massage', 'Un bain à deux'],
+    ['Une nuit entière ensemble', 'Un réveil qui n\'en finit pas'],
+    ['Se retrouver tout de suite', 'Attendre et faire monter l\'envie'],
+    ['Que je te déshabille lentement', 'Que tu me déshabilles vite'],
+    ['Un baiser dans le cou', 'Une main dans les cheveux'],
+    ['La lumière allumée', 'Dans le noir complet'],
+    ['Un message osé en pleine journée', 'Un appel tard le soir'],
+    ['Qu\'on improvise', 'Qu\'on prévoie tout à l\'avance'],
+    ['Le matin au réveil', 'Le soir avant de dormir'],
+    ['Que je te dise tout ce que je pense', 'Que je te le montre sans rien dire'],
+    ['Sur le canapé', 'Dans la chambre'],
+    ['Un week-end entier enfermés', 'Une nuit dans un hôtel'],
+    ['Que ce soit tendre', 'Que ce soit passionné'],
+    ['Me faire attendre une heure', 'Me sauter dessus à la seconde'],
+    ['Que je te raconte un fantasme', 'Que tu me racontes le tien'],
+    ['Une douche à deux', 'Un petit-déjeuner au lit'],
+    ['Que je porte quelque chose que tu as choisi', 'Que tu portes quelque chose que j\'ai choisi'],
+    ['Un slow collé serré', 'Un baiser qui ne finit pas']
+  ],
+  syn: [
+    'Un endroit où tu aimes qu\'on t\'embrasse.',
+    'Le premier mot qui te vient quand tu penses à nous deux, la nuit.',
+    'Une chose que tu veux qu\'on fasse dès qu\'on se retrouve.',
+    'Un moment de nous deux que tu revois souvent.',
+    'Une pièce de la maison, au hasard.',
+    'Un mot pour décrire ce que tu ressens quand je te prends dans mes bras.',
+    'Une heure de la journée, celle que tu préfères pour ça.',
+    'Une tenue que tu aimerais me voir porter.',
+    'Un mot qu\'on se dit et que personne d\'autre ne comprendrait.',
+    'Le truc qui te fait craquer à tous les coups.',
+    'Une odeur qui te fait penser à moi.',
+    'Un endroit improbable où tu aimerais qu\'on s\'embrasse.',
+    'Ce que tu veux entendre en premier quand on se retrouve.',
+    'Un mot pour notre toute première fois.',
+    'Une chose que tu n\'as jamais osé me demander.',
+    'La durée idéale d\'un câlin.'
+  ]
+};
+
 /* pour trouve-l'intrus : des couples d'emojis qui se ressemblent */
 const INTRUS = [
   ['🐶', '🐕'], ['😀', '😃'], ['🍎', '🍏'], ['⭐', '🌟'], ['💙', '💜'],

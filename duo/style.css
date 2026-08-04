@@ -245,6 +245,25 @@ body{
 .ryt.on{border-color:var(--gold);background:rgba(255,215,110,.14)}
 .wide{width:100%;margin-top:16px}
 
+/* ---------- interrupteur du mode piment ---------- */
+.piment{
+  display:flex;align-items:center;gap:10px;width:100%;margin-top:16px;
+  background:var(--glass);border:1.5px solid var(--edge);border-radius:14px;
+  padding:12px 14px;color:var(--soft);cursor:pointer;text-align:left;
+  font-family:'Outfit',sans-serif;transition:.2s;flex-wrap:wrap;
+}
+.piment b{font-size:.9rem;font-weight:600;flex:1 1 auto}
+.piment small{flex:1 0 100%;font-size:.7rem;opacity:.8;padding-left:26px}
+.piment .tick{
+  width:16px;height:16px;border-radius:5px;flex:0 0 auto;
+  border:1.5px solid var(--edge);display:grid;place-items:center;
+  font-size:.62rem;color:#1a0f2e;
+}
+.piment:hover{border-color:#ff6b4a}
+.piment.on{border-color:#ff6b4a;background:rgba(255,107,74,.14);color:var(--ink)}
+.piment.on .tick{background:#ff6b4a;border-color:#ff6b4a}
+.piment.on .tick::after{content:'✓'}
+
 .opts{margin-top:14px;animation:up .4s both}
 .opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 .opt{
@@ -317,6 +336,85 @@ body{
 .qz-opts button.bad{border-color:#ff6b8a;background:rgba(255,107,138,.14);opacity:.6}
 .qz-opts button.good{border-color:var(--cyan);background:rgba(94,224,230,.18)}
 .qz-opts.off{pointer-events:none}
+
+/* ---------- la séquence ---------- */
+.pads{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  max-width:360px;margin:0 auto;
+}
+.pad{
+  aspect-ratio:1;border-radius:20px;border:2px solid var(--edge);cursor:pointer;
+  transition:transform .1s, filter .1s, box-shadow .2s;opacity:.42;
+}
+.pad.p0{background:linear-gradient(150deg,#7ae0ff,#2b9fd4)}
+.pad.p1{background:linear-gradient(150deg,#ff9ecb,#e4407f)}
+.pad.p2{background:linear-gradient(150deg,#ffe08a,#e8a92c)}
+.pad.p3{background:linear-gradient(150deg,#9bf0c4,#35b184)}
+.pad.vif{opacity:1;transform:scale(1.05);box-shadow:0 0 34px currentColor;filter:brightness(1.25)}
+.pads.off{pointer-events:none}
+
+/* ---------- petit bac ---------- */
+.lettre-geante{
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:800;
+  font-size:clamp(3.4rem,15vw,5rem);line-height:1;margin:0 0 20px;
+  color:var(--gold);text-shadow:0 0 40px rgba(255,215,110,.4);
+}
+.rangee{display:flex;gap:9px;justify-content:center;max-width:440px;margin:0 auto}
+.rangee.large{max-width:560px}
+.rangee .in{flex:1;min-width:0;text-align:center}
+.rangee .btn{flex:0 0 auto}
+
+/* ---------- tape vite ---------- */
+.phrase{
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:600;
+  font-size:clamp(1rem,4vw,1.4rem);line-height:1.5;
+  background:var(--glass);border:1px solid var(--edge);border-radius:18px;
+  padding:20px 18px;max-width:620px;margin:0 auto 18px;
+}
+.jauge{
+  height:8px;border-radius:99px;background:rgba(255,255,255,.1);
+  max-width:440px;margin:16px auto 0;overflow:hidden;
+}
+.jauge span{
+  display:block;height:100%;width:0%;border-radius:99px;
+  background:linear-gradient(90deg,var(--cyan),var(--gold));
+  transition:width .12s linear;
+}
+
+/* ---------- fil de discussion (mot de passe, ni oui ni non) ---------- */
+.guesses b{color:var(--gold);font-weight:600}
+#mdp-fil, #non-fil{
+  display:flex;flex-direction:column;gap:5px;align-items:center;
+  max-height:150px;overflow-y:auto;margin-top:14px;
+}
+#mdp-fil span, #non-fil span{
+  background:var(--glass);border:1px solid var(--edge);border-radius:99px;
+  padding:6px 15px;font-size:.88rem;max-width:100%;
+}
+#mdp-fil span.moi, #non-fil span.moi{border-color:rgba(94,224,230,.5)}
+
+/* ---------- désamorçage ---------- */
+.fils{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:6px auto 0}
+.fils button{
+  width:64px;height:150px;border-radius:12px;border:2px solid rgba(0,0,0,.35);
+  cursor:pointer;position:relative;padding:0;transition:transform .15s,filter .2s;
+}
+.fils button:hover{transform:translateY(-5px);filter:brightness(1.15)}
+.fils button::after{
+  content:attr(data-n);position:absolute;left:0;right:0;bottom:-26px;
+  color:var(--soft);font-size:.78rem;font-weight:600;
+}
+.fils button.rouge{background:linear-gradient(180deg,#ff7d7d,#c22f2f)}
+.fils button.bleu{background:linear-gradient(180deg,#8ec5ff,#2f6fc2)}
+.fils button.jaune{background:linear-gradient(180deg,#ffe08a,#d9a520)}
+.fils button.vert{background:linear-gradient(180deg,#9bf0c4,#2f9b6d)}
+.fils button.coupe{opacity:.25;transform:scaleY(.6)}
+.fils.off{pointer-events:none;opacity:.6}
+.manuel{
+  background:rgba(255,215,110,.1);border:1.5px dashed var(--gold);
+  border-radius:16px;padding:20px 20px;max-width:560px;margin:0 auto;
+  font-size:.98rem;line-height:1.6;text-align:left;
+}
 
 /* ---------- bras de fer ---------- */
 .rope{display:flex;align-items:center;gap:12px;max-width:560px;margin:0 auto 26px}
