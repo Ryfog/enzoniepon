@@ -381,17 +381,17 @@ body{
   transition:width .12s linear;
 }
 
-/* ---------- fil de discussion (mot de passe, ni oui ni non) ---------- */
+/* ---------- fil de discussion du mot de passe ---------- */
 .guesses b{color:var(--gold);font-weight:600}
-#mdp-fil, #non-fil{
+#mdp-fil{
   display:flex;flex-direction:column;gap:5px;align-items:center;
   max-height:150px;overflow-y:auto;margin-top:14px;
 }
-#mdp-fil span, #non-fil span{
+#mdp-fil span{
   background:var(--glass);border:1px solid var(--edge);border-radius:99px;
   padding:6px 15px;font-size:.88rem;max-width:100%;
 }
-#mdp-fil span.moi, #non-fil span.moi{border-color:rgba(94,224,230,.5)}
+#mdp-fil span.moi{border-color:rgba(94,224,230,.5)}
 
 /* ---------- désamorçage ---------- */
 .fils{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:6px auto 0}

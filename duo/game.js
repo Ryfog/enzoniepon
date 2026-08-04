@@ -11,14 +11,14 @@ const esc = s => String(s).replace(/[<>&"]/g, c => ({ '<': '&lt;', '>': '&gt;', 
 const PREFIXE = 'duo-es-';
 
 const TYPES = ['qui', 'syn', 'des', 'ref', 'bra', 'p4', 'pfc', 'vf', 'pre', 'int', 'cha', 'mem', 'qz',
-  'seq', 'bac', 'tap', 'mdp', 'non', 'bom'];
+  'seq', 'bac', 'tap', 'mdp', 'bom'];
 const NOMS = {
   qui: 'Qui de nous deux', syn: 'Synchro', des: 'Dessine-moi', ref: 'Duel de réflexe',
   bra: 'Bras de fer', p4: 'Puissance 4', pfc: 'Pierre feuille ciseaux', vf: 'Vrai ou faux',
   pre: 'Tu préfères', int: 'Trouve l\'intrus', cha: 'Chasse aux cœurs',
   mem: 'Memory à deux', qz: 'Quiz éclair',
   seq: 'La séquence', bac: 'Petit bac', tap: 'Tape vite',
-  mdp: 'Mot de passe', non: 'Ni oui ni non', bom: 'Désamorçage'
+  mdp: 'Mot de passe', bom: 'Désamorçage'
 };
 const BAT = { pierre: 'ciseaux', feuille: 'pierre', ciseaux: 'feuille' };
 const P4C = 7, P4L = 6;
@@ -293,17 +293,6 @@ function manche(i) {
     minuteur = setTimeout(() => {
       if (st.ph === 'round') reveler({ e: '⏳', t: 'Temps écoulé', p: `Le mot était « ${motSecret} ».` });
     }, 75000 * rythme);
-    diffuse(); return;
-  }
-
-  if (T === 'non') {
-    st.non = { demandeur: i % 2 === 0 ? 'h' : 'g', fil: [] };
-    minuteur = setTimeout(() => {
-      if (st.ph !== 'round' || st.type !== 'non') return;
-      const r = st.non.demandeur === 'h' ? 'g' : 'h';
-      st.sc[r]++;
-      reveler({ e: '🛡️', t: `${st.nm[r]} a tenu !`, p: 'Pas un seul oui, pas un seul non. Chapeau.' });
-    }, 45000 * rythme);
     diffuse(); return;
   }
 
@@ -606,20 +595,6 @@ function action(qui, a) {
     diffuse();
   }
 
-  /* --- ni oui ni non --- */
-  else if (a.k === 'non' && st.ph === 'round' && st.type === 'non') {
-    const v = (a.v || '').slice(0, 80);
-    const repond = qui !== st.non.demandeur;
-    if (repond && /(^|[^a-zà-ÿ])(oui|non|ouais|nan|si)([^a-zà-ÿ]|$)/i.test(v)) {
-      st.sc[st.non.demandeur]++;
-      reveler({ e: '🪤', t: 'Piégé !', p: `${st.nm[qui]} a lâché le mot interdit. Le point va à ${st.nm[st.non.demandeur]}.` });
-      return;
-    }
-    st.non.fil.push({ de: qui, txt: v });
-    st.non.fil = st.non.fil.slice(-8);
-    diffuse();
-  }
-
   /* --- désamorçage --- */
   else if (a.k === 'bom' && st.ph === 'round' && st.type === 'bom') {
     if (qui !== st.bom.panneau || st.bom.coupe >= 0) return;
@@ -908,18 +883,6 @@ function rendu() {
     lanceChronoMdp();
   }
 
-  else if (T === 'non') {
-    on('m-non');
-    const jeDemande = st.non.demandeur === moi;
-    $('#non-q').textContent = jeDemande
-      ? 'Pose-lui des questions. Fais-lui dire oui ou non.'
-      : 'Réponds à tout — mais jamais oui, jamais non.';
-    $('#non-in').placeholder = jeDemande ? 'ta question…' : 'ta réponse, sans le mot interdit…';
-    $('#non-fil').innerHTML = st.non.fil.map(m =>
-      `<span class="${m.de === moi ? 'moi' : ''}">${esc(m.txt)}</span>`).join('');
-    $('#non-w').textContent = jeDemande ? 'Sois retors.' : 'Interdits : oui, non, ouais, nan, si.';
-  }
-
   else if (T === 'bom') {
     on('m-bom');
     const jeCoupe = st.bom.panneau === moi;
@@ -1112,14 +1075,6 @@ function lanceChronoMdp() {
     $('#mdp-w').textContent = `${r} s — ${jeDonne ? 'un seul mot par indice, et jamais le mot lui-même' : 'propose autant que tu veux'}`;
   }, 250);
 }
-
-/* --- ni oui ni non --- */
-$('#non-form').addEventListener('submit', e => {
-  e.preventDefault();
-  const el = $('#non-in'), v = el.value.trim();
-  if (!v) { el.focus(); return; }
-  jouer({ k: 'non', v }); el.value = ''; el.focus();
-});
 
 /* bras de fer */
 function corde(a, b) {
