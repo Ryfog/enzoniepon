@@ -12,13 +12,17 @@ const PREFIXE = 'duo-es-';
 
 const TYPES = ['qui', 'syn', 'des', 'ref', 'bra', 'p4', 'pfc', 'vf', 'pre', 'int', 'cha', 'mem', 'qz',
   'seq', 'bac', 'tap', 'mdp', 'bom'];
+/* en mode piment on ne garde que les épreuves qui parlent de vous deux :
+   les jeux d'adresse (puissance 4, bras de fer, tape vite…) n'ont rien de coquin */
+const TYPES_PIMENT = ['qui', 'pre', 'syn', 'vf', 'osa', 'jam'];
 const NOMS = {
   qui: 'Qui de nous deux', syn: 'Synchro', des: 'Dessine-moi', ref: 'Duel de réflexe',
   bra: 'Bras de fer', p4: 'Puissance 4', pfc: 'Pierre feuille ciseaux', vf: 'Vrai ou faux',
   pre: 'Tu préfères', int: 'Trouve l\'intrus', cha: 'Chasse aux cœurs',
   mem: 'Memory à deux', qz: 'Quiz éclair',
   seq: 'La séquence', bac: 'Petit bac', tap: 'Tape vite',
-  mdp: 'Mot de passe', bom: 'Désamorçage'
+  mdp: 'Mot de passe', bom: 'Désamorçage',
+  osa: 'Action ou vérité', jam: 'Je n\'ai jamais'
 };
 const BAT = { pierre: 'ciseaux', feuille: 'pierre', ciseaux: 'feuille' };
 const P4C = 7, P4L = 6;
@@ -233,7 +237,9 @@ function construitSuite(n, types) {
 
 $('#b-start').addEventListener('click', () => {
   if (!hote) return;
-  SUITE = construitSuite(longueur, actifs);
+  /* en piment, on ignore la sélection d'épreuves : seules celles
+     qui parlent de vous deux tournent */
+  SUITE = construitSuite(longueur, piment ? TYPES_PIMENT : actifs);
   st.total = SUITE.length;
   manche(0);
 });
@@ -264,6 +270,17 @@ function manche(i) {
     st.drawer = i % 2 === 0 ? 'h' : 'g';
     st.q = tirer('mot', MOTS);
     minuteur = setTimeout(() => { if (st.ph === 'round') reveler({ e: '⏰', t: 'Temps écoulé', p: `C'était « ${st.q} ».` }); }, st.dur.des);
+    diffuse(); return;
+  }
+
+  if (T === 'osa') {
+    const [genre, txt] = tirer('osa', PIMENT.osa);
+    st.osa = { cible: i % 2 === 0 ? 'h' : 'g', genre, txt, juge: true };
+    diffuse(); return;
+  }
+
+  if (T === 'jam') {
+    st.q = tirer('jam', PIMENT.jam);
     diffuse(); return;
   }
 
@@ -536,6 +553,31 @@ function action(qui, a) {
     }
   }
 
+  /* --- action ou vérité : c'est l'AUTRE qui valide --- */
+  else if (a.k === 'osa' && st.ph === 'round' && st.type === 'osa') {
+    if (qui === st.osa.cible) return;
+    if (a.v) { st.sc.h++; st.sc.g++; }
+    reveler({
+      e: a.v ? '🔥' : '🙈',
+      t: a.v ? 'Relevé !' : 'Passé.',
+      p: a.v ? '+1 pour chacun. On note.' : 'Pas grave. Ce sera pour la prochaine.'
+    });
+  }
+
+  /* --- je n'ai jamais --- */
+  else if (a.k === 'jam' && st.ph === 'round' && st.type === 'jam') {
+    st.ans[qui] = a.v;
+    if (!st.ans.h || !st.ans.g) { diffuse(); return; }
+    const pareil = st.ans.h === st.ans.g;
+    if (pareil) { st.sc.h++; st.sc.g++; }
+    reveler({
+      e: pareil ? '😳' : '👀',
+      t: pareil ? 'Vous êtes pareils.' : 'Ah bon ?',
+      p: pareil ? '+1 pour chacun. Vous vous ressemblez plus que prévu.' : 'Voilà qui mérite une explication.',
+      deux: true, jam: true
+    });
+  }
+
   /* --- la séquence --- */
   else if (a.k === 'seq' && st.ph === 'round' && st.type === 'seq') {
     const S = st.seq;
@@ -612,7 +654,7 @@ function action(qui, a) {
   else if (a.k === 'next' && st.ph === 'rev') manche(st.i + 1);
   else if (a.k === 'again') {
     st = { ...neuf(), nm: st.nm };
-    SUITE = construitSuite(longueur, actifs);
+    SUITE = construitSuite(longueur, piment ? TYPES_PIMENT : actifs);
     st.total = SUITE.length;
     manche(0);
   }
@@ -845,6 +887,29 @@ function rendu() {
     $('#qz-w').textContent = st.qzKO[moi] ? 'Raté — laisse l\'autre tenter.' : 'Le premier qui trouve marque le point.';
   }
 
+  else if (T === 'osa') {
+    on('m-osa');
+    const O = st.osa, pourMoi = O.cible === moi;
+    $('#osa-genre').textContent = O.genre === 'v' ? 'VÉRITÉ' : 'ACTION';
+    $('#osa-genre').className = 'osa-genre ' + (O.genre === 'v' ? 'v' : 'a');
+    $('#osa-pour').textContent = pourMoi ? 'C\'est pour toi.' : `C'est pour ${st.nm[autre]}.`;
+    $('#osa-txt').textContent = O.txt;
+    $('#osa-boutons').hidden = pourMoi;
+    $('#osa-w').textContent = pourMoi
+      ? 'Vas-y. C\'est l\'autre qui valide.'
+      : 'À toi de dire si c\'est validé.';
+  }
+
+  else if (T === 'jam') {
+    on('m-jam');
+    $('#jam-q').textContent = st.q;
+    const f = st.ans[moi];
+    $('#jam-si').classList.toggle('on', f === 'si');
+    $('#jam-non').classList.toggle('on', f === 'jamais');
+    $('#jam-si').disabled = !!f; $('#jam-non').disabled = !!f;
+    $('#jam-w').textContent = f ? 'C\'est noté. On attend l\'autre…' : 'Répondez tous les deux, honnêtement.';
+  }
+
   else if (T === 'seq') {
     on('m-seq');
     const S = st.seq, montre = S.phase === 'montre';
@@ -932,7 +997,8 @@ function renduRev(on) {
   if (st.rev.deux) {
     ['h', 'g'].forEach(k => {
       let v;
-      if (st.rev.pre) v = st.ans[k] === 'a' ? st.q[0] : st.q[1];
+      if (st.rev.jam) v = st.ans[k] === 'si' ? 'Moi si 🙋' : 'Moi jamais 🙅';
+      else if (st.rev.pre) v = st.ans[k] === 'a' ? st.q[0] : st.q[1];
       else if (st.type === 'qui') v = st.nm[st.ans[k]] || '?';
       else v = st.ans[k] || '—';
       const d = document.createElement('div');
@@ -998,6 +1064,11 @@ $('#ref-t').addEventListener('click', () => {
   if (!st || st.type !== 'ref' || st.ph !== 'round') return;
   $('#ref-t').disabled = true; jouer({ k: 'hit' });
 });
+
+$('#osa-ok').addEventListener('click', () => jouer({ k: 'osa', v: true }));
+$('#osa-non').addEventListener('click', () => jouer({ k: 'osa', v: false }));
+$('#jam-si').addEventListener('click', () => jouer({ k: 'jam', v: 'si' }));
+$('#jam-non').addEventListener('click', () => jouer({ k: 'jam', v: 'jamais' }));
 
 $('#qui-a').addEventListener('click', () => jouer({ k: 'qui', v: 'h' }));
 $('#qui-b').addEventListener('click', () => jouer({ k: 'qui', v: 'g' }));

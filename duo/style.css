@@ -337,6 +337,20 @@ body{
 .qz-opts button.good{border-color:var(--cyan);background:rgba(94,224,230,.18)}
 .qz-opts.off{pointer-events:none}
 
+/* ---------- action ou vérité ---------- */
+.osa-genre{
+  display:inline-block;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;
+  font-size:.82rem;letter-spacing:.24em;border-radius:99px;padding:6px 20px;margin-bottom:14px;
+}
+.osa-genre.v{background:rgba(94,224,230,.18);color:var(--cyan);border:1px solid rgba(94,224,230,.5)}
+.osa-genre.a{background:rgba(255,107,74,.18);color:#ff8a63;border:1px solid rgba(255,107,74,.5)}
+.osa-pour{font-size:.86rem;color:var(--soft);margin:0 0 16px;letter-spacing:.06em}
+.osa-txt{
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:600;
+  font-size:clamp(1.2rem,4.8vw,1.75rem);line-height:1.35;
+  max-width:24ch;margin:0 auto 8px;
+}
+
 /* ---------- la séquence ---------- */
 .pads{
   display:grid;grid-template-columns:1fr 1fr;gap:12px;

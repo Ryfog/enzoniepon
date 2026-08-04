@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=8">
+  <link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
 
@@ -248,6 +248,28 @@
       <p class="wait-l" id="qz-w">Le premier qui trouve marque le point.</p>
     </div>
 
+    <!-- ACTION OU VÉRITÉ -->
+    <div class="mode" id="m-osa" hidden>
+      <span class="osa-genre" id="osa-genre">VÉRITÉ</span>
+      <p class="osa-pour" id="osa-pour">—</p>
+      <p class="osa-txt" id="osa-txt">—</p>
+      <div class="row c" id="osa-boutons" hidden>
+        <button class="btn" id="osa-ok">Relevé ✅</button>
+        <button class="btn ghost" id="osa-non">Passé ❌</button>
+      </div>
+      <p class="wait-l" id="osa-w">—</p>
+    </div>
+
+    <!-- JE N'AI JAMAIS -->
+    <div class="mode" id="m-jam" hidden>
+      <p class="q" id="jam-q">—</p>
+      <div class="two big-two">
+        <button class="pick" id="jam-si"><span class="av">🙋</span><b>Moi si</b></button>
+        <button class="pick" id="jam-non"><span class="av">🙅</span><b>Moi jamais</b></button>
+      </div>
+      <p class="wait-l" id="jam-w">—</p>
+    </div>
+
     <!-- LA SÉQUENCE -->
     <div class="mode" id="m-seq" hidden>
       <p class="q" id="seq-q">Retiens la séquence…</p>
@@ -334,7 +356,7 @@
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<script src="contenu.js?v=8"></script>
-<script src="game.js?v=8"></script>
+<script src="contenu.js?v=9"></script>
+<script src="game.js?v=9"></script>
 </body>
 </html>
