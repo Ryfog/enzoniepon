@@ -8,13 +8,11 @@ const rnd = (a, b) => a + Math.random() * (b - a);
 /* ============ LES PETITS NOMS ============ */
 const NOMS = [
   ['mon bébé d\'amour', '🤍', 'Celui-là, c\'est le vrai. C\'est celui que je pense sans le dire assez.'],
-  ['ma puce', '🐞', 'Pour les matins où tu es toute décoiffée et où tu ne veux pas te lever.'],
+  ['mon petit cœur', '💞', 'Pour les matins où tu es toute décoiffée et où tu ne veux pas te lever.'],
   ['mon cœur', '💗', 'Parce que ce n\'est pas une image. C\'est vraiment là que tu es.'],
   ['ma princesse', '👑', 'Et tu n\'as rien à faire pour le mériter. C\'est déjà acquis.'],
   ['mon chat', '🐱', 'Pour quand tu viens te coller contre moi sans rien dire.'],
-  ['ma jolie', '🌸', 'Parce que tu l\'es, et que je devrais te le dire beaucoup plus souvent.'],
-  ['mon trésor', '✨', 'J\'ai de la chance. Je le sais. J\'oublie juste de le montrer.'],
-  ['ma vie', '🌍', 'Le mot est gros. Mais c\'est celui qui est juste.']
+  ['mon trésor', '✨', 'J\'ai de la chance. Je le sais. J\'oublie juste de le montrer.']
 ];
 
 /* ============ LES PROMESSES ============ */
@@ -37,8 +35,11 @@ const PARAMS = location.search;
 let trouves = [];
 try { trouves = JSON.parse(localStorage.getItem(CLE) || '[]'); } catch (e) { trouves = []; }
 const sauve = () => { try { localStorage.setItem(CLE, JSON.stringify(trouves)); } catch (e) {} };
+/* on jette les index devenus invalides si la liste des noms a changé */
+trouves = trouves.filter(i => Number.isInteger(i) && i >= 0 && i < NOMS.length);
+
 /* ?tout : ouvre directement la fin, pour relire sans tout retoucher */
-if (/[?&]tout/.test(PARAMS)) trouves = [0, 1, 2, 3, 4, 5, 6, 7];
+if (/[?&]tout/.test(PARAMS)) trouves = NOMS.map((_, i) => i);
 if (/[?&]reset/.test(PARAMS)) {
   trouves = [];
   try { localStorage.removeItem(CLE); } catch (e) {}
