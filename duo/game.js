@@ -170,7 +170,9 @@ function majAttente() {
   $('#pl-g').classList.toggle('off', !st.nm.g);
   $('#wait-txt').textContent = pret ? 'Vous êtes deux. C\'est parti quand vous voulez.' : 'En attente de l\'autre…';
   $('#b-start').hidden = !(pret && hote);
-  $('#lens').hidden = !(pret && hote);
+  /* les réglages s'affichent dès que l'hôte a ouvert le salon :
+     inutile d'attendre l'autre joueur pour configurer la partie */
+  $('#lens').hidden = !hote;
 }
 
 /* ---------- options ---------- */

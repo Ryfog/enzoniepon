@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=7">
+  <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 
@@ -57,6 +57,12 @@
       <div class="pl off" id="pl-g"><span class="av">💭</span><b>—</b></div>
     </div>
     <div class="lens" id="lens" hidden>
+      <button class="piment" id="b-piment">
+        <span class="tick"></span>
+        <b>🌶️ Mode piment</b>
+        <small>Questions coquines · réservé à vous deux</small>
+      </button>
+
       <p class="lab">Longueur de la partie</p>
       <div class="len-row">
         <button class="len" data-n="10">10<small>~15 min</small></button>
@@ -71,12 +77,6 @@
         <button class="ryt on" data-r="1">Normal</button>
         <button class="ryt" data-r="0.7">Rapide</button>
       </div>
-
-      <button class="piment" id="b-piment">
-        <span class="tick"></span>
-        <b>🌶️ Mode piment</b>
-        <small>Questions coquines · réservé à vous deux</small>
-      </button>
 
       <button class="btn ghost small wide" id="b-opt">⚙️ Choisir les épreuves</button>
       <div class="opts" id="opts" hidden>
@@ -334,7 +334,7 @@
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<script src="contenu.js?v=7"></script>
-<script src="game.js?v=7"></script>
+<script src="contenu.js?v=8"></script>
+<script src="game.js?v=8"></script>
 </body>
 </html>
