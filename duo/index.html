@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
 
@@ -248,6 +248,69 @@
       <p class="wait-l" id="qz-w">Le premier qui trouve marque le point.</p>
     </div>
 
+    <!-- LE PENDU -->
+    <div class="mode" id="m-pen" hidden>
+      <p class="q">Trouvez le mot ensemble. Vous partagez les erreurs.</p>
+      <p class="pendu-mot" id="pen-mot">—</p>
+      <div class="clavier" id="pen-clavier"></div>
+      <p class="wait-l" id="pen-w">—</p>
+    </div>
+
+    <!-- PLUS OU MOINS -->
+    <div class="mode" id="m-pom" hidden>
+      <p class="q">Un nombre entre 1 et 500. Le premier qui le trouve marque.</p>
+      <form class="rangee" id="pom-form">
+        <input class="in" id="pom-in" type="number" min="1" max="500" placeholder="ton nombre" inputmode="numeric">
+        <button class="btn small" type="submit">Tenter</button>
+      </form>
+      <p class="guesses" id="pom-fil"></p>
+      <p class="wait-l" id="pom-w">—</p>
+    </div>
+
+    <!-- LABYRINTHE AVEUGLE -->
+    <div class="mode" id="m-lab" hidden>
+      <p class="q" id="lab-q">—</p>
+      <div class="laby" id="lab-grille"></div>
+      <div class="dpad" id="lab-dpad" hidden>
+        <button data-d="h">▲</button>
+        <div>
+          <button data-d="g">◀</button>
+          <button data-d="b">▼</button>
+          <button data-d="d">▶</button>
+        </div>
+      </div>
+      <p class="wait-l" id="lab-w">—</p>
+    </div>
+
+    <!-- LE MOT LE PLUS LONG -->
+    <div class="mode" id="m-mlp" hidden>
+      <p class="q">Le mot le plus long avec ces lettres.</p>
+      <div class="tirage" id="mlp-lettres"></div>
+      <form class="rangee" id="mlp-form">
+        <input class="in" id="mlp-in" maxlength="20" placeholder="ton mot…" autocomplete="off" autocapitalize="off">
+        <button class="btn small" type="submit">Valider</button>
+      </form>
+      <p class="wait-l" id="mlp-w">—</p>
+    </div>
+
+    <!-- CHRONO AVEUGLE -->
+    <div class="mode" id="m-chr" hidden>
+      <p class="q" id="chr-q">—</p>
+      <button class="masher" id="chr-btn">DÉMARRER</button>
+      <p class="wait-l" id="chr-w">—</p>
+    </div>
+
+    <!-- DEVINE L'EMOJI -->
+    <div class="mode" id="m-emo" hidden>
+      <p class="emo-suite" id="emo-suite">—</p>
+      <form class="rangee" id="emo-form">
+        <input class="in" id="emo-in" maxlength="30" placeholder="c'est quoi ?" autocomplete="off" autocapitalize="off">
+        <button class="btn small" type="submit">Envoyer</button>
+      </form>
+      <p class="guesses" id="emo-fil"></p>
+      <p class="wait-l" id="emo-w">—</p>
+    </div>
+
     <!-- ACTION OU VÉRITÉ -->
     <div class="mode" id="m-osa" hidden>
       <span class="osa-genre" id="osa-genre">VÉRITÉ</span>
@@ -356,7 +419,7 @@
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<script src="contenu.js?v=9"></script>
-<script src="game.js?v=9"></script>
+<script src="contenu.js?v=10"></script>
+<script src="game.js?v=10"></script>
 </body>
 </html>

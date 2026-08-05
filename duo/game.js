@@ -11,7 +11,7 @@ const esc = s => String(s).replace(/[<>&"]/g, c => ({ '<': '&lt;', '>': '&gt;', 
 const PREFIXE = 'duo-es-';
 
 const TYPES = ['qui', 'syn', 'des', 'ref', 'bra', 'p4', 'pfc', 'vf', 'pre', 'int', 'cha', 'mem', 'qz',
-  'seq', 'bac', 'tap', 'mdp', 'bom'];
+  'seq', 'bac', 'tap', 'mdp', 'bom', 'pen', 'pom', 'lab', 'mlp', 'chr', 'emo'];
 /* en mode piment on ne garde que les épreuves qui parlent de vous deux :
    les jeux d'adresse (puissance 4, bras de fer, tape vite…) n'ont rien de coquin */
 const TYPES_PIMENT = ['qui', 'pre', 'syn', 'vf', 'osa', 'jam'];
@@ -22,7 +22,9 @@ const NOMS = {
   mem: 'Memory à deux', qz: 'Quiz éclair',
   seq: 'La séquence', bac: 'Petit bac', tap: 'Tape vite',
   mdp: 'Mot de passe', bom: 'Désamorçage',
-  osa: 'Action ou vérité', jam: 'Je n\'ai jamais'
+  osa: 'Action ou vérité', jam: 'Je n\'ai jamais',
+  pen: 'Le pendu', pom: 'Plus ou moins', lab: 'Labyrinthe aveugle',
+  mlp: 'Le mot le plus long', chr: 'Chrono aveugle', emo: 'Devine l\'emoji'
 };
 const BAT = { pierre: 'ciseaux', feuille: 'pierre', ciseaux: 'feuille' };
 const P4C = 7, P4L = 6;
@@ -50,7 +52,30 @@ let st = null, rtt = 60, longueur = 16, rythme = 1, piment = false;
 let actifs = TYPES.slice();
 let minuteur = null, chrono = null, pouls = null, tempo = null;
 /* réponses gardées côté hôte uniquement, pour qu'on ne puisse pas les lire */
-let bonQz = 0, bonFil = 0, motSecret = '';
+let bonQz = 0, bonFil = 0, motSecret = '', cible = 0;
+
+/* labyrinthe : creusé par retour sur trace, il existe toujours
+   un chemin du départ à la sortie */
+function fabriqueLabyrinthe(w, h) {
+  const L = 2 * w + 1, H = 2 * h + 1;
+  const g = Array.from({ length: H }, () => Array(L).fill('#'));
+  const vu = Array.from({ length: h }, () => Array(w).fill(false));
+  const pile = [[0, 0]];
+  vu[0][0] = true; g[1][1] = ' ';
+  while (pile.length) {
+    const [cx, cy] = pile[pile.length - 1];
+    const opts = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+      .map(([dx, dy]) => [cx + dx, cy + dy])
+      .filter(([x, y]) => x >= 0 && x < w && y >= 0 && y < h && !vu[y][x]);
+    if (!opts.length) { pile.pop(); continue; }
+    const [nx, ny] = pick(opts);
+    vu[ny][nx] = true;
+    g[2 * ny + 1][2 * nx + 1] = ' ';
+    g[cy + ny + 1][cx + nx + 1] = ' ';
+    pile.push([nx, ny]);
+  }
+  return { g, w: L, h: H, depart: { x: 1, y: 1 }, sortie: { x: 2 * w - 1, y: 2 * h - 1 } };
+}
 let SUITE = [];
 
 const neuf = () => ({
@@ -93,6 +118,7 @@ function recois(m) {
   else if (m.t === 'PING') envoie({ t: 'PONG', k: m.k });
   else if (m.t === 'PONG') rtt = Math.min(400, Date.now() - m.k);
   else if (m.t === 'REFUS') toast('Interdit : ton indice contient le mot à faire deviner.');
+  else if (m.t === 'MUR') toast('Un mur. Tu ne passes pas par là.');
 }
 function ping() { envoie({ t: 'PING', k: Date.now() }); }
 
@@ -270,6 +296,48 @@ function manche(i) {
     st.drawer = i % 2 === 0 ? 'h' : 'g';
     st.q = tirer('mot', MOTS);
     minuteur = setTimeout(() => { if (st.ph === 'round') reveler({ e: '⏰', t: 'Temps écoulé', p: `C'était « ${st.q} ».` }); }, st.dur.des);
+    diffuse(); return;
+  }
+
+  if (T === 'pen') {
+    motSecret = tirer('pen', SECRETS);
+    st.pen = { mot: motSecret.toUpperCase(), tentees: [], ratees: 0, max: 7 };
+    diffuse(); return;
+  }
+
+  if (T === 'pom') {
+    cible = 1 + Math.floor(Math.random() * 500);
+    st.pom = { fil: [], ko: {} };
+    diffuse(); return;
+  }
+
+  if (T === 'lab') {
+    const L = fabriqueLabyrinthe(9, 7);
+    st.lab = { g: L.g, w: L.w, h: L.h, pos: { ...L.depart }, sortie: L.sortie, guide: i % 2 === 0 ? 'h' : 'g', vus: [] };
+    st.fin = Date.now() + 90000 * rythme;
+    minuteur = setTimeout(() => {
+      if (st.ph === 'round') reveler({ e: '🧭', t: 'Perdus.', p: 'La sortie était pourtant là.' });
+    }, 90000 * rythme);
+    diffuse(); return;
+  }
+
+  if (T === 'mlp') {
+    const l = [];
+    for (let k = 0; k < 4; k++) l.push(pick(VOYELLES));
+    for (let k = 0; k < 5; k++) l.push(pick(CONSONNES));
+    st.mlp = { lettres: melange(l) };
+    diffuse(); return;
+  }
+
+  if (T === 'chr') {
+    st.chr = { objectif: 8 + Math.floor(Math.random() * 8), depart: {}, arret: {} };
+    diffuse(); return;
+  }
+
+  if (T === 'emo') {
+    const [suite, rep] = tirer('emo', EMOJIS);
+    motSecret = rep;
+    st.emo = { suite, ko: {} };
     diffuse(); return;
   }
 
@@ -550,6 +618,107 @@ function action(qui, a) {
       st.qzKO[qui] = true;
       if (st.qzKO.h && st.qzKO.g) reveler({ e: '🤷', t: 'Personne n\'a trouvé', p: `C'était « ${st.q.o[bonQz]} ».` });
       else diffuse();
+    }
+  }
+
+  /* --- le pendu : coopératif, on partage les erreurs --- */
+  else if (a.k === 'pen' && st.ph === 'round' && st.type === 'pen') {
+    const P = st.pen, L = (a.v || '').toUpperCase();
+    if (!/^[A-Z]$/.test(L) || P.tentees.includes(L)) return;
+    P.tentees.push(L);
+    if (!P.mot.includes(L)) P.ratees++;
+    const fini = [...P.mot].every(c => c === ' ' || c === '-' || P.tentees.includes(c));
+    if (fini) {
+      st.sc.h++; st.sc.g++;
+      reveler({ e: '🎪', t: 'Sauvé !', p: `Le mot était « ${motSecret} ». +1 pour chacun.` });
+    } else if (P.ratees >= P.max) {
+      reveler({ e: '💀', t: 'Pendu.', p: `C'était « ${motSecret} ».` });
+    } else diffuse();
+  }
+
+  /* --- plus ou moins --- */
+  else if (a.k === 'pom' && st.ph === 'round' && st.type === 'pom') {
+    const v = parseInt(a.v, 10);
+    if (!v || v < 1 || v > 500) return;
+    if (v === cible) {
+      st.sc[qui]++;
+      reveler({ e: '🎯', t: `${st.nm[qui]} a trouvé !`, p: `C'était bien ${cible}.` });
+      return;
+    }
+    st.pom.fil.push({ de: qui, v, sens: v < cible ? '↑' : '↓' });
+    st.pom.fil = st.pom.fil.slice(-10);
+    diffuse();
+  }
+
+  /* --- labyrinthe aveugle --- */
+  else if (a.k === 'lab' && st.ph === 'round' && st.type === 'lab') {
+    const L = st.lab;
+    if (qui === L.guide) return;                    // le guide ne bouge pas
+    const d = { h: [0, -1], b: [0, 1], g: [-1, 0], d: [1, 0] }[a.v];
+    if (!d) return;
+    const nx = L.pos.x + d[0], ny = L.pos.y + d[1];
+    if (nx < 0 || nx >= L.w || ny < 0 || ny >= L.h) return;
+    if (L.g[ny][nx] === '#') { envoie({ t: 'MUR' }); return; }
+    L.pos = { x: nx, y: ny };
+    if (!L.vus.some(p => p[0] === nx && p[1] === ny)) L.vus.push([nx, ny]);
+    if (nx === L.sortie.x && ny === L.sortie.y) {
+      st.sc.h++; st.sc.g++;
+      reveler({ e: '🧭', t: 'Sortis !', p: 'Guidé les yeux fermés. +1 pour chacun.' });
+      return;
+    }
+    diffuse();
+  }
+
+  /* --- le mot le plus long --- */
+  else if (a.k === 'mlp' && st.ph === 'round' && st.type === 'mlp') {
+    st.ans[qui] = (a.v || '').slice(0, 20);
+    if (st.ans.h === null || st.ans.g === null) { diffuse(); return; }
+    const faisable = m => {
+      const dispo = st.mlp.lettres.map(c => c.toLowerCase());
+      return [...norm(m)].every(c => {
+        const i = dispo.indexOf(c);
+        if (i < 0) return false;
+        dispo.splice(i, 1); return true;
+      });
+    };
+    const lh = faisable(st.ans.h) ? norm(st.ans.h).length : 0;
+    const lg = faisable(st.ans.g) ? norm(st.ans.g).length : 0;
+    if (lh > lg) st.sc.h++;
+    else if (lg > lh) st.sc.g++;
+    else if (lh > 0) { st.sc.h++; st.sc.g++; }
+    reveler({
+      e: '🔡',
+      t: lh === lg ? 'Égalité' : `${st.nm[lh > lg ? 'h' : 'g']} l'emporte`,
+      p: `${st.nm.h} : ${lh || 'lettres non disponibles'} · ${st.nm.g} : ${lg || 'lettres non disponibles'}`,
+      deux: true
+    });
+  }
+
+  /* --- chrono aveugle --- */
+  else if (a.k === 'chr' && st.ph === 'round' && st.type === 'chr') {
+    const C = st.chr;
+    if (a.v === 'start') { if (!C.depart[qui]) { C.depart[qui] = Date.now(); diffuse(); } return; }
+    if (!C.depart[qui] || C.arret[qui]) return;
+    C.arret[qui] = (Date.now() - C.depart[qui]) / 1000;
+    if (C.arret.h === undefined || C.arret.g === undefined) { diffuse(); return; }
+    const eh = Math.abs(C.arret.h - C.objectif), eg = Math.abs(C.arret.g - C.objectif);
+    if (eh < eg) st.sc.h++; else if (eg < eh) st.sc.g++; else { st.sc.h++; st.sc.g++; }
+    reveler({
+      e: '⏱️',
+      t: eh === eg ? 'Pile la même erreur' : `${st.nm[eh < eg ? 'h' : 'g']} est le plus proche`,
+      p: `Objectif ${C.objectif} s · ${st.nm.h} : ${C.arret.h.toFixed(2)} s · ${st.nm.g} : ${C.arret.g.toFixed(2)} s`
+    });
+  }
+
+  /* --- devine l'emoji --- */
+  else if (a.k === 'emo' && st.ph === 'round' && st.type === 'emo') {
+    if (st.emo.ko[qui]) return;
+    if (norm(a.v) === norm(motSecret)) {
+      st.sc[qui]++;
+      reveler({ e: '🧩', t: `${st.nm[qui]} a décodé !`, p: `C'était « ${motSecret} ».` });
+    } else {
+      st.emo.fil = (st.emo.fil || []).concat({ de: qui, txt: a.v }).slice(-6);
+      diffuse();
     }
   }
 
@@ -887,6 +1056,94 @@ function rendu() {
     $('#qz-w').textContent = st.qzKO[moi] ? 'Raté — laisse l\'autre tenter.' : 'Le premier qui trouve marque le point.';
   }
 
+  else if (T === 'pen') {
+    on('m-pen');
+    const P = st.pen;
+    $('#pen-mot').textContent = [...P.mot]
+      .map(c => (c === ' ' || c === '-') ? c : (P.tentees.includes(c) ? c : '_')).join(' ');
+    const cl = $('#pen-clavier');
+    if (cl.dataset.r !== String(st.i)) {
+      cl.dataset.r = String(st.i); cl.innerHTML = '';
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(L => {
+        const b = document.createElement('button');
+        b.textContent = L;
+        b.addEventListener('click', () => jouer({ k: 'pen', v: L }));
+        cl.appendChild(b);
+      });
+    }
+    [...cl.children].forEach(b => {
+      const t = P.tentees.includes(b.textContent);
+      b.disabled = t;
+      b.className = t ? (P.mot.includes(b.textContent) ? 'ok' : 'no') : '';
+    });
+    $('#pen-w').textContent = `${P.max - P.ratees} erreur(s) restante(s)`;
+  }
+
+  else if (T === 'pom') {
+    on('m-pom');
+    $('#pom-fil').innerHTML = st.pom.fil.map(m =>
+      `<span>${esc(st.nm[m.de])} : ${m.v} ${m.sens}</span>`).join('');
+    $('#pom-w').textContent = '↑ c\'est plus grand · ↓ c\'est plus petit';
+  }
+
+  else if (T === 'lab') {
+    on('m-lab');
+    const L = st.lab, jeGuide = L.guide === moi;
+    $('#lab-q').textContent = jeGuide
+      ? 'Tu vois le plan. Guide-le à la voix, il avance à l\'aveugle.'
+      : 'Tu ne vois presque rien. Écoute-le et avance.';
+    $('#lab-dpad').hidden = jeGuide;
+    const g = $('#lab-grille');
+    g.style.gridTemplateColumns = `repeat(${L.w}, 1fr)`;
+    if (g.dataset.r !== String(st.i)) { g.dataset.r = String(st.i); g.innerHTML = ''; }
+    if (g.children.length !== L.w * L.h) {
+      g.innerHTML = '';
+      for (let k = 0; k < L.w * L.h; k++) g.appendChild(document.createElement('i'));
+    }
+    [...g.children].forEach((el, k) => {
+      const x = k % L.w, y = Math.floor(k / L.w);
+      const ici = x === L.pos.x && y === L.pos.y;
+      const but = x === L.sortie.x && y === L.sortie.y;
+      const vu = L.vus.some(p => p[0] === x && p[1] === y);
+      const proche = Math.abs(x - L.pos.x) + Math.abs(y - L.pos.y) <= 1;
+      let c = '';
+      if (ici) c = 'moi';
+      else if (but && (jeGuide || vu)) c = 'but';
+      else if (jeGuide || proche) c = L.g[y][x] === '#' ? 'mur' : '';
+      else if (vu) c = 'vu';
+      el.className = c;
+    });
+    $('#lab-w').textContent = jeGuide ? 'Décris-lui les murs et les tournants.' : 'Tu ne vois que les cases juste à côté.';
+  }
+
+  else if (T === 'mlp') {
+    on('m-mlp');
+    $('#mlp-lettres').innerHTML = st.mlp.lettres.map(l => `<span>${l}</span>`).join('');
+    const fait = st.ans[moi] !== null;
+    $('#mlp-in').disabled = fait;
+    $('#mlp-w').textContent = fait ? 'Envoyé. On attend l\'autre…' : 'Chaque lettre ne sert qu\'une fois.';
+  }
+
+  else if (T === 'chr') {
+    on('m-chr');
+    const C = st.chr, lance = !!C.depart[moi], stop = C.arret[moi] !== undefined;
+    $('#chr-q').textContent = `Arrête-toi à exactement ${C.objectif} secondes.`;
+    $('#chr-btn').textContent = stop ? 'ENVOYÉ' : (lance ? 'STOP !' : 'DÉMARRER');
+    $('#chr-btn').disabled = stop;
+    $('#chr-w').textContent = stop
+      ? 'On attend l\'autre…'
+      : (lance ? 'Compte dans ta tête. Aucun chiffre ne s\'affichera.' : 'Appuie quand tu es prêt.');
+  }
+
+  else if (T === 'emo') {
+    on('m-emo');
+    $('#emo-suite').textContent = st.emo.suite;
+    $('#emo-fil').innerHTML = (st.emo.fil || []).map(m =>
+      `<span>${esc(m.txt)}</span>`).join('');
+    $('#emo-in').disabled = !!st.emo.ko[moi];
+    $('#emo-w').textContent = 'Le premier qui trouve marque le point.';
+  }
+
   else if (T === 'osa') {
     on('m-osa');
     const O = st.osa, pourMoi = O.cible === moi;
@@ -1063,6 +1320,39 @@ function topDepart() {
 $('#ref-t').addEventListener('click', () => {
   if (!st || st.type !== 'ref' || st.ph !== 'round') return;
   $('#ref-t').disabled = true; jouer({ k: 'hit' });
+});
+
+/* --- plus ou moins --- */
+$('#pom-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const el = $('#pom-in'), v = el.value.trim();
+  if (!v) { el.focus(); return; }
+  jouer({ k: 'pom', v }); el.value = ''; el.focus();
+});
+
+/* --- labyrinthe : les 4 flèches --- */
+$$('#lab-dpad button').forEach(b => b.addEventListener('click', () => jouer({ k: 'lab', v: b.dataset.d })));
+
+/* --- le mot le plus long --- */
+$('#mlp-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const el = $('#mlp-in'), v = el.value.trim();
+  if (!v) { el.focus(); return; }
+  jouer({ k: 'mlp', v }); el.value = '';
+});
+
+/* --- chrono aveugle : premier appui = départ, second = arrêt --- */
+$('#chr-btn').addEventListener('click', () => {
+  if (!st || st.type !== 'chr' || st.ph !== 'round') return;
+  jouer({ k: 'chr', v: st.chr.depart[moi] ? 'stop' : 'start' });
+});
+
+/* --- devine l'emoji --- */
+$('#emo-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const el = $('#emo-in'), v = el.value.trim();
+  if (!v) { el.focus(); return; }
+  jouer({ k: 'emo', v }); el.value = ''; el.focus();
 });
 
 $('#osa-ok').addEventListener('click', () => jouer({ k: 'osa', v: true }));

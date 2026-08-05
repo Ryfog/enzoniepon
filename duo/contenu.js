@@ -446,6 +446,50 @@ const PIMENT = {
   ]
 };
 
+/* ---------- devine l'emoji : une suite d'images, un mot ---------- */
+const EMOJIS = [
+  ['🎂🕯️🎁', 'anniversaire'],
+  ['🎬🍿🪑', 'cinema'],
+  ['✈️🧳🗺️', 'voyage'],
+  ['❄️⛄🧣', 'hiver'],
+  ['🌊🏖️☀️', 'plage'],
+  ['📚🎓✏️', 'ecole'],
+  ['🍳🥓☕', 'petit dejeuner'],
+  ['💍👰🤵', 'mariage'],
+  ['🌙⭐😴', 'nuit'],
+  ['🎃👻🕷️', 'halloween'],
+  ['🎄🎁⛄', 'noel'],
+  ['🩺💊🏥', 'hopital'],
+  ['⚽🥅🏆', 'football'],
+  ['🐕🦴🐾', 'chien'],
+  ['🌧️☂️💧', 'pluie'],
+  ['🔥🚒👨‍🚒', 'pompier'],
+  ['🍕🧀🍅', 'pizza'],
+  ['🚿🧼🛁', 'douche'],
+  ['💤🛏️🌜', 'dormir'],
+  ['🎸🎤🥁', 'musique'],
+  ['🌻🌱💧', 'jardin'],
+  ['🚂🛤️🎫', 'train'],
+  ['🦷🪥😁', 'dentiste'],
+  ['📷🖼️😊', 'photo'],
+  ['☕🥐🇫🇷', 'cafe'],
+  ['🐟🎣🌊', 'peche'],
+  ['🧗⛰️🥾', 'montagne'],
+  ['🍎🍏🌳', 'pomme'],
+  ['🚲🛞🛣️', 'velo'],
+  ['🐝🍯🌸', 'abeille'],
+  ['🌵🏜️🐫', 'desert'],
+  ['🎨🖌️🖼️', 'peinture'],
+  ['🔑🚪🏠', 'maison'],
+  ['🌈☀️🌧️', 'arc en ciel'],
+  ['🍦🍨🥶', 'glace'],
+  ['👻🏚️😱', 'fantome']
+];
+
+/* ---------- le mot le plus long : tirages de 9 lettres ---------- */
+const VOYELLES = 'AAAEEEEIIOOUU'.split('');
+const CONSONNES = 'BCDFGLMNPRSTV'.split('');
+
 /* pour trouve-l'intrus : des couples d'emojis qui se ressemblent */
 const INTRUS = [
   ['🐶', '🐕'], ['😀', '😃'], ['🍎', '🍏'], ['⭐', '🌟'], ['💙', '💜'],
