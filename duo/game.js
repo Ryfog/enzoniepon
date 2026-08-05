@@ -48,7 +48,7 @@ function tirer(cat, arr) {
 
 /* ============ ÉTAT ============ */
 let peer = null, conn = null, hote = false, moi = 'h', autre = 'g';
-let st = null, rtt = 60, longueur = 16, rythme = 1, piment = false;
+let st = null, rtt = 60, longueur = 16, rythme = 1, piment = false, solo = false;
 let actifs = TYPES.slice();
 let minuteur = null, chrono = null, pouls = null, tempo = null;
 /* réponses gardées côté hôte uniquement, pour qu'on ne puisse pas les lire */
@@ -199,10 +199,11 @@ function majAttente() {
   const pret = !!(st.nm.h && st.nm.g);
   $('#pl-g').classList.toggle('off', !st.nm.g);
   $('#wait-txt').textContent = pret ? 'Vous êtes deux. C\'est parti quand vous voulez.' : 'En attente de l\'autre…';
-  $('#b-start').hidden = !(pret && hote);
+  $('#b-start').hidden = !((pret || solo) && hote);
   /* les réglages s'affichent dès que l'hôte a ouvert le salon :
      inutile d'attendre l'autre joueur pour configurer la partie */
   $('#lens').hidden = !hote;
+  if (solo) $('#wait-txt').textContent = 'Mode essai : tu joues les deux camps.';
 }
 
 /* ---------- options ---------- */
@@ -215,6 +216,36 @@ $$('.ryt').forEach(b => b.addEventListener('click', () => {
   $$('.ryt').forEach(x => x.classList.toggle('on', x === b));
 }));
 $('#b-opt').addEventListener('click', () => { $('#opts').hidden = !$('#opts').hidden; });
+/* ---------- mode essai : un seul navigateur joue les deux camps ---------- */
+$('#b-seul').addEventListener('click', () => {
+  solo = true; hote = true; moi = 'h'; autre = 'g';
+  st = neuf();
+  st.nm.h = monNom();
+  st.nm.g = 'Joueur 2';
+  ecran('s-wait');
+  $('#code-big').textContent = 'SOLO';
+  majAttente();
+});
+
+function majBascule() {
+  $('#bascule').hidden = !solo;
+  if (solo) $('#switch-nom').textContent = st.nm[moi];
+}
+function changeCamp() {
+  if (!solo) return;
+  [moi, autre] = [autre, moi];
+  majBascule();
+  rendu();
+  toast('Tu joues maintenant ' + st.nm[moi]);
+}
+$('#b-switch').addEventListener('click', changeCamp);
+addEventListener('keydown', e => {
+  if (e.key !== 'Tab' || !solo) return;
+  const t = e.target;
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
+  e.preventDefault(); changeCamp();
+});
+
 $('#b-piment').addEventListener('click', () => {
   piment = !piment;
   $('#b-piment').classList.toggle('on', piment);
@@ -405,7 +436,10 @@ function manche(i) {
 
   if (T === 'bra') {
     st.bf = { h: 0, g: 0 }; diffuse();
-    pouls = setInterval(() => envoie({ t: 'BF', h: st.bf.h, g: st.bf.g }), 120);
+    pouls = setInterval(() => {
+      envoie({ t: 'BF', h: st.bf.h, g: st.bf.g });
+      if (solo) corde(st.bf.h, st.bf.g);      // en solo, personne ne renvoie le pouls
+    }, 120);
     minuteur = setTimeout(() => {
       clearInterval(pouls);
       const a = st.bf.h, b = st.bf.g;
@@ -851,7 +885,9 @@ function reveler(r) {
   diffuse();
 }
 
-function jouer(a) { if (hote) action('h', a); else envoie({ t: 'A', a }); }
+/* en solo, l'hôte joue tantôt pour l'un tantôt pour l'autre :
+   on transmet donc le camp courant et non 'h' en dur */
+function jouer(a) { if (hote) action(moi, a); else envoie({ t: 'A', a }); }
 
 /* =========================================================
    RENDU
@@ -870,6 +906,7 @@ function rendu() {
   $('#p2').textContent = st.sc.g;
   $('#r-lab').textContent = `Manche ${st.i + 1} / ${st.total}`;
   $('#r-type').textContent = NOMS[st.type] || '';
+  majBascule();
 
   const on = id => $$('.mode').forEach(m => { m.hidden = m.id !== id; });
 

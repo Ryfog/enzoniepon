@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=10">
+  <link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
 
@@ -37,6 +37,8 @@
       <input class="in code" id="code" maxlength="4" placeholder="ABCD" autocomplete="off">
       <button class="btn" id="b-join">Entrer</button>
     </div>
+
+    <button class="btn ghost wide" id="b-seul">🧪 Tester seul (tu joues les deux)</button>
 
     <p class="err" id="lobby-err"></p>
     <p class="mini">Un seul de vous deux crée le salon. L'autre entre le code.</p>
@@ -412,6 +414,11 @@
     <p class="end-p" id="end-p"></p>
     <button class="btn" id="b-again">Rejouer</button>
   </div>
+
+  <div class="bascule" id="bascule" hidden>
+    <button class="btn ghost small" id="b-switch">↔ Tu joues : <b id="switch-nom">—</b></button>
+    <span class="bascule-note">Tab pour changer de joueur</span>
+  </div>
 </section>
 
 <canvas id="conf" aria-hidden="true"></canvas>
@@ -419,7 +426,7 @@
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<script src="contenu.js?v=10"></script>
-<script src="game.js?v=10"></script>
+<script src="contenu.js?v=11"></script>
+<script src="game.js?v=11"></script>
 </body>
 </html>
