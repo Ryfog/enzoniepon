@@ -9,5 +9,6 @@ Disallow: /parkour/
 Disallow: /echos/
 Disallow: /pardon/
 Disallow: /bouquet/
+Disallow: /musique/
 
 Sitemap: https://enzoniepon.fr/sitemap.xml
