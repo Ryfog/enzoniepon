@@ -10,5 +10,6 @@ Disallow: /echos/
 Disallow: /pardon/
 Disallow: /bouquet/
 Disallow: /musique/
+Disallow: /lanternes/
 
 Sitemap: https://enzoniepon.fr/sitemap.xml
