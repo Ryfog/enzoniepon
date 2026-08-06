@@ -8,5 +8,6 @@ Disallow: /duo/
 Disallow: /parkour/
 Disallow: /echos/
 Disallow: /pardon/
+Disallow: /bouquet/
 
 Sitemap: https://enzoniepon.fr/sitemap.xml

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Pour toi 🎀</title>
+  <meta name="description" content="Un paquet à ouvrir.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#2b1620">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌹</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+
+<canvas id="scene"></canvas>
+
+<!-- consigne du début -->
+<p class="consigne" id="consigne">Tire sur le ruban</p>
+
+<!-- le mot d'une rose -->
+<div class="mot" id="mot" hidden>
+  <span class="mot-num" id="mot-num"></span>
+  <p class="mot-txt" id="mot-txt"></p>
+</div>
+
+<!-- le mot de la fin -->
+<div class="final" id="final" hidden>
+  <div class="final-in">
+    <p class="final-sur">Douze roses, et pas une de trop</p>
+    <h1 class="final-titre">Je t'aime,<br><em>ma Stacy</em></h1>
+    <p class="final-txt">
+      Elles ne faneront pas.<br>
+      Reviens les voir quand tu veux.
+    </p>
+    <button class="final-btn" id="rejouer">Refermer le paquet</button>
+  </div>
+</div>
+
+<script src="script.js?v=1"></script>
+</body>
+</html>
