@@ -410,5 +410,14 @@ $('#b-refaire').addEventListener('click', () => {
   ecran('e-accueil');
 });
 
+/* ?reset : efface la progression enregistrée et repart de zéro.
+   Utile après un essai, pour que la page soit vierge. */
+if (/[?&]reset/.test(location.search)) {
+  etat = { i: 0, rep: {} };
+  try { localStorage.removeItem(CLE); } catch (e) {}
+  $('#b-reprendre').hidden = true;
+  history.replaceState(null, '', location.pathname);
+}
+
 /* raccourci d'essai : ?fin pour voir l'écran final */
 if (/[?&]fin/.test(location.search)) { etat.i = PARCOURS.length; fin(); }
