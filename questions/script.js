@@ -27,6 +27,32 @@ function construitParcours() {
 const PARCOURS = construitParcours();
 const NB_Q = PARCOURS.filter(e => e.k === 'q').length;
 
+/* =========================================================
+   DÉPÔT CHIFFRÉ
+   Les réponses sont chiffrées dans le navigateur avant de
+   partir. Le service qui les héberge ne reçoit que du
+   charabia : sans le mot de passe, il n'y a rien à lire.
+   ========================================================= */
+const BOITE = 'https://jsonblob.com/api/jsonBlob/019fdbf1-2700-7db5-9051-0cbe36acf314';
+
+const enc = new TextEncoder();
+const b64 = b => btoa(String.fromCharCode(...new Uint8Array(b)));
+
+async function cleDepuis(mdp, sel) {
+  const base = await crypto.subtle.importKey('raw', enc.encode(mdp), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: sel, iterations: 150000, hash: 'SHA-256' },
+    base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+}
+
+async function chiffre(objet, mdp) {
+  const sel = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const k = await cleDepuis(mdp, sel);
+  const c = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, k, enc.encode(JSON.stringify(objet)));
+  return { v: 1, sel: b64(sel), iv: b64(iv), data: b64(c) };
+}
+
 /* ---------- mémoire ---------- */
 const CLE = 'questions_stacy';
 let etat = { i: 0, rep: {} };
@@ -335,6 +361,31 @@ function fin() {
   $('#fin-resume').textContent =
     `Tu as répondu à ${n} questions sur ${NB_Q}. Ça fait beaucoup de choses que je ne savais pas.`;
   $('#apercu').textContent = texteFinal();
+  envoieAEnzo();
+}
+
+/* dépose les réponses chiffrées ; en cas d'échec on laisse le bouton copier */
+async function envoieAEnzo() {
+  const e = $('#etat-copie');
+  e.textContent = 'Envoi en cours…';
+  try {
+    const paquet = await chiffre({
+      quand: new Date().toISOString(),
+      nb: Object.keys(etat.rep).length,
+      total: NB_Q,
+      texte: texteFinal()
+    }, 'trotro');
+    const r = await fetch(BOITE, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(paquet)
+    });
+    if (!r.ok) throw new Error(r.status);
+    e.textContent = '✅ Envoyé à Enzo. Tu n\'as rien d\'autre à faire.';
+    $('#b-copier').textContent = '📋 Copier quand même (au cas où)';
+  } catch (err) {
+    e.textContent = '⚠️ L\'envoi n\'a pas marché. Appuie sur le bouton pour copier et colle-moi tout.';
+  }
 }
 
 $('#b-copier').addEventListener('click', async () => {
