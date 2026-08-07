@@ -12,5 +12,6 @@ Disallow: /bouquet/
 Disallow: /musique/
 Disallow: /lanternes/
 Disallow: /questions/
+Disallow: /cirque/
 
 Sitemap: https://enzoniepon.fr/sitemap.xml
