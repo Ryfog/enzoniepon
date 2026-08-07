@@ -13,5 +13,6 @@ Disallow: /musique/
 Disallow: /lanternes/
 Disallow: /questions/
 Disallow: /cirque/
+Disallow: /engarde/
 
 Sitemap: https://enzoniepon.fr/sitemap.xml
