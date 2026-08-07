@@ -117,7 +117,12 @@ body{
   margin:0 auto 30px;max-width:24ch;
 }
 
-.zone[hidden]{display:none}
+/* Le masquage doit avoir au moins la même spécificité que les règles
+   d'affichage par identifiant plus bas (#z-duo, #z-choix), sinon leur
+   display:flex l'emporte et la zone reste visible alors qu'elle est
+   marquée hidden. */
+.zone[hidden],
+#z-texte[hidden], #z-choix[hidden], #z-duo[hidden], #z-echelle[hidden]{display:none}
 
 textarea{
   width:100%;padding:16px 18px;border-radius:18px;
