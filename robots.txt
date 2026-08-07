@@ -14,5 +14,6 @@ Disallow: /lanternes/
 Disallow: /questions/
 Disallow: /cirque/
 Disallow: /engarde/
+Disallow: /pont/
 
 Sitemap: https://enzoniepon.fr/sitemap.xml
