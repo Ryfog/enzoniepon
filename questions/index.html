@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Quelques questions pour toi 💭</title>
+  <meta name="description" content="Prends ton temps.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#1a1524">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💭</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+
+<div class="fond" aria-hidden="true"><i></i><i></i></div>
+
+<!-- ============ ACCUEIL ============ -->
+<section class="ecran on" id="e-accueil">
+  <div class="carte">
+    <p class="sur">Une trentaine de minutes · installe-toi bien</p>
+    <h1 class="titre">J'ai des questions<br>à te poser</h1>
+    <p class="tag">
+      Il y en a un paquet. Certaines sont bêtes, d'autres beaucoup moins.
+      Réponds comme ça vient, il n'y a pas de mauvaise réponse.
+      Et de temps en temps je t'ai mis un petit jeu pour souffler.
+    </p>
+    <p class="tag petit">
+      Tu peux t'arrêter et revenir quand tu veux, tout est gardé.
+      À la fin, tu m'envoies tout d'un seul bouton.
+    </p>
+    <button class="btn" id="b-start">Commencer</button>
+    <button class="btn creux" id="b-reprendre" hidden>Reprendre où j'en étais</button>
+    <p class="sig">— Enzo</p>
+  </div>
+</section>
+
+<!-- ============ QUESTIONS ============ -->
+<section class="ecran" id="e-quiz">
+  <div class="barre"><span id="barre-in"></span></div>
+  <p class="avance" id="avance">1 / 60</p>
+
+  <div class="scene">
+    <p class="bloc-titre" id="bloc-titre"></p>
+    <p class="question" id="question"></p>
+
+    <div class="zone" id="z-texte" hidden>
+      <textarea id="rep-texte" rows="3" placeholder="écris ce que tu veux…"></textarea>
+    </div>
+
+    <div class="zone" id="z-choix" hidden></div>
+
+    <div class="zone" id="z-duo" hidden>
+      <button class="duo" id="duo-a"></button>
+      <span class="ou">ou</span>
+      <button class="duo" id="duo-b"></button>
+    </div>
+
+    <div class="zone" id="z-echelle" hidden>
+      <div class="ech-val" id="ech-val">5</div>
+      <input type="range" id="ech" min="1" max="10" value="5">
+      <div class="ech-bords"><span id="ech-bas"></span><span id="ech-haut"></span></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn creux petit" id="b-passer">Passer</button>
+      <button class="btn" id="b-suivant">Suivant</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PAUSE JEU ============ -->
+<section class="ecran" id="e-jeu">
+  <div class="scene">
+    <p class="bloc-titre">Petite pause</p>
+    <p class="question" id="jeu-titre"></p>
+    <div id="jeu-zone"></div>
+    <p class="jeu-info" id="jeu-info"></p>
+    <button class="btn creux petit" id="b-sauter-jeu">Reprendre les questions</button>
+  </div>
+</section>
+
+<!-- ============ FIN ============ -->
+<section class="ecran" id="e-fin">
+  <div class="carte">
+    <p class="sur">C'est fini</p>
+    <h1 class="titre">Merci<br>d'avoir joué le jeu</h1>
+    <p class="tag" id="fin-resume"></p>
+    <p class="tag petit">
+      Appuie sur le bouton, ça copie toutes tes réponses.
+      Ensuite tu les colles dans notre conversation et j'aurai tout.
+    </p>
+    <button class="btn gros" id="b-copier">📋 Copier mes réponses pour Enzo</button>
+    <p class="etat-copie" id="etat-copie"></p>
+    <details class="voir">
+      <summary>Revoir ce que j'ai répondu</summary>
+      <pre id="apercu"></pre>
+    </details>
+    <button class="btn creux petit" id="b-refaire">Tout recommencer</button>
+  </div>
+</section>
+
+<script src="contenu.js?v=1"></script>
+<script src="script.js?v=1"></script>
+</body>
+</html>
