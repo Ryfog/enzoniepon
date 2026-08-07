@@ -141,7 +141,7 @@ body{
   display:block;font-family:'Jost',sans-serif;font-weight:600;
   font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--doux);
 }
-.numero i{font-style:normal;font-family:'Alfa Slab One',serif;font-size:.98rem;color:var(--or)}
+.numero i{display:block;font-style:normal;font-family:'Alfa Slab One',serif;font-size:.98rem;color:var(--or)}
 
 .consigne{
   margin:14px auto 0;max-width:min(620px,92%);text-align:center;
@@ -157,9 +157,9 @@ body{
 
 /* zone de commandes propre à chaque numéro */
 .cmd{
-  position:fixed;left:50%;bottom:10%;transform:translateX(-50%);
-  display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;
-  width:min(620px,92%);
+  position:fixed;left:50%;bottom:8%;transform:translateX(-50%);
+  display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;
+  width:min(760px,94%);
 }
 .gros-bouton{
   font-family:'Alfa Slab One',serif;font-size:1.5rem;letter-spacing:.05em;
@@ -173,6 +173,47 @@ body{
 .gros-bouton.bleu{background:linear-gradient(170deg,#8fd0e8,var(--bleu));color:#08303d;box-shadow:0 6px 0 #2b6c88}
 
 .paire{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%}
+.quatre{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+.reglages{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%}
+.reglages label{display:block;text-align:center}
+
+/* boutons de réponse des numéros à questions */
+.choix{
+  font-family:'Jost',sans-serif;font-weight:600;font-size:1.02rem;
+  min-height:62px;padding:14px 12px;border-radius:9px;cursor:pointer;
+  border:1.5px solid var(--bord);background:rgba(20,7,11,.88);color:var(--creme);
+  transition:transform .1s,border-color .18s,background .18s;
+}
+.choix:hover{border-color:var(--or);background:rgba(232,181,88,.16)}
+.choix:active{transform:translateY(2px)}
+.choix[disabled]{opacity:.38;pointer-events:none}
+.choix.rouge{border-color:var(--rouge);background:rgba(200,56,74,.28)}
+.choix.bleu{border-color:var(--bleu);background:rgba(74,163,200,.28)}
+.choix.long{font-size:.94rem;font-weight:400;line-height:1.35}
+
+/* la pastille duo / duel / questions */
+.chip{
+  display:inline-block;margin-top:3px;font-style:normal;
+  font-size:.56rem;letter-spacing:.18em;text-transform:uppercase;
+  padding:2px 8px;border-radius:99px;border:1px solid currentColor;
+}
+.chip.duo{color:#7fd68f}
+.chip.battle{color:var(--rouge)}
+.chip.question{color:var(--or)}
+
+/* réagir sans un mot */
+.emobar{
+  position:fixed;left:8px;top:50%;transform:translateY(-50%);z-index:5;
+  display:flex;flex-direction:column;gap:6px;
+}
+.emobar[hidden]{display:none}
+.emobar button{
+  width:38px;height:38px;border-radius:50%;cursor:pointer;line-height:1;font-size:18px;
+  border:1px solid var(--bord);background:rgba(20,7,11,.72);
+  transition:background .18s,transform .1s;
+}
+.emobar button:hover{background:rgba(232,181,88,.24)}
+.emobar button:active{transform:scale(.9)}
 .curseur{width:100%;accent-color:var(--or);height:34px}
 .etiq{
   font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;
@@ -224,6 +265,9 @@ body{
   .affiche{padding:28px 20px 26px}
   .enseigne{font-size:.8rem;padding:7px 10px}
   .gros-bouton{font-size:1.2rem;padding:20px 34px}
+  .choix{font-size:.9rem;min-height:54px}
+  .choix.long{font-size:.82rem}
+  .emobar button{width:32px;height:32px;font-size:15px}
 }
 @media(prefers-reduced-motion:reduce){
   *{animation-duration:.01ms!important;transition-duration:.01ms!important}

@@ -12,10 +12,32 @@ const $  = s => document.querySelector(s);
 const pick = a => a[Math.floor(Math.random() * a.length)];
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
 const lerp = (a, b, k) => a + (b - a) * k;
+const melange = a => {
+  const b = [...a];
+  for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; }
+  return b;
+};
 const PREFIXE = 'cirque-es-';
 
 const VW = 1000, VH = 620;          // piste virtuelle (tout est dessiné dedans)
-const ORDRE = ['tra', 'fun', 'ass', 'can', 'jon', 'mir'];
+
+/* le spectacle alterne : à deux, questions, à deux, duel… */
+const ORDRE = ['tra', 'qui', 'fun', 'ass', 'pre', 'jon', 'can', 'qz'];
+const GENRES = { duo: 'À DEUX', battle: 'DUEL', question: 'QUESTIONS' };
+
+/* ---- tirage sans répétition d'une soirée à l'autre ---- */
+const CLE_H = 'cirque_hist';
+let HIST = {};
+try { HIST = JSON.parse(localStorage.getItem(CLE_H) || '{}'); } catch (e) { HIST = {}; }
+function tirer(cat, arr) {
+  let vus = HIST[cat] || [];
+  let libres = arr.map((_, i) => i).filter(i => !vus.includes(i));
+  if (libres.length < 2) { vus = []; libres = arr.map((_, i) => i); }
+  const i = pick(libres);
+  vus.push(i); HIST[cat] = vus;
+  try { localStorage.setItem(CLE_H, JSON.stringify(HIST)); } catch (e) {}
+  return arr[i];
+}
 
 /* ============ ÉTAT ============ */
 let peer = null, conn = null, hote = false, moi = 'h', autre = 'g', solo = false;
@@ -51,6 +73,7 @@ function recois(m) {
     case 'S':  st = m.st; rendu(); break;
     case 'A':  if (hote) action(autre, m.a); break;
     case 'IN': entrees[autre] = m.k ? 1 : 0; break;
+    case 'EMO': emote(m.e, autre); break;
     case 'FC': if (!hote) corrigeFunambule(m); break;
     case 'KA': break;
     case 'HELLO':
@@ -203,19 +226,24 @@ $('#b-suite').addEventListener('click', () => {
   else lanceActe(st.i + 1);
 });
 
-/* le maximum théorique est de 104 étoiles par artiste, soit 208 à deux */
+/* à deux, le maximum tourne autour de 246 étoiles sur les huit numéros */
 function ecranFin() {
   const tot = st.sc.h + st.sc.g;
-  $('#fin-t').textContent = tot >= 155 ? 'Standing ovation' : tot >= 95 ? 'Le public en redemande' : 'Rideau';
+  const nh = esc(st.nm.h || 'Artiste 1'), ng = esc(st.nm.g || 'Artiste 2');
+  $('#fin-t').textContent = tot >= 180 ? 'Standing ovation' : tot >= 110 ? 'Le public en redemande' : 'Rideau';
   $('#fin-sc').innerHTML =
-    `<div><small>${esc(st.nm.h || 'Artiste 1')}</small><b>${st.sc.h}</b></div>` +
+    `<div><small>${nh}</small><b>${st.sc.h}</b></div>` +
     `<div><small>Ensemble</small><b>${tot}</b></div>` +
-    `<div><small>${esc(st.nm.g || 'Artiste 2')}</small><b>${st.sc.g}</b></div>`;
-  $('#fin-p').textContent = tot >= 155
-    ? 'Six numéros sans filet, et pas une chute qui compte. Le chapiteau est à vous.'
-    : tot >= 95
+    `<div><small>${ng}</small><b>${st.sc.g}</b></div>`;
+  const ecart = Math.abs(st.sc.h - st.sc.g);
+  const duel = ecart < 6
+    ? 'Vous finissez au coude à coude — ' + ecart + ' étoile(s) d\'écart.'
+    : (st.sc.h > st.sc.g ? nh : ng) + ' remporte la soirée de ' + ecart + ' étoiles.';
+  $('#fin-p').textContent = duel + ' ' + (tot >= 180
+    ? 'Huit numéros, et le chapiteau est à vous.'
+    : tot >= 110
       ? 'Une belle représentation. On rallume les projecteurs quand vous voulez.'
-      : 'La troupe débute. Une deuxième représentation et ce sera autre chose.';
+      : 'La troupe débute. Une deuxième soirée et ce sera autre chose.');
   ecran('e-fin');
 }
 
@@ -426,6 +454,7 @@ const ACTES = {
 
 tra: {
   nom: 'Le Trapèze',
+  genre: 'duo',
   sous: 'Lâchez ensemble, exactement au croisement.',
   consigne: () => st.d.verdict
     ? st.d.verdict
@@ -565,6 +594,7 @@ tra: {
    ========================================================= */
 fun: {
   nom: 'Le Funambule',
+  genre: 'duo',
   sous: 'Un balancier, deux paires de mains.',
   consigne: () => moi === 'h'
     ? 'MAINTIENS ton bouton pour tirer le balancier vers TA gauche. Ne tire jamais tout seul.'
@@ -602,13 +632,15 @@ fun: {
     if (Math.abs(L.incl) > 0.62) {                    /* chute */
       d.vies--; d.chute = tps();
       L.incl = 0; L.vit = 0; L.av = d.noeud;
-      if (d.vies <= 0) { d.fini = 1; this.termine(); return; }
+      /* dernière chute : on envoie quand même la position finale,
+         sinon l'autre écran garde le funambule au milieu du fil */
+      if (d.vies <= 0) { d.fini = 1; this.corrige(true); this.termine(); return; }
       toast('Chute ! Il reste ' + d.vies + ' vie' + (d.vies > 1 ? 's' : '') + '.');
       this.corrige(true);
     }
     if (L.av > d.noeud + 240) { d.noeud = Math.floor(L.av / 240) * 240; this.corrige(true); }
-    if (L.av >= 720) { d.fini = 2; this.termine(); return; }
-    if (tps() - (d.derCor || 0) > 400) { d.derCor = tps(); this.corrige(false); }
+    if (L.av >= 720) { d.fini = 2; this.corrige(true); this.termine(); return; }
+    if (tps() - (d.derCor || 0) > 250) { d.derCor = tps(); this.corrige(false); }
   },
 
   corrige(dur) {
@@ -695,352 +727,533 @@ fun: {
 },
 
 /* =========================================================
-   NUMÉRO 3 — LES ASSIETTES  (l'information partagée)
-   Un seul tient la baguette. L'AUTRE voit les compteurs.
+   NUMÉRO — LE DUEL DES ASSIETTES  (bataille)
+   Trois perches chacun, personne ne voit mieux que l'autre.
+   Celui qui en casse le moins gagne le numéro.
    ========================================================= */
 ass: {
-  nom: 'Les Assiettes',
-  sous: 'Celui qui voit ne touche pas. Celui qui touche ne voit pas.',
-  consigne() {
-    const b = this.baguette();
-    return b === moi
-      ? 'Tu tiens la BAGUETTE : clique les assiettes. Tu ne vois pas les compteurs — écoute l\'autre.'
-      : 'Tu vois les COMPTEURS. Dis à l\'autre quelle assiette relancer, vite.';
-  },
-  DUREE: 64000,
-  XS: [155, 296, 437, 578, 719, 860],
+  nom: 'Le Duel des Assiettes',
+  sous: 'Trois perches chacun. Le dernier debout gagne.',
+  genre: 'battle',
+  consigne: () => 'Relance TES trois assiettes avant qu\'elles tombent — clique-les, ou touches 1 2 3. Ça accélère.',
+  DUREE: 56000,
+  XS: { h: [130, 245, 360], g: [640, 755, 870] },
 
   init() {
     const t = tps();
-    st.d = {
-      t0: t, vies: 3, tombees: 0, relances: 0,
-      a: [0, 1, 2].map(i => ({ i, v: 1, t0: t, on: 1, chute: 0 }))
-    };
+    const perches = r => [0, 1, 2].map(i => ({ i, v: 1, t0: t, on: 1 }));
+    st.d = { t0: t, a: { h: perches('h'), g: perches('g') }, vies: { h: 3, g: 3 }, casse: { h: 0, g: 0 }, mort: {}, fini: 0 };
   },
-  baguette() { return Math.floor((tps() - st.d.t0) / 9000) % 2 ? 'g' : 'h'; },
-  taux() { return 0.000060 * (1 + (tps() - st.d.t0) / 46000); },
+  taux() { return 0.000062 * (1 + (tps() - st.d.t0) / 34000); },
   niveau(p) { return p.on ? clamp(p.v - (tps() - p.t0) * this.taux(), 0, 1) : 0; },
 
   action(qui, a) {
-    if (a.k !== 'sp' || st.d.fini) return;
-    if (qui !== this.baguette()) return;             /* seule la baguette relance */
-    const p = st.d.a.find(x => x.i === a.i);
-    if (!p || !p.on) return;
-    if (this.niveau(p) > 0.93) return;                /* pas de spam inutile */
-    p.v = 1; p.t0 = tps(); st.d.relances++;
+    if (a.k !== 'sp' || st.d.fini || st.d.mort[qui]) return;
+    const p = st.d.a[qui][a.i];
+    if (!p || !p.on || this.niveau(p) > 0.94) return;
+    p.v = 1; p.t0 = tps();
     diffuse();
   },
 
   clic(x, y) {
-    for (const p of st.d.a) {
-      if (!p.on) continue;
-      const px = this.XS[p.i];
-      if (Math.abs(x - px) < 62 && y > 250 && y < 470) { jouer({ k: 'sp', i: p.i }); return; }
-    }
+    if (st.d.mort[moi]) return;
+    const xs = this.XS[moi];
+    for (let i = 0; i < 3; i++) if (Math.abs(x - xs[i]) < 62 && y > 250 && y < 470) { jouer({ k: 'sp', i }); return; }
   },
-  touche(e) {
-    const n = '&é"\'(-'.indexOf(e.key);
-    const m = '123456'.indexOf(e.key);
-    const i = m >= 0 ? m : n;
-    if (i >= 0) jouer({ k: 'sp', i });
-  },
+  touche(e) { const i = '123'.indexOf(e.key); if (i >= 0) jouer({ k: 'sp', i }); },
 
   tick() {
     if (!hote || st.d.fini) return;
     const d = st.d, el = tps() - d.t0;
-    /* on ajoute une assiette toutes les 13 s, jusqu'à 6 */
-    const veut = Math.min(6, 3 + Math.floor(el / 13000));
-    if (d.a.length < veut) {
-      while (d.a.length < veut) d.a.push({ i: d.a.length, v: 1, t0: tps(), on: 1, chute: 0 });
-      toast('Une assiette de plus !'); diffuse();
-    }
-    for (const p of d.a) {
-      if (p.on && this.niveau(p) <= 0) {
-        p.on = 0; p.chute = tps(); d.tombees++; d.vies--;
-        toast('Une assiette au sol !');
-        if (d.vies <= 0) { this.termine(); return; }
-        tard(() => { p.on = 1; p.v = 1; p.t0 = tps(); diffuse(); }, 5000);
-        diffuse();
+    for (const r of ['h', 'g']) {
+      if (d.mort[r]) continue;
+      for (const p of d.a[r]) {
+        if (p.on && this.niveau(p) <= 0) {
+          p.on = 0; d.casse[r]++; d.vies[r]--;
+          if (d.vies[r] <= 0) { d.mort[r] = tps(); }
+          else tard(() => { p.on = 1; p.v = 1; p.t0 = tps(); diffuse(); }, 3500);
+          diffuse();
+        }
       }
     }
-    if (el > this.DUREE && d.vies > 0) this.termine();
+    if ((d.mort.h && d.mort.g) || el > this.DUREE) this.termine();
   },
 
   termine() {
-    if (st.d.fini) return; st.d.fini = 1;
-    purge();
-    const d = st.d, fini = tps() - d.t0 >= this.DUREE;
-    const p = fini ? 6 + d.vies * 3 : d.vies * 2 + Math.round((tps() - d.t0) / 8000);
+    if (st.d.fini) return; st.d.fini = 1; purge();
+    const d = st.d;
+    /* à égalité de vies, celui qui a tenu le plus longtemps l'emporte */
+    const fin = r => d.mort[r] || tps();
+    let gagnant = null;
+    if (d.vies.h !== d.vies.g) gagnant = d.vies.h > d.vies.g ? 'h' : 'g';
+    else if (Math.abs(fin('h') - fin('g')) > 1200) gagnant = fin('h') > fin('g') ? 'h' : 'g';
+    const ph = gagnant === 'h' ? 12 : gagnant === 'g' ? 5 : 9;
+    const pg = gagnant === 'g' ? 12 : gagnant === 'h' ? 5 : 9;
+    if (gagnant) confettis(70, gagnant === 'h' ? 245 : 755, 300);
     tard(() => finActe(
-      fini ? 'Numéro terminé !' : 'Tout s\'est brisé',
-      d.tombees + ' assiette(s) au sol, ' + d.relances + ' relance(s).',
-      p, p), 800);
-  },
-
-  cmd() {
-    const b = this.baguette();
-    if (b !== moi) return `<p class="etiq">Tu es les yeux. Parle vite : <b>1</b> à <b>6</b> de gauche à droite.</p>`;
-    return `<p class="etiq">Tu as la baguette — clique les assiettes (ou touches 1 à 6)</p>`;
+      gagnant ? (st.nm[gagnant] || 'L\'un de vous') + ' l\'emporte' : 'Égalité parfaite',
+      d.casse.h + ' assiette(s) cassée(s) contre ' + d.casse.g + '.', ph, pg), 900);
   },
 
   dessine(t) {
-    const d = st.d, b = this.baguette(), jeVois = b !== moi;
-    const chg = 9000 - ((t - d.t0) % 9000);
+    const d = st.d;
+    /* la ligne qui sépare les deux camps */
+    cx.strokeStyle = 'rgba(232,181,88,.25)'; cx.lineWidth = 2; cx.setLineDash([8, 10]);
+    cx.beginPath(); cx.moveTo(VW / 2, 180); cx.lineTo(VW / 2, 500); cx.stroke(); cx.setLineDash([]);
 
-    /* bandeau baguette */
-    cx.textAlign = 'center'; cx.font = '400 22px "Alfa Slab One", serif';
-    cx.fillStyle = COUL[b].c2;
-    cx.fillText('🥢 ' + (st.nm[b] || (b === 'h' ? 'Artiste 1' : 'Artiste 2')) + ' tient la baguette', VW / 2, 168);
-    cx.font = '400 14px Jost, sans-serif'; cx.fillStyle = '#b99a8e';
-    cx.fillText('elle change dans ' + (chg / 1000).toFixed(1) + ' s', VW / 2, 190);
-
-    for (const p of d.a) {
-      const x = this.XS[p.i], base = 470, hp = 152, ty = base - hp;
-      /* la perche */
-      cx.strokeStyle = '#6b4b2c'; cx.lineWidth = 5; cx.lineCap = 'round';
-      cx.beginPath(); cx.moveTo(x, base); cx.lineTo(x, ty); cx.stroke();
-      cx.fillStyle = 'rgba(0,0,0,.35)';
-      cx.beginPath(); cx.ellipse(x, base + 3, 20, 5, 0, 0, 6.3); cx.fill();
-      /* le numéro de la perche : c'est par là qu'on se les désigne à voix haute */
-      cx.font = '400 20px "Alfa Slab One", serif'; cx.textAlign = 'center';
-      cx.fillStyle = 'rgba(43,15,22,.85)';
-      cx.fillText(String(p.i + 1), x, base + 30);
-
-      if (!p.on) {
-        /* les débris */
-        cx.fillStyle = 'rgba(247,233,210,.45)';
-        for (let k = 0; k < 7; k++) {
-          const a = k * 1.1 + p.i;
-          cx.beginPath(); cx.arc(x + Math.cos(a) * (16 + k * 4), base - 2 + Math.sin(a) * 4, 3, 0, 6.3); cx.fill();
+    for (const r of ['h', 'g']) {
+      const xs = this.XS[r];
+      for (const p of d.a[r]) {
+        const x = xs[p.i], base = 470, ty = base - 152;
+        cx.strokeStyle = '#6b4b2c'; cx.lineWidth = 5; cx.lineCap = 'round';
+        cx.beginPath(); cx.moveTo(x, base); cx.lineTo(x, ty); cx.stroke();
+        cx.fillStyle = 'rgba(0,0,0,.35)';
+        cx.beginPath(); cx.ellipse(x, base + 3, 20, 5, 0, 0, 6.3); cx.fill();
+        if (r === moi) {
+          cx.font = '400 18px "Alfa Slab One", serif'; cx.textAlign = 'center';
+          cx.fillStyle = 'rgba(43,15,22,.8)'; cx.fillText(String(p.i + 1), x, base + 28);
         }
-        continue;
+        if (!p.on) {
+          cx.fillStyle = 'rgba(247,233,210,.4)';
+          for (let k = 0; k < 7; k++) {
+            const a = k * 1.1 + p.i;
+            cx.beginPath(); cx.arc(x + Math.cos(a) * (16 + k * 4), base - 2 + Math.sin(a) * 4, 3, 0, 6.3); cx.fill();
+          }
+          continue;
+        }
+        const e = this.niveau(p);
+        cx.save(); cx.translate(x, ty);
+        cx.rotate(Math.sin(t * (0.006 + (1 - e) * 0.014) + p.i) * (1 - e) * 0.44);
+        cx.save(); cx.scale(1, 0.30);
+        const g = cx.createRadialGradient(0, 0, 4, 0, 0, 46);
+        g.addColorStop(0, '#fffaf0'); g.addColorStop(.7, '#efe0c8'); g.addColorStop(1, '#c9b391');
+        cx.fillStyle = g; cx.beginPath(); cx.arc(0, 0, 46, 0, 6.3); cx.fill();
+        cx.strokeStyle = e < 0.3 ? '#ff5f72' : COUL[r].c; cx.lineWidth = e < 0.3 ? 9 : 6;
+        cx.beginPath(); cx.arc(0, 0, 40, 0, 6.3); cx.stroke();
+        cx.restore(); cx.restore();
+        /* la barre de vie de l'assiette : visible par les deux, c'est un duel loyal */
+        cx.fillStyle = 'rgba(0,0,0,.4)'; cx.fillRect(x - 30, ty - 34, 60, 7);
+        cx.fillStyle = e < 0.25 ? '#ff5f72' : e < 0.5 ? '#e8b558' : '#7fd68f';
+        cx.fillRect(x - 30, ty - 34, 60 * e, 7);
       }
-
-      const e = this.niveau(p);
-      const vac = (1 - e) * 0.42;
-      const tilt = Math.sin(t * (0.006 + (1 - e) * 0.012) + p.i) * vac;
-
-      cx.save(); cx.translate(x, ty); cx.rotate(tilt);
-      cx.save(); cx.scale(1, 0.30);
-      const g = cx.createRadialGradient(0, 0, 4, 0, 0, 46);
-      g.addColorStop(0, '#fffaf0'); g.addColorStop(.7, '#efe0c8'); g.addColorStop(1, '#c9b391');
-      cx.fillStyle = g; cx.beginPath(); cx.arc(0, 0, 46, 0, 6.3); cx.fill();
-      cx.strokeStyle = e < 0.3 ? '#ff5f72' : '#c8384a'; cx.lineWidth = e < 0.3 ? 9 : 6;
-      cx.beginPath(); cx.arc(0, 0, 40, 0, 6.3); cx.stroke();
-      cx.restore();
-      cx.restore();
-
-      if (jeVois) {
-        const pc = Math.round(e * 100);
-        cx.font = '400 26px "Alfa Slab One", serif'; cx.textAlign = 'center';
-        cx.fillStyle = e < 0.25 ? '#ff5f72' : e < 0.5 ? '#e8b558' : '#7fd68f';
-        cx.fillText(pc + '%', x, ty - 40);
-        /* petite barre */
-        cx.fillStyle = 'rgba(0,0,0,.4)'; cx.fillRect(x - 30, ty - 30, 60, 7);
-        cx.fillStyle = e < 0.25 ? '#ff5f72' : e < 0.5 ? '#e8b558' : '#7fd68f';
-        cx.fillRect(x - 30, ty - 30, 60 * e, 7);
-      } else if (e < 0.22) {
-        cx.font = '400 26px "Alfa Slab One", serif'; cx.textAlign = 'center'; cx.fillStyle = '#ff5f72';
-        cx.globalAlpha = 0.55 + 0.45 * Math.sin(t * 0.015); cx.fillText('!', x, ty - 40); cx.globalAlpha = 1;
+      artiste(r === 'h' ? 60 : 940, 496, r, 0.95, -1.6);
+      /* les vies de chacun, sous le chrono pour ne pas se marcher dessus */
+      cx.font = '20px system-ui, "Segoe UI Emoji", sans-serif'; cx.textAlign = r === 'h' ? 'left' : 'right';
+      for (let i = 0; i < 3; i++) {
+        cx.globalAlpha = i < d.vies[r] ? 1 : .2;
+        cx.fillText('❤', r === 'h' ? 26 + i * 28 : VW - 26 - i * 28, 214);
+      }
+      cx.globalAlpha = 1;
+      cx.font = '600 12px Jost, sans-serif'; cx.fillStyle = COUL[r].c2;
+      cx.fillText((st.nm[r] || (r === 'h' ? 'Artiste 1' : 'Artiste 2')) + (r === moi ? ' (toi)' : ''),
+        r === 'h' ? 26 : VW - 26, 236);
+      if (d.mort[r]) {
+        cx.font = '400 24px "Alfa Slab One", serif'; cx.textAlign = 'center'; cx.fillStyle = '#ff9aa8';
+        cx.fillText('ÉLIMINÉ', r === 'h' ? 245 : 755, 300);
       }
     }
-
-    /* les deux artistes au sol */
-    artiste(this.XS[0] - 92, 496, 'h', 0.9, b === 'h' ? -1.2 : -0.4);
-    artiste(this.XS[5] + 92, 496, 'g', 0.9, b === 'g' ? -1.9 : -2.7);
-
-    coeurs(d.vies, 3);
     const reste = Math.max(0, this.DUREE - (t - d.t0));
     minuteur(reste / this.DUREE, (reste / 1000).toFixed(0) + ' s');
   }
 },
 
 /* =========================================================
-   NUMÉRO 4 — L'HOMME-CANON  (chacun sa moitié de la réponse)
-   L'un voit le filet et règle l'angle. L'autre ne voit que la
-   jauge de poudre. Aucun des deux ne peut viser seul.
+   NUMÉRO — QUI DE NOUS DEUX  (complicité)
+   Chacun désigne un nom. On marque si vous désignez le même.
    ========================================================= */
-can: {
-  nom: 'L\'Homme-Canon',
-  sous: 'Toi l\'angle, moi la poudre. Parlez-vous.',
+qui: {
+  nom: 'Qui de nous deux',
+  sous: 'Désignez la même personne, et le public applaudit.',
+  genre: 'question',
+  N: 6,
   consigne() {
-    return moi === 'h'
-      ? 'Tu vois le FILET et tu règles l\'ANGLE. Tu ne vois pas la poudre : demande-la.'
-      : 'Tu règles la POUDRE. Tu ne vois pas où est le filet : demande à l\'autre.';
+    if (st.d.rev) return st.d.rev.ok ? 'Vous avez dit pareil.' : 'Pas d\'accord, tous les deux.';
+    return st.d.rep[moi] ? 'C\'est envoyé. On attend l\'autre…' : 'Désigne l\'un de vous deux.';
   },
-  CIBLES: 3, TIRS: 5,
 
-  init() {
-    st.d = { c: 0, tir: 0, ang: 45, pui: 50, pret: {}, vol: null, imp: [], gagnees: 0, cible: this.tire(), fini: 0, dep: tps() };
-  },
-  /* personne n'appuie sur PRÊT : on ne reste pas coincé indéfiniment */
-  tick() {
-    if (!hote || st.d.fini || st.d.vol) return;
-    if (tps() - st.d.dep > 120000) this.termine();
-  },
-  tire() { return 400 + Math.round(Math.random() * 480); },
+  init() { st.d = { n: 0, q: '', rep: {}, rev: null, acc: 0, fini: 0 }; this.pose(); },
+  pose() { st.d.q = tirer('qui', QUI); st.d.rep = {}; st.d.rev = null; st.d.t0 = tps(); diffuse(); },
 
   action(qui, a) {
     const d = st.d;
-    if (d.vol) return;
-    if (a.k === 'ang' && qui === 'h') { d.ang = clamp(a.v, 18, 72); diffuse(); }
-    else if (a.k === 'pui' && qui === 'g') { d.pui = clamp(a.v, 0, 100); diffuse(); }
+    if (a.k !== 'r' || d.rev || d.rep[qui]) return;
+    d.rep[qui] = a.v;                                   /* 'h' ou 'g' */
+    if (d.rep.h && d.rep.g) this.verifie(); else { d.premier = tps(); diffuse(); }
+  },
+
+  verifie() {
+    const d = st.d;
+    if (d.rev) return;
+    const ok = d.rep.h === d.rep.g && d.rep.h !== '?';
+    if (ok) { d.acc++; confettis(50, VW / 2, 300); }
+    d.rev = { ok };
+    diffuse();
+    tard(() => { if (d.n + 1 >= this.N) return this.termine(); d.n++; this.pose(); }, 3600);
+  },
+
+  /* si l'un des deux ne répond jamais, on n'attend pas la nuit entière —
+     et dès que le premier a répondu, l'autre n'a plus que 25 s */
+  tick() {
+    if (!hote || st.d.rev || st.d.fini) return;
+    const d = st.d;
+    if (tps() - d.t0 > 50000 || (d.premier && tps() - d.premier > 25000)) {
+      for (const r of ['h', 'g']) if (!d.rep[r]) d.rep[r] = '?';
+      this.verifie();
+    }
+  },
+
+  termine() {
+    if (st.d.fini) return; st.d.fini = 1; purge();
+    const p = st.d.acc * 3;
+    tard(() => finActe('Qui de nous deux', st.d.acc + ' réponse(s) identique(s) sur ' + this.N + '.', p, p), 500);
+  },
+
+  cmd() {
+    if (st.d.rev) return '<p class="etiq">…</p>';
+    const dej = !!st.d.rep[moi];
+    return `<div class="paire">
+      <button class="choix rouge" data-a="rh" ${dej ? 'disabled' : ''}>${esc(st.nm.h || 'Artiste 1')}</button>
+      <button class="choix bleu" data-a="rg" ${dej ? 'disabled' : ''}>${esc(st.nm.g || 'Artiste 2')}</button></div>`;
+  },
+  bouton(k) { if (k === 'rh' || k === 'rg') jouer({ k: 'r', v: k === 'rh' ? 'h' : 'g' }); },
+  touche(e) { if (e.key === '1') this.bouton('rh'); if (e.key === '2') this.bouton('rg'); },
+
+  dessine(t) { panneauQuestion(st.d.q, st.d.n, this.N, st.d.rep, st.d.rev, r => st.nm[st.d.rep[r]] || '?'); }
+},
+
+/* =========================================================
+   NUMÉRO — TU PRÉFÈRES  (l'un répond, l'autre devine)
+   ========================================================= */
+pre: {
+  nom: 'Tu préfères',
+  sous: 'L\'un choisit pour de vrai, l\'autre essaie de le deviner.',
+  genre: 'question',
+  N: 6,
+  consigne() {
+    const d = st.d;
+    if (d.rev) return d.rev.ok ? 'Deviné !' : 'Raté.';
+    if (d.rep[moi] !== undefined) return 'C\'est envoyé. On attend l\'autre…';
+    return d.sujet === moi ? 'C\'est TOI le sujet : réponds sincèrement.' : 'Devine ce que l\'autre va choisir.';
+  },
+
+  init() { st.d = { n: 0, p: null, sujet: 'h', rep: {}, rev: null, bons: 0, fini: 0 }; this.pose(); },
+  pose() {
+    const d = st.d;
+    d.p = tirer('pre', PREFERE); d.sujet = d.n % 2 === 0 ? 'h' : 'g';
+    d.rep = {}; d.rev = null; d.t0 = tps(); diffuse();
+  },
+
+  action(qui, a) {
+    const d = st.d;
+    if (a.k !== 'r' || d.rev || d.rep[qui] !== undefined) return;
+    d.rep[qui] = a.v;
+    if (d.rep.h !== undefined && d.rep.g !== undefined) this.verifie(); else { d.premier = tps(); diffuse(); }
+  },
+
+  verifie() {
+    const d = st.d;
+    if (d.rev) return;
+    const ok = d.rep.h === d.rep.g && d.rep.h >= 0;
+    const dev = d.sujet === 'h' ? 'g' : 'h';
+    if (ok) { d.bons++; confettis(50, VW / 2, 300); }
+    d.pts = d.pts || { h: 0, g: 0 };
+    if (ok) { d.pts[dev] += 4; d.pts[d.sujet] += 2; }
+    d.rev = { ok, dev };
+    diffuse();
+    tard(() => { if (d.n + 1 >= this.N) return this.termine(); d.n++; this.pose(); }, 3600);
+  },
+
+  tick() {
+    if (!hote || st.d.rev || st.d.fini) return;
+    const d = st.d;
+    if (tps() - d.t0 > 50000 || (d.premier && tps() - d.premier > 25000)) {
+      for (const r of ['h', 'g']) if (d.rep[r] === undefined) d.rep[r] = -1;
+      this.verifie();
+    }
+  },
+
+  termine() {
+    if (st.d.fini) return; st.d.fini = 1; purge();
+    const p = st.d.pts || { h: 0, g: 0 };
+    tard(() => finActe('Tu préfères', st.d.bons + ' bonne(s) intuition(s) sur ' + this.N + '.', p.h, p.g), 500);
+  },
+
+  cmd() {
+    const d = st.d;
+    if (d.rev || !d.p) return '<p class="etiq">…</p>';
+    const dej = d.rep[moi] !== undefined;
+    return `<div class="paire">
+      <button class="choix long" data-a="r0" ${dej ? 'disabled' : ''}>${esc(d.p[0])}</button>
+      <button class="choix long" data-a="r1" ${dej ? 'disabled' : ''}>${esc(d.p[1])}</button></div>`;
+  },
+  bouton(k) { if (k === 'r0' || k === 'r1') jouer({ k: 'r', v: k === 'r0' ? 0 : 1 }); },
+  touche(e) { if (e.key === '1') this.bouton('r0'); if (e.key === '2') this.bouton('r1'); },
+
+  dessine(t) {
+    const d = st.d; if (!d.p) return;
+    const nomS = st.nm[d.sujet] || (d.sujet === 'h' ? 'Artiste 1' : 'Artiste 2');
+    const titre = d.sujet === moi ? 'TOI — tu préfères…' : nomS + ' préfère…';
+    panneauQuestion(titre, d.n, this.N, d.rep, d.rev,
+      r => d.rep[r] === undefined ? '?' : d.rep[r] === -1 ? '—' : d.p[d.rep[r]],
+      d.rev ? (d.rev.ok ? '#7fd68f' : '#ff9aa8') : null);
+  }
+},
+
+/* =========================================================
+   NUMÉRO — LE QUIZ DU CHAPITEAU  (bataille de vitesse)
+   ========================================================= */
+qz: {
+  nom: 'Le Quiz du Chapiteau',
+  sous: 'Bonne réponse ET plus vite que l\'autre.',
+  genre: 'battle',
+  N: 8, LIMITE: 12000,
+  consigne() {
+    const d = st.d;
+    if (d.rev) return d.rev.txt;
+    return d.rep[moi] !== undefined ? 'Réponse enregistrée. On attend l\'autre…' : 'Le plus rapide à avoir juste marque le plus.';
+  },
+
+  init() { st.d = { n: 0, q: null, ch: [], bon: 0, rep: {}, rev: null, pts: { h: 0, g: 0 }, fini: 0 }; this.pose(); },
+  pose() {
+    const d = st.d, q = tirer('qz', QUIZ);
+    const idx = melange([0, 1, 2, 3]);
+    d.q = q[0];
+    d.ch = idx.map(i => q[1][i]);
+    d.bon = idx.indexOf(q[2]);
+    d.rep = {}; d.rev = null; d.t0 = tps(); diffuse();
+  },
+
+  action(qui, a) {
+    const d = st.d;
+    if (a.k !== 'r' || d.rev || d.rep[qui] !== undefined) return;
+    d.rep[qui] = { v: a.v, ms: clamp(a.ms, 0, this.LIMITE) };
+    if (d.rep.h !== undefined && d.rep.g !== undefined) this.juge();
+    else diffuse();
+  },
+
+  juge() {
+    const d = st.d;
+    const bons = ['h', 'g'].filter(r => d.rep[r].v === d.bon);
+    bons.sort((a, b) => d.rep[a].ms - d.rep[b].ms);
+    let txt;
+    if (!bons.length) txt = 'Personne. La bonne réponse était « ' + d.ch[d.bon] + ' ».';
+    else {
+      d.pts[bons[0]] += 3;
+      if (bons[1]) d.pts[bons[1]] += 1;
+      const nm = r => st.nm[r] || (r === 'h' ? 'Artiste 1' : 'Artiste 2');
+      txt = bons.length === 2
+        ? nm(bons[0]) + ' a été plus rapide de ' + Math.round(d.rep[bons[1]].ms - d.rep[bons[0]].ms) + ' ms.'
+        : nm(bons[0]) + ' seul(e) a trouvé.';
+      confettis(40, VW / 2, 300);
+    }
+    d.rev = { txt };
+    diffuse();
+    tard(() => { if (d.n + 1 >= this.N) return this.termine(); d.n++; this.pose(); }, 3400);
+  },
+
+  tick() {
+    if (!hote || st.d.fini || st.d.rev) return;
+    if (tps() - st.d.t0 > this.LIMITE) {
+      for (const r of ['h', 'g']) if (st.d.rep[r] === undefined) st.d.rep[r] = { v: -1, ms: this.LIMITE };
+      this.juge();
+    }
+  },
+
+  termine() {
+    if (st.d.fini) return; st.d.fini = 1; purge();
+    const p = st.d.pts;
+    tard(() => finActe('Le quiz du chapiteau',
+      (p.h === p.g ? 'Vous finissez à égalité.' : (st.nm[p.h > p.g ? 'h' : 'g'] || 'L\'un de vous') + ' mène le quiz.'),
+      p.h, p.g), 500);
+  },
+
+  cmd() {
+    const d = st.d;
+    if (d.rev || !d.q) return '<p class="etiq">…</p>';
+    const dej = d.rep[moi] !== undefined;
+    return '<div class="quatre">' + d.ch.map((c, i) =>
+      `<button class="choix" data-a="r${i}" ${dej ? 'disabled' : ''}>${esc(c)}</button>`).join('') + '</div>';
+  },
+  bouton(k) {
+    const i = +k.slice(1);
+    if (i >= 0 && i < 4) jouer({ k: 'r', v: i, ms: tps() - st.d.t0 });
+  },
+  touche(e) { const i = '1234'.indexOf(e.key); if (i >= 0) this.bouton('r' + i); },
+
+  dessine(t) {
+    const d = st.d; if (!d.q) return;
+    panneauQuestion(d.q, d.n, this.N, d.rep, d.rev,
+      r => d.rep[r] === undefined ? '?' : d.rep[r].v < 0 ? '—' : d.ch[d.rep[r].v],
+      null,
+      d.rev ? d.ch[d.bon] : null);
+    if (!d.rev) {
+      const reste = Math.max(0, this.LIMITE - (t - d.t0));
+      minuteur(reste / this.LIMITE, (reste / 1000).toFixed(1) + ' s');
+    }
+  }
+},
+
+/* =========================================================
+   NUMÉRO — LE DUEL DU CANON  (bataille)
+   Un canon chacun, une cible au milieu. Le plus près gagne.
+   ========================================================= */
+can: {
+  nom: 'Le Duel du Canon',
+  sous: 'Un canon chacun, une seule cible.',
+  genre: 'battle',
+  MANCHES: 4, SOL: 452,
+  consigne() {
+    if (st.d.vol) return 'Ça part !';
+    return st.d.pret[moi] ? 'Prêt. On attend l\'autre…' : 'Règle ton angle et ta poudre, puis PRÊT. Le plus près de la cible marque.';
+  },
+
+  init() { st.d = { m: 0, cible: this.tire(), ang: { h: 45, g: 45 }, pui: { h: 50, g: 50 }, pret: {}, vol: null, imp: {}, pts: { h: 0, g: 0 }, fini: 0, dep: tps() }; },
+  tire() { return 380 + Math.round(Math.random() * 240); },
+
+  action(qui, a) {
+    const d = st.d;
+    if (d.vol || d.fini) return;
+    if (a.k === 'ang') { d.ang[qui] = clamp(a.v, 18, 72); diffuse(); }
+    else if (a.k === 'pui') { d.pui[qui] = clamp(a.v, 0, 100); diffuse(); }
     else if (a.k === 'pret') {
-      if (a.t !== undefined && a.t !== d.tir) return;   /* PRÊT en retard d'un tir */
+      if (a.m !== undefined && a.m !== d.m) return;
       d.pret[qui] = 1;
       if (d.pret.h && d.pret.g) this.feu(); else diffuse();
     }
   },
 
+  /* même physique pour les deux, l'un tire vers la droite, l'autre vers la gauche */
+  trajet(r) {
+    const d = st.d, g = 0.30, v0 = 3.4 + d.pui[r] * 0.135, a = d.ang[r] * Math.PI / 180;
+    const sens = r === 'h' ? 1 : -1;
+    const vx = Math.cos(a) * v0 * sens, vy = Math.sin(a) * v0;
+    return { g, vx, vy, x0: r === 'h' ? 176 : VW - 176, y0: this.SOL, duree: (2 * vy / g) * (1000 / 60), sens };
+  },
+
   feu() {
     const d = st.d;
-    d.pret = {}; d.tir++; d.dep = tps();
-    const g = 0.30, v0 = 3.4 + d.pui * 0.135, a = d.ang * Math.PI / 180;
-    const vx = Math.cos(a) * v0, vy = Math.sin(a) * v0;
-    const duree = (2 * vy / g) * (1000 / 60);
-    const portee = vx * (2 * vy / g);
-    d.vol = { t0: tps() + 350, duree, vx, vy, g, x0: 176, y0: 452, chute: 176 + portee };
-    const ecart = Math.abs(d.vol.chute - d.cible);
-    d.vol.ok = ecart <= 36;
-    confettis(14, 176, 452);
+    d.pret = {};
+    const th = this.trajet('h'), tg = this.trajet('g');
+    th.chute = th.x0 + th.vx * (2 * th.vy / th.g);
+    tg.chute = tg.x0 + tg.vx * (2 * tg.vy / tg.g);
+    const t0 = tps() + 350;
+    d.vol = { t0, h: th, g: tg, duree: Math.max(th.duree, tg.duree) };
     diffuse();
     tard(() => {
-      d.imp.push({ x: d.vol.chute, ok: d.vol.ok });
-      if (d.vol.ok) confettis(70, d.cible, 440);
-      const ok = d.vol.ok;
-      d.vol = null;
-      if (ok) {
-        d.gagnees++;
-        toast('Dans le filet ! 🎯');
-        if (d.c + 1 >= this.CIBLES) return this.termine();
-        d.c++; d.tir = 0; d.cible = this.tire(); d.imp = []; d.ang = 45; d.pui = 50;
-      } else if (d.tir >= this.TIRS) {
-        toast('Filet manqué. On change de place.');
-        if (d.c + 1 >= this.CIBLES) return this.termine();
-        d.c++; d.tir = 0; d.cible = this.tire(); d.imp = [];
+      const eh = Math.abs(th.chute - d.cible), eg = Math.abs(tg.chute - d.cible);
+      d.imp = { h: th.chute, g: tg.chute };
+      const nm = r => st.nm[r] || (r === 'h' ? 'Artiste 1' : 'Artiste 2');
+      let msg;
+      if (Math.abs(eh - eg) < 8) { d.pts.h += 2; d.pts.g += 2; msg = 'Aussi près l\'un que l\'autre.'; }
+      else {
+        const v = eh < eg ? 'h' : 'g', e = Math.min(eh, eg);
+        d.pts[v] += e <= 22 ? 6 : 4;
+        msg = nm(v) + (e <= 22 ? ' en plein dans la cible !' : ' est le plus près (' + Math.round(e) + ' px).');
+        confettis(60, d.cible, 420);
       }
+      toast(msg);
+      d.vol = null;
+      if (d.m + 1 >= this.MANCHES) return this.termine();
+      d.m++; d.cible = this.tire(); d.dep = tps();
+      tard(() => { d.imp = {}; diffuse(); }, 1800);
       diffuse();
-    }, 350 + duree + 1100);
+    }, 350 + d.vol.duree + 900);
+  },
+
+  tick() {
+    if (!hote || st.d.fini || st.d.vol) return;
+    const d = st.d;
+    /* l'un a dit PRÊT et l'autre ne vient jamais : on tire quand même */
+    if ((d.pret.h || d.pret.g) && tps() - d.dep > 45000) { d.pret.h = d.pret.g = 1; this.feu(); return; }
+    if (tps() - d.dep > 90000) this.termine();
   },
 
   termine() {
-    if (st.d.fini) return; st.d.fini = 1;
-    const p = st.d.gagnees * 5;
-    tard(() => finActe('L\'homme-canon', st.d.gagnees + ' filet(s) atteint(s) sur ' + this.CIBLES + '.', p, p), 700);
+    if (st.d.fini) return; st.d.fini = 1; purge();
+    const p = st.d.pts;
+    tard(() => finActe('Le duel du canon',
+      p.h === p.g ? 'Match nul, à la poudre près.' : (st.nm[p.h > p.g ? 'h' : 'g'] || 'L\'un de vous') + ' vise mieux.',
+      p.h, p.g), 700);
   },
 
   cmd() {
     const d = st.d;
-    if (moi === 'h') {
-      return `<p class="etiq">Angle du canon</p>
-        <input class="curseur" type="range" min="18" max="72" value="${d.ang}" data-r="ang">
-        <button class="gros-bouton rouge" data-a="pret">PRÊT</button>`;
-    }
-    return `<p class="etiq">Poudre</p>
-      <input class="curseur" type="range" min="0" max="100" value="${d.pui}" data-r="pui">
-      <button class="gros-bouton bleu" data-a="pret">PRÊT</button>`;
+    const c = moi === 'h' ? 'rouge' : 'bleu';
+    return `<div class="reglages">
+        <label class="etiq">Angle<input class="curseur" type="range" min="18" max="72" value="${d.ang[moi]}" data-r="ang"></label>
+        <label class="etiq">Poudre<input class="curseur" type="range" min="0" max="100" value="${d.pui[moi]}" data-r="pui"></label>
+      </div>
+      <button class="gros-bouton ${c}" data-a="pret">PRÊT</button>`;
   },
-  bouton(k) { if (k === 'pret') jouer({ k: 'pret', t: st.d.tir }); },
+  bouton(k) { if (k === 'pret') jouer({ k: 'pret', m: st.d.m }); },
   curseur(r, v) { jouer({ k: r, v }); },
   touche(e) { if (e.code === 'Space') this.bouton('pret'); },
 
   dessine(t) {
-    const d = st.d, SOL = 452;
-    /* le canon */
-    const a = d.ang * Math.PI / 180;
-    cx.save(); cx.translate(140, SOL + 6);
-    cx.fillStyle = '#4b3524'; cx.beginPath(); cx.arc(0, 0, 30, Math.PI, 0); cx.fill();
-    cx.fillStyle = '#2f2117'; cx.fillRect(-34, 0, 68, 10);
-    cx.rotate(-a);
-    const g = cx.createLinearGradient(0, -20, 0, 20);
-    g.addColorStop(0, '#8f7a56'); g.addColorStop(.5, '#4a3c28'); g.addColorStop(1, '#2a2118');
-    cx.fillStyle = g;
-    cx.beginPath(); cx.moveTo(-6, -20); cx.lineTo(96, -15); cx.lineTo(96, 15); cx.lineTo(-6, 20); cx.closePath(); cx.fill();
-    cx.strokeStyle = '#e8b558'; cx.lineWidth = 3; cx.beginPath(); cx.arc(96, 0, 15.5, -1.5, 1.5); cx.stroke();
-    cx.restore();
+    const d = st.d, SOL = this.SOL;
 
-    /* le filet — visible seulement par l'artiste 1 */
-    if (moi === 'h' || st.ph !== 'jeu') {
-      const x = d.cible;
-      cx.strokeStyle = '#e8b558'; cx.lineWidth = 4;
-      cx.beginPath(); cx.moveTo(x - 46, SOL - 34); cx.lineTo(x - 40, SOL + 6);
-      cx.moveTo(x + 46, SOL - 34); cx.lineTo(x + 40, SOL + 6); cx.stroke();
-      cx.strokeStyle = 'rgba(247,233,210,.55)'; cx.lineWidth = 1.4;
-      for (let i = 0; i <= 8; i++) {
-        cx.beginPath(); cx.moveTo(x - 46 + i * 11.5, SOL - 34); cx.lineTo(x - 40 + i * 10, SOL + 6); cx.stroke();
-      }
-      for (let j = 0; j <= 4; j++) {
-        const yy = SOL - 34 + j * 10;
-        cx.beginPath(); cx.moveTo(x - 46 + j * 1.5, yy); cx.lineTo(x + 46 - j * 1.5, yy); cx.stroke();
-      }
-      cx.font = '400 14px Jost, sans-serif'; cx.textAlign = 'center'; cx.fillStyle = '#e8b558';
-      cx.fillText('le filet', x, SOL - 46);
-    } else {
-      cx.font = '400 15px Jost, sans-serif'; cx.textAlign = 'center'; cx.fillStyle = 'rgba(185,154,142,.7)';
-      cx.fillText('— tu ne vois pas le filet d\'ici —', VW / 2, 250);
+    /* les deux canons */
+    for (const r of ['h', 'g']) {
+      const sens = r === 'h' ? 1 : -1, bx = r === 'h' ? 140 : VW - 140;
+      cx.save(); cx.translate(bx, SOL + 6); cx.scale(sens, 1);
+      cx.fillStyle = '#4b3524'; cx.beginPath(); cx.arc(0, 0, 30, Math.PI, 0); cx.fill();
+      cx.fillStyle = '#2f2117'; cx.fillRect(-34, 0, 68, 10);
+      cx.rotate(-d.ang[r] * Math.PI / 180);
+      const g = cx.createLinearGradient(0, -20, 0, 20);
+      g.addColorStop(0, COUL[r].c2); g.addColorStop(.5, '#4a3c28'); g.addColorStop(1, '#2a2118');
+      cx.fillStyle = g;
+      cx.beginPath(); cx.moveTo(-6, -20); cx.lineTo(96, -15); cx.lineTo(96, 15); cx.lineTo(-6, 20); cx.closePath(); cx.fill();
+      cx.strokeStyle = '#e8b558'; cx.lineWidth = 3; cx.beginPath(); cx.arc(96, 0, 15.5, -1.5, 1.5); cx.stroke();
+      cx.restore();
+      /* réglages, lisibles par les deux : c'est un duel d'adresse, pas de secret */
+      cx.font = '400 20px "Alfa Slab One", serif'; cx.textAlign = r === 'h' ? 'left' : 'right';
+      cx.fillStyle = COUL[r].c2;
+      cx.fillText(d.ang[r] + '°  ·  ' + d.pui[r], r === 'h' ? 26 : VW - 26, 212);
+      cx.font = '600 14px Jost, sans-serif'; cx.fillStyle = d.pret[r] ? '#7fd68f' : 'rgba(185,154,142,.45)';
+      cx.fillText(d.pret[r] ? '● prêt' : '○ règle son tir', r === 'h' ? 26 : VW - 26, 234);
     }
 
-    /* les impacts */
-    for (const im of d.imp) {
-      cx.fillStyle = im.ok ? '#7fd68f' : 'rgba(247,233,210,.45)';
-      cx.beginPath(); cx.moveTo(im.x, SOL + 8); cx.lineTo(im.x - 7, SOL + 22); cx.lineTo(im.x + 7, SOL + 22); cx.closePath(); cx.fill();
-      if (moi === 'h') {
-        const dd = Math.round(im.x - d.cible);
-        cx.font = '600 13px Jost, sans-serif'; cx.textAlign = 'center'; cx.fillStyle = '#b99a8e';
-        cx.fillText((dd > 0 ? '+' : '') + dd, im.x, SOL + 38);
-      }
-    }
+    /* la cible */
+    const cible = d.cible;
+    cx.strokeStyle = '#e8b558'; cx.lineWidth = 4;
+    cx.beginPath(); cx.arc(cible, SOL - 4, 30, Math.PI, 0); cx.stroke();
+    cx.strokeStyle = '#c8384a'; cx.lineWidth = 4;
+    cx.beginPath(); cx.arc(cible, SOL - 4, 18, Math.PI, 0); cx.stroke();
+    cx.fillStyle = '#e8b558'; cx.beginPath(); cx.arc(cible, SOL - 4, 6, 0, 6.3); cx.fill();
+    cx.fillStyle = '#3d2a1c'; cx.fillRect(cible - 34, SOL - 2, 68, 8);
 
-    /* le boulet humain */
+    /* les boulets */
     if (d.vol) {
       const el = t - d.vol.t0;
-      if (el >= 0) {
-        const f = Math.min(el / (1000 / 60), d.vol.duree / (1000 / 60));
-        const x = d.vol.x0 + d.vol.vx * f;
-        const y = d.vol.y0 - (d.vol.vy * f - d.vol.g * f * f / 2);
-        artiste(x, y, moi === 'h' ? 'g' : 'h', 0.85, undefined, f * 0.05);
-        /* la traînée */
-        cx.strokeStyle = 'rgba(255,226,168,.35)'; cx.lineWidth = 2;
+      if (el >= 0) for (const r of ['h', 'g']) {
+        const v = d.vol[r], f = Math.min(el / (1000 / 60), v.duree / (1000 / 60));
+        const x = v.x0 + v.vx * f, y = v.y0 - (v.vy * f - v.g * f * f / 2);
+        cx.strokeStyle = COUL[r].c + '55'; cx.lineWidth = 2;
         cx.beginPath();
         for (let k = 0; k <= f; k += 4) {
-          const xx = d.vol.x0 + d.vol.vx * k, yy = d.vol.y0 - (d.vol.vy * k - d.vol.g * k * k / 2);
+          const xx = v.x0 + v.vx * k, yy = v.y0 - (v.vy * k - v.g * k * k / 2);
           k ? cx.lineTo(xx, yy) : cx.moveTo(xx, yy);
         }
         cx.stroke();
+        artiste(x, y, r, 0.8, undefined, f * 0.04 * v.sens);
       }
     }
-
-    /* la jauge de poudre — visible seulement par l'artiste 2 */
-    if (moi === 'g' || st.ph !== 'jeu') {
-      const bx = 120, by = 250;
-      cx.fillStyle = 'rgba(0,0,0,.45)'; cx.fillRect(bx, by, 34, 150);
-      cx.fillStyle = '#e8b558'; cx.fillRect(bx, by + 150 - 150 * d.pui / 100, 34, 150 * d.pui / 100);
-      cx.strokeStyle = 'rgba(247,233,210,.4)'; cx.strokeRect(bx, by, 34, 150);
-      cx.font = '400 24px "Alfa Slab One", serif'; cx.textAlign = 'center'; cx.fillStyle = '#e8b558';
-      cx.fillText(d.pui, bx + 17, by - 12);
-      cx.font = '400 12px Jost, sans-serif'; cx.fillStyle = '#b99a8e';
-      cx.fillText('POUDRE', bx + 17, by + 168);
-    }
-    /* l'angle — visible seulement par l'artiste 1 */
-    if (moi === 'h' || st.ph !== 'jeu') {
-      cx.font = '400 24px "Alfa Slab One", serif'; cx.textAlign = 'left'; cx.fillStyle = '#e8b558';
-      cx.fillText(d.ang + '°', 108, 250);
-      cx.font = '400 12px Jost, sans-serif'; cx.fillStyle = '#b99a8e';
-      cx.fillText('ANGLE', 108, 268);
+    /* les impacts de la manche */
+    for (const r of ['h', 'g']) {
+      if (d.imp[r] === undefined) continue;
+      cx.fillStyle = COUL[r].c2;
+      cx.beginPath(); cx.moveTo(d.imp[r], SOL + 8); cx.lineTo(d.imp[r] - 7, SOL + 24); cx.lineTo(d.imp[r] + 7, SOL + 24); cx.closePath(); cx.fill();
     }
 
-    /* qui est prêt */
-    cx.textAlign = 'center'; cx.font = '600 16px Jost, sans-serif';
-    cx.fillStyle = d.pret.h ? COUL.h.c2 : 'rgba(185,154,142,.35)';
-    cx.fillText('● ' + (st.nm.h || 'A1'), VW / 2 - 95, 248);
-    cx.fillStyle = d.pret.g ? COUL.g.c2 : 'rgba(185,154,142,.35)';
-    cx.fillText('● ' + (st.nm.g || 'A2'), VW / 2 + 95, 248);
-
-    cx.font = '400 15px Jost, sans-serif'; cx.fillStyle = '#b99a8e';
-    cx.fillText('Filet ' + (d.c + 1) + '/' + this.CIBLES + ' · tir ' + Math.min(d.tir + 1, this.TIRS) + '/' + this.TIRS, VW / 2, 214);
-    etoiles(d.gagnees, this.CIBLES, 60);
+    cx.font = '400 15px Jost, sans-serif'; cx.textAlign = 'center'; cx.fillStyle = '#b99a8e';
+    cx.fillText('Manche ' + (d.m + 1) + ' / ' + this.MANCHES, VW / 2, 196);
+    cx.font = '400 26px "Alfa Slab One", serif';
+    cx.fillStyle = COUL.h.c2; cx.textAlign = 'right'; cx.fillText(String(d.pts.h), VW / 2 - 24, 200);
+    cx.fillStyle = '#b99a8e'; cx.textAlign = 'center'; cx.fillText('–', VW / 2, 200);
+    cx.fillStyle = COUL.g.c2; cx.textAlign = 'left'; cx.fillText(String(d.pts.g), VW / 2 + 24, 200);
   }
-},
+}
+,
 
 /* =========================================================
    NUMÉRO 5 — LES MASSUES  (le rythme croisé)
@@ -1048,6 +1261,7 @@ can: {
    ========================================================= */
 jon: {
   nom: 'Les Massues',
+  genre: 'duo',
   sous: 'Rattrape au bon instant, renvoie sans réfléchir.',
   consigne: () => 'Appuie EXACTEMENT quand une massue arrive dans tes mains. Elles vont accélérer.',
   DUREE: 62000, FEN: 175, HOLD: 260,
@@ -1193,185 +1407,89 @@ jon: {
     const reste = Math.max(0, this.DUREE - (t - d.t0));
     minuteur(reste / this.DUREE, (reste / 1000).toFixed(0) + ' s');
   }
-},
-
-/* =========================================================
-   NUMÉRO 6 — LE MIROIR DU MAGICIEN  (la mémoire à deux voix)
-   La formule s'affiche à moitié pour l'un, à moitié pour l'autre.
-   ========================================================= */
-mir: {
-  nom: 'Le Miroir',
-  sous: 'Chacun ne voit que la moitié de la formule.',
-  consigne() {
-    const d = st.d;
-    if (d.f === 'montre') return 'Retiens les symboles que TU vois. L\'autre voit les autres. Dites-les à voix haute.';
-    if (d.f === 'joue') return (this.tour() === moi ? 'À TOI : clique le symbole n°' + (d.pos + 1) + '.' : 'À l\'autre de jouer. Dicte-lui ce que tu as vu.');
-    return '…';
-  },
-  SYM: ['⭐', '🎩', '🐘', '🤹', '🎈', '🦁', '🥁', '🎪'],
-  MANCHES: [4, 6, 8],
-  XS: [140, 245, 350, 455, 560, 665, 770, 875],
-  YS: 470,
-
-  init() { st.d = { m: 0, vies: 3, reussies: 0, seq: [], pos: 0, f: 'attente', k: 0, t0: 0, fini: 0 }; this.manche(); },
-
-  manche() {
-    const d = st.d, n = this.MANCHES[d.m];
-    d.seq = Array.from({ length: n }, () => Math.floor(Math.random() * 8));
-    d.pos = 0; d.k = -1; d.f = 'montre'; d.t0 = tps();
-    diffuse();
-    const pas = 950;
-    for (let i = 0; i < n; i++) tard(() => { d.k = i; diffuse(); }, 600 + i * pas);
-    tard(() => { d.k = -1; d.f = 'joue'; d.tj = tps(); diffuse(); }, 600 + n * pas + 400);
-  },
-
-  tour() { return st.d.pos % 2 === 0 ? 'h' : 'g'; },
-
-  action(qui, a) {
-    const d = st.d;
-    if (a.k !== 'sym' || d.f !== 'joue') return;
-    if (qui !== this.tour()) return;
-    /* le réseau peut livrer deux fois le même clic : on refuse ce qui
-       ne concerne plus la position en cours, sinon un double-clic coûte une vie */
-    if (a.p !== undefined && a.p !== d.pos) return;
-    if (a.i === d.seq[d.pos]) {
-      d.pos++; d.tj = tps();
-      if (d.pos >= d.seq.length) {
-        d.reussies++; d.f = 'gagne'; confettis(80, VW / 2, 300); diffuse();
-        tard(() => { if (d.m + 1 >= this.MANCHES.length) this.termine(); else { d.m++; this.manche(); } }, 2000);
-      } else diffuse();
-    } else this.echoue('Formule brisée.');
-  },
-
-  echoue(txt) {
-    const d = st.d;
-    if (d.f !== 'joue') return;
-    d.vies--; d.f = 'rate'; diffuse();
-    toast(txt + ' Il reste ' + Math.max(0, d.vies) + ' essai(s).');
-    tard(() => {
-      if (d.vies <= 0 || d.m + 1 >= this.MANCHES.length) return this.termine();
-      d.m++; this.manche();
-    }, 2000);
-  },
-
-  /* si celui dont c'est le tour ne joue jamais, on ne bloque pas le spectacle */
-  tick() {
-    if (!hote || st.d.fini) return;
-    if (st.d.f === 'joue' && tps() - (st.d.tj || 0) > 90000) this.echoue('Trop long !');
-  },
-
-  pose(i) {
-    if (st.d.f !== 'joue' || this.tour() !== moi) return;
-    if (tps() - (this.der || 0) < 350) return;      /* anti-rebond local */
-    this.der = tps();
-    jouer({ k: 'sym', i, p: st.d.pos });
-  },
-  clic(x, y) {
-    for (let i = 0; i < 8; i++) {
-      if (Math.abs(x - this.XS[i]) < 48 && Math.abs(y - this.YS) < 48) { this.pose(i); return; }
-    }
-  },
-  touche(e) {
-    const i = '12345678'.indexOf(e.key);
-    if (i >= 0) this.pose(i);
-  },
-
-  termine() {
-    if (st.d.fini) return; st.d.fini = 1;
-    purge();
-    const p = st.d.reussies * 6 + st.d.vies * 2;
-    tard(() => finActe('Le miroir', st.d.reussies + ' formule(s) sur ' + this.MANCHES.length + '.', p, p), 600);
-  },
-
-  cmd() {
-    if (st.d.f === 'joue') return `<p class="etiq">Clique un symbole (ou touches 1 à 8)</p>`;
-    return `<p class="etiq">Regarde bien…</p>`;
-  },
-
-  dessine(t) {
-    const d = st.d;
-
-    /* le grand miroir */
-    cx.save();
-    cx.translate(VW / 2, 268);
-    const g = cx.createLinearGradient(0, -150, 0, 150);
-    g.addColorStop(0, 'rgba(120,180,200,.20)'); g.addColorStop(1, 'rgba(40,20,40,.55)');
-    cx.fillStyle = g;
-    cx.beginPath(); cx.ellipse(0, 0, 190, 150, 0, 0, 6.3); cx.fill();
-    cx.lineWidth = 12; cx.strokeStyle = '#e8b558';
-    cx.beginPath(); cx.ellipse(0, 0, 190, 150, 0, 0, 6.3); cx.stroke();
-    cx.lineWidth = 3; cx.strokeStyle = 'rgba(255,240,200,.5)';
-    cx.beginPath(); cx.ellipse(0, 0, 178, 138, 0, 0, 6.3); cx.stroke();
-    cx.restore();
-
-    /* le symbole en cours d'affichage */
-    if (d.f === 'montre' && d.k >= 0) {
-      const pourMoi = (d.k % 2 === 0 ? 'h' : 'g') === moi;
-      cx.textAlign = 'center'; cx.textBaseline = 'middle';
-      if (pourMoi) {
-        const age = 1;
-        cx.font = '96px system-ui, "Segoe UI Emoji", sans-serif';
-        cx.globalAlpha = age; cx.fillText(this.SYM[d.seq[d.k]], VW / 2, 262); cx.globalAlpha = 1;
-      } else {
-        cx.font = '400 84px "Alfa Slab One", serif'; cx.fillStyle = 'rgba(185,154,142,.35)';
-        cx.fillText('?', VW / 2, 268);
-      }
-      cx.textBaseline = 'alphabetic';
-      cx.font = '400 15px Jost, sans-serif'; cx.fillStyle = pourMoi ? '#e8b558' : '#b99a8e';
-      cx.fillText(pourMoi ? 'symbole ' + (d.k + 1) + ' — POUR TOI' : 'symbole ' + (d.k + 1) + ' — pour l\'autre', VW / 2, 356);
-    }
-    if (d.f === 'joue' || d.f === 'gagne' || d.f === 'rate') {
-      /* la formule en train de se reconstituer */
-      const n = d.seq.length, larg = Math.min(64, 520 / n);
-      for (let i = 0; i < n; i++) {
-        const x = VW / 2 + (i - (n - 1) / 2) * larg, y = 266;
-        const fait = i < d.pos || d.f === 'gagne';
-        cx.fillStyle = fait ? 'rgba(232,181,88,.9)' : 'rgba(0,0,0,.35)';
-        cx.beginPath(); cx.roundRect(x - larg / 2 + 3, y - 24, larg - 6, 48, 6); cx.fill();
-        if (fait) {
-          cx.textAlign = 'center'; cx.textBaseline = 'middle';
-          cx.font = Math.round(larg * 0.55) + 'px system-ui, "Segoe UI Emoji", sans-serif';
-          cx.fillText(this.SYM[d.seq[i]], x, y);
-          cx.textBaseline = 'alphabetic';
-        } else {
-          cx.fillStyle = i === d.pos ? COUL[this.tour()].c2 : 'rgba(185,154,142,.4)';
-          cx.font = '600 20px Jost, sans-serif'; cx.textAlign = 'center';
-          cx.fillText(String(i + 1), x, y + 7);
-        }
-      }
-      if (d.f === 'joue') {
-        cx.font = '400 22px "Alfa Slab One", serif'; cx.textAlign = 'center';
-        cx.fillStyle = COUL[this.tour()].c2;
-        cx.fillText('à ' + (st.nm[this.tour()] || (this.tour() === 'h' ? 'Artiste 1' : 'Artiste 2')), VW / 2, 356);
-      }
-      if (d.f === 'gagne') { cx.font = '400 34px "Alfa Slab One", serif'; cx.fillStyle = '#7fd68f'; cx.textAlign = 'center'; cx.fillText('FORMULE COMPLÈTE', VW / 2, 200); }
-      if (d.f === 'rate') { cx.font = '400 34px "Alfa Slab One", serif'; cx.fillStyle = '#ff9aa8'; cx.textAlign = 'center'; cx.fillText('RATÉ', VW / 2, 200); }
-    }
-
-    /* le pupitre de symboles */
-    const actif = d.f === 'joue' && this.tour() === moi;
-    for (let i = 0; i < 8; i++) {
-      const x = this.XS[i], y = this.YS;
-      cx.fillStyle = actif ? 'rgba(232,181,88,.16)' : 'rgba(0,0,0,.30)';
-      cx.beginPath(); cx.roundRect(x - 44, y - 42, 88, 84, 10); cx.fill();
-      cx.strokeStyle = actif ? '#e8b558' : 'rgba(247,233,210,.16)'; cx.lineWidth = 2;
-      cx.beginPath(); cx.roundRect(x - 44, y - 42, 88, 84, 10); cx.stroke();
-      cx.textAlign = 'center'; cx.textBaseline = 'middle';
-      cx.globalAlpha = actif ? 1 : .45;
-      cx.font = '42px system-ui, "Segoe UI Emoji", sans-serif';
-      cx.fillText(this.SYM[i], x, y - 4);
-      cx.globalAlpha = 1; cx.textBaseline = 'alphabetic';
-      cx.font = '600 12px Jost, sans-serif'; cx.fillStyle = 'rgba(185,154,142,.6)';
-      cx.fillText(String(i + 1), x, y + 34);
-    }
-
-    coeurs(d.vies, 3);
-    cx.font = '400 15px Jost, sans-serif'; cx.textAlign = 'left'; cx.fillStyle = '#b99a8e';
-    cx.fillText('Formule ' + (d.m + 1) + ' / ' + this.MANCHES.length + ' · ' + d.seq.length + ' symboles', 26, 206);
-  }
 }
 
 };
+
+/* ============ le panneau des numéros à questions ============ */
+function enroule(txt, maxL) {
+  const mots = String(txt).split(' '), lignes = [];
+  let l = '';
+  for (const m of mots) {
+    const essai = l ? l + ' ' + m : m;
+    if (cx.measureText(essai).width > maxL && l) { lignes.push(l); l = m; }
+    else l = essai;
+  }
+  if (l) lignes.push(l);
+  return lignes;
+}
+
+function panneauQuestion(txt, n, N, rep, rev, lire, couleur, bonne) {
+  const PX = VW / 2, PY = 300, PL = 720;
+
+  cx.fillStyle = 'rgba(20,7,11,.62)';
+  cx.beginPath(); cx.roundRect(PX - PL / 2, 172, PL, 240, 14); cx.fill();
+  cx.strokeStyle = 'rgba(232,181,88,.55)'; cx.lineWidth = 2;
+  cx.beginPath(); cx.roundRect(PX - PL / 2, 172, PL, 240, 14); cx.stroke();
+
+  cx.textAlign = 'center';
+  cx.font = '600 12px Jost, sans-serif'; cx.fillStyle = '#b99a8e';
+  cx.fillText('QUESTION ' + (n + 1) + ' / ' + N, PX, 200);
+
+  cx.font = '400 27px "Alfa Slab One", serif'; cx.fillStyle = '#f7e9d2';
+  const lignes = enroule(txt, PL - 70);
+  const y0 = 246 - (lignes.length - 1) * 18;
+  lignes.forEach((l, i) => cx.fillText(l, PX, y0 + i * 36));
+
+  /* les deux réponses */
+  for (const r of ['h', 'g']) {
+    const x = r === 'h' ? PX - 175 : PX + 175, y = 342;
+    const aRepondu = rep && rep[r] !== undefined && rep[r] !== null;
+    cx.font = '600 13px Jost, sans-serif'; cx.fillStyle = COUL[r].c2;
+    cx.fillText((st.nm[r] || (r === 'h' ? 'Artiste 1' : 'Artiste 2')) + (r === moi ? ' (toi)' : ''), x, y - 22);
+    cx.fillStyle = rev ? (couleur || 'rgba(232,181,88,.16)') : 'rgba(0,0,0,.32)';
+    cx.globalAlpha = rev ? .22 : 1;
+    cx.beginPath(); cx.roundRect(x - 160, y - 12, 320, 44, 8); cx.fill();
+    cx.globalAlpha = 1;
+    cx.strokeStyle = aRepondu ? COUL[r].c : 'rgba(247,233,210,.14)'; cx.lineWidth = 1.5;
+    cx.beginPath(); cx.roundRect(x - 160, y - 12, 320, 44, 8); cx.stroke();
+    cx.font = '500 16px Jost, sans-serif';
+    if (rev) {
+      cx.fillStyle = '#f7e9d2';
+      const t = String(lire(r));
+      const ls = enroule(t, 300);
+      cx.fillText(ls[0] + (ls.length > 1 ? '…' : ''), x, y + 16);
+    } else {
+      cx.fillStyle = aRepondu ? '#7fd68f' : 'rgba(185,154,142,.5)';
+      cx.fillText(aRepondu ? '✓ a répondu' : 'réfléchit…', x, y + 16);
+    }
+  }
+
+  if (rev && bonne) {
+    cx.font = '400 18px "Alfa Slab One", serif'; cx.fillStyle = '#7fd68f';
+    cx.fillText('Bonne réponse : ' + bonne, PX, 400);
+  }
+
+  artiste(120, 496, 'h', 1, -0.9);
+  artiste(VW - 120, 496, 'g', 1, -2.3);
+}
+
+/* ============ réagir sans un mot ============ */
+let bulles = [];
+function emote(e, de) { bulles.push({ e, de, t0: performance.now() }); if (bulles.length > 24) bulles.shift(); }
+function envoiEmote(e) { emote(e, moi); if (!solo) envoie({ t: 'EMO', e }); }
+function dessineBulles(now) {
+  for (const b of bulles) {
+    const a = (now - b.t0) / 2600;
+    if (a > 1) continue;
+    cx.globalAlpha = a < .12 ? a / .12 : 1 - Math.max(0, (a - .68) / .32);
+    cx.font = Math.round(30 + a * 16) + 'px system-ui, "Segoe UI Emoji", sans-serif';
+    cx.textAlign = 'center';
+    cx.fillText(b.e, (b.de === 'h' ? 120 : VW - 120) + Math.sin(a * 7) * 14, 440 - a * 210);
+  }
+  cx.globalAlpha = 1;
+  bulles = bulles.filter(b => now - b.t0 < 2600);
+}
 
 /* ============ petits affichages partagés ============ */
 function coeurs(v, max) {
@@ -1401,13 +1519,15 @@ function minuteur(k, txt) {
 /* ============ prédiction locale (funambule) ============ */
 const L = { incl: 0, vit: 0, av: 0, cumul: 0, der: 0 };
 function corrigeFunambule(m) {
-  /* correction douce, sauf après une chute où l'on recale sec */
-  if (m.dur) { L.incl = m.incl; L.vit = m.vit; L.av = m.av; }
+  /* l'inclinaison se recale en douceur pour ne pas sauter à l'écran ;
+     l'avancée, elle, suit l'hôte au pixel près — elle bouge lentement,
+     et c'est elle qui décide de la traversée */
+  if (m.dur) { L.incl = m.incl; L.vit = m.vit; }
   else {
-    L.incl = lerp(L.incl, m.incl, .3);
-    L.vit = lerp(L.vit, m.vit, .3);
-    L.av = lerp(L.av, m.av, .3);
+    L.incl = lerp(L.incl, m.incl, .35);
+    L.vit = lerp(L.vit, m.vit, .35);
   }
+  L.av = m.av;
   if (st && st.d) { st.d.vies = m.vies; st.d.noeud = m.noeud; st.d.fini = m.fini; }
 }
 
@@ -1447,6 +1567,7 @@ function boucle(now) {
   fond(now);                       /* le décor vit sur l'horloge locale */
   if (st && st.ph === 'jeu') { cx.textAlign = 'left'; ACTES[st.acte].dessine(tps()); }
   majConfettis(1 / 60);
+  dessineBulles(now);
   rideaux(rid);
   cx.restore();
   cx.restore();
@@ -1481,33 +1602,46 @@ function rendu() {
 
   const a = ACTES[st.acte];
 
+  $('#num-genre').textContent = GENRES[a.genre] || '';
+  $('#num-genre').className = 'chip ' + (a.genre || 'duo');
+
   if (st.ph === 'annonce') {
     $('#rideau-txt').hidden = false;
     $('#rt-titre').textContent = 'Numéro ' + (st.i + 1) + ' — ' + a.nom;
-    $('#rt-sous').textContent = a.sous;
+    $('#rt-sous').textContent = (GENRES[a.genre] ? GENRES[a.genre] + ' · ' : '') + a.sous;
     $('#b-suite').hidden = true;
     $('#consigne').textContent = a.sous;
     $('#cmd').innerHTML = ''; sigCmd = '';
   } else if (st.ph === 'bilan') {
+    const b = st.bilan;
     $('#rideau-txt').hidden = false;
-    $('#rt-titre').textContent = st.bilan ? st.bilan.titre : '';
-    $('#rt-sous').textContent = (st.bilan ? st.bilan.sous + ' ' : '') +
-      (st.bilan && st.bilan.ph ? '+' + st.bilan.ph + ' ★ chacun.' : 'Aucune étoile cette fois.');
+    $('#rt-titre').textContent = b ? b.titre : '';
+    $('#rt-sous').textContent = (b ? b.sous + ' ' : '') + (!b ? '' :
+      b.ph === b.pg
+        ? (b.ph ? '+' + b.ph + ' ★ chacun.' : 'Aucune étoile cette fois.')
+        : '+' + b.ph + ' ★ pour ' + (st.nm.h || 'Artiste 1') + ', +' + b.pg + ' ★ pour ' + (st.nm.g || 'Artiste 2') + '.');
     $('#b-suite').hidden = false;
     $('#b-suite').textContent = st.i + 1 >= st.total ? 'Le salut final ★' : 'Numéro suivant →';
     $('#cmd').innerHTML = ''; sigCmd = '';
   } else {
     $('#rideau-txt').hidden = true;
     $('#consigne').textContent = a.consigne();
+    const d = st.d;
+    /* on ne reconstruit les commandes que si leur contenu change vraiment :
+       sinon on casserait un curseur en plein glissement */
     const sig = [
-      st.acte, st.ph, moi, st.d.f || '',
-      st.acte === 'ass' ? a.baguette() : '',
-      st.acte === 'can' ? st.d.c : '',
-      st.acte === 'tra' ? (st.d.taps && st.d.taps[moi] !== undefined ? 1 : 0) + (st.d.anim ? 2 : 0) : ''
+      st.acte, st.ph, moi,
+      d.n ?? '', d.m ?? '', d.sujet ?? '',
+      d.rev ? 1 : 0,
+      d.rep && d.rep[moi] !== undefined ? 1 : 0,
+      d.pret && d.pret[moi] ? 1 : 0,
+      d.vol ? 1 : 0,
+      st.acte === 'tra' ? (d.taps && d.taps[moi] !== undefined ? 1 : 0) + (d.anim ? 2 : 0) : ''
     ].join('|');
     if (sig !== sigCmd) { sigCmd = sig; $('#cmd').innerHTML = a.cmd ? a.cmd() : ''; }
   }
 
+  $('#emobar').hidden = false;
   $('#bascule').hidden = !solo;
   if (solo) $('#switch-nom').textContent = moi === 'h' ? (st.nm.h || 'Artiste 1') : 'Artiste 2';
 }
@@ -1552,6 +1686,12 @@ window.addEventListener('keyup', e => {
 $('#b-switch').addEventListener('click', () => {
   moi = moi === 'h' ? 'g' : 'h'; autre = moi === 'h' ? 'g' : 'h';
   sigCmd = ''; rendu();
+});
+
+/* ---------- les emotes : se répondre sans se parler ---------- */
+$('#emobar').addEventListener('click', e => {
+  const b = e.target.closest('[data-e]');
+  if (b) envoiEmote(b.dataset.e);
 });
 
 /* en solo, l'hôte joue aussi le rôle de l'invité : pas de réseau du tout */

@@ -1,0 +1,153 @@
+jon: {
+  nom: 'Les Massues',
+  sous: 'Rattrape au bon instant, renvoie sans réfléchir.',
+  consigne: () => 'Appuie EXACTEMENT quand une massue arrive dans tes mains. Elles vont accélérer.',
+  DUREE: 62000, FEN: 175, HOLD: 260,
+  XH: 250, XG: 750, YM: 386,
+
+  init() {
+    const t = tps() + 1500;
+    st.d = { t0: t, vies: 3, passes: 0, seq: 1, fini: 0, cl: [{ id: 1, de: 'h', vers: 'g', t0: t, duree: 1600 }] };
+  },
+
+  action(qui, a) {
+    const d = st.d;
+    if (a.k !== 'att') return;
+    const c = d.cl.find(x => x.id === a.id);
+    if (!c || c.vers !== qui || c.pris) return;
+    const err = Math.abs(a.err || 0);
+    if (err > this.FEN) { this.rate(c, 'trop ' + ((a.err || 0) < 0 ? 'tôt' : 'tard')); return; }
+    c.pris = 1;
+    const arr = c.t0 + c.duree;
+    d.passes++;
+    const nd = Math.max(620, c.duree * 0.962);
+    d.cl = d.cl.filter(x => x.id !== c.id);
+    d.cl.push({ id: ++d.seq, de: c.vers, vers: c.de, t0: arr + this.HOLD, duree: nd });
+    diffuse();
+  },
+
+  rate(c, pourquoi) {
+    const d = st.d;
+    c.rate = tps();
+    d.cl = d.cl.filter(x => x.id !== c.id);
+    d.vies--;
+    toast('Massue tombée (' + pourquoi + ') — ' + Math.max(0, d.vies) + ' vie(s)');
+    if (d.vies <= 0) { this.termine(); return; }
+    /* on la relance depuis le sol, un peu plus lente */
+    tard(() => {
+      d.cl.push({ id: ++d.seq, de: c.de, vers: c.vers, t0: tps() + 900, duree: Math.min(1700, c.duree * 1.10) });
+      diffuse();
+    }, 1200);
+    diffuse();
+  },
+
+  tick() {
+    if (!hote) return;
+    const d = st.d, t = tps(), el = t - d.t0;
+    if (d.fini) return;
+    /* nouvelles massues */
+    const veut = el > 34000 ? 4 : el > 20000 ? 3 : el > 9000 ? 2 : 1;
+    if (d.cl.length < veut) {
+      d.cl.push({ id: ++d.seq, de: d.cl.length % 2 ? 'g' : 'h', vers: d.cl.length % 2 ? 'h' : 'g', t0: t + 700, duree: 1500 });
+      diffuse();
+    }
+    /* massues manquées */
+    for (const c of [...d.cl]) {
+      if (!c.pris && t > c.t0 + c.duree + this.FEN + 60 + (solo ? 0 : rtt)) { this.rate(c, 'pas rattrapée'); return; }
+    }
+    if (el > this.DUREE) this.termine();
+  },
+
+  termine() {
+    if (st.d.fini) return; st.d.fini = 1;
+    purge();
+    const d = st.d, complet = tps() - d.t0 >= this.DUREE;
+    const p = Math.min(18, Math.round(d.passes / 2.2)) + (complet ? 4 : 0);
+    tard(() => finActe(
+      complet ? 'Le numéro tient !' : 'Massues au sol',
+      d.passes + ' passe(s) réussie(s).', p, p), 800);
+  },
+
+  /* la massue la plus proche de mes mains, si elle m'est destinée */
+  ma(t) {
+    let best = null, bd = 1e9;
+    for (const c of st.d.cl) {
+      if (c.vers !== moi || c.pris) continue;
+      const dd = Math.abs(t - (c.t0 + c.duree));
+      if (dd < bd) { bd = dd; best = c; }
+    }
+    return best && bd < 900 ? { c: best, err: t - (best.t0 + best.duree) } : null;
+  },
+
+  cmd() {
+    return `<button class="gros-bouton ${moi === 'h' ? 'rouge' : 'bleu'}" data-a="att">RATTRAPER</button>`;
+  },
+  bouton(k) {
+    if (k !== 'att') return;
+    const m = this.ma(tps());
+    if (!m) { toast('Rien dans tes mains…'); return; }
+    jouer({ k: 'att', id: m.c.id, err: m.err });
+  },
+  touche(e) { if (e.code === 'Space' || e.code === 'Enter') this.bouton('att'); },
+
+  pos(c, t) {
+    const u = clamp((t - c.t0) / c.duree, 0, 1);
+    const x0 = c.de === 'h' ? this.XH : this.XG, x1 = c.vers === 'h' ? this.XH : this.XG;
+    return { x: lerp(x0, x1, u), y: this.YM - 4 * 190 * u * (1 - u), u };
+  },
+
+  dessine(t) {
+    const d = st.d;
+    /* les deux jongleurs */
+    const mainH = d.cl.some(c => c.vers === 'h' && Math.abs(t - (c.t0 + c.duree)) < 260);
+    const mainG = d.cl.some(c => c.vers === 'g' && Math.abs(t - (c.t0 + c.duree)) < 260);
+    artiste(this.XH, 470, 'h', 1.15, mainH ? -1.5 : -0.9);
+    artiste(this.XG, 470, 'g', 1.15, mainG ? -1.5 : -0.9);
+
+    /* trajectoires fantômes */
+    cx.strokeStyle = 'rgba(232,181,88,.10)'; cx.lineWidth = 2;
+    for (const c of d.cl) {
+      cx.beginPath();
+      for (let k = 0; k <= 24; k++) {
+        const u = k / 24, x = lerp(c.de === 'h' ? this.XH : this.XG, c.vers === 'h' ? this.XH : this.XG, u);
+        const y = this.YM - 4 * 190 * u * (1 - u);
+        k ? cx.lineTo(x, y) : cx.moveTo(x, y);
+      }
+      cx.stroke();
+    }
+
+    for (const c of d.cl) {
+      if (t < c.t0 - 40) continue;
+      const p = this.pos(c, t);
+      const rot = (t - c.t0) / 150;
+      cx.save(); cx.translate(p.x, p.y); cx.rotate(rot);
+      cx.fillStyle = '#f7e9d2';
+      cx.beginPath(); cx.moveTo(0, -22); cx.quadraticCurveTo(9, 0, 5, 20);
+      cx.lineTo(-5, 20); cx.quadraticCurveTo(-9, 0, 0, -22); cx.fill();
+      cx.fillStyle = c.vers === 'h' ? COUL.h.c : COUL.g.c;
+      cx.beginPath(); cx.arc(0, -20, 7, 0, 6.3); cx.fill();
+      cx.restore();
+
+      /* l'anneau de rattrapage : se resserre à l'arrivée */
+      const reste = (c.t0 + c.duree) - t;
+      if (c.vers === moi && reste < 800 && reste > -this.FEN) {
+        const k = clamp(Math.abs(reste) / 800, 0, 1);
+        const cxx = c.vers === 'h' ? this.XH : this.XG;
+        cx.strokeStyle = Math.abs(reste) < this.FEN ? '#7fd68f' : 'rgba(232,181,88,.8)';
+        cx.lineWidth = 3;
+        cx.beginPath(); cx.arc(cxx, this.YM, 22 + k * 78, 0, 6.3); cx.stroke();
+      }
+    }
+
+    coeurs(d.vies, 3);
+    cx.textAlign = 'center'; cx.font = '400 30px "Alfa Slab One", serif'; cx.fillStyle = '#e8b558';
+    cx.fillText(d.passes + ' passes', VW / 2, 200);
+    const reste = Math.max(0, this.DUREE - (t - d.t0));
+    minuteur(reste / this.DUREE, (reste / 1000).toFixed(0) + ' s');
+  }
+},
+
+/* =========================================================
+   NUMÉRO 6 — LE MIROIR DU MAGICIEN  (la mémoire à deux voix)
+   La formule s'affiche à moitié pour l'un, à moitié pour l'autre.
+   ========================================================= */

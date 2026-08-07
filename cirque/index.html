@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Le Petit Cirque 🎪</title>
-  <meta name="description" content="Six numéros à deux, sous le chapiteau.">
+  <meta name="description" content="Huit numéros à deux, sous le chapiteau.">
   <meta name="robots" content="noindex">
   <meta name="theme-color" content="#2b0f16">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎪</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=1">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
@@ -22,7 +22,7 @@
   <div class="affiche">
     <p class="petit">Ce soir, une seule représentation</p>
     <h1 class="chapiteau">Le Petit<br>Cirque</h1>
-    <p class="sous">Six numéros. Deux artistes. Un seul chapiteau.</p>
+    <p class="sous">Huit numéros : à deux, en duel, et des questions sur vous.</p>
 
     <label class="lab" for="nom">Ton nom d'artiste</label>
     <input class="in" id="nom" maxlength="14" placeholder="Enzo" autocomplete="off">
@@ -63,7 +63,7 @@
 <section class="ec" id="e-piste">
   <div class="enseigne">
     <span class="score s1"><b id="p1">0</b><i id="n1">—</i></span>
-    <span class="numero"><b id="num-lab">Numéro 1 / 6</b><i id="num-nom">—</i></span>
+    <span class="numero"><b id="num-lab">Numéro 1 / 8</b><i id="num-nom">—</i><em class="chip" id="num-genre"></em></span>
     <span class="score s2"><i id="n2">—</i><b id="p2">0</b></span>
   </div>
 
@@ -75,6 +75,14 @@
     <p class="rt-titre" id="rt-titre"></p>
     <p class="rt-sous" id="rt-sous"></p>
     <button class="btn" id="b-suite">Numéro suivant →</button>
+  </div>
+
+  <div class="emobar" id="emobar" hidden>
+    <button data-e="❤️" title="Envoyer un cœur">❤️</button>
+    <button data-e="😂" title="Rire">😂</button>
+    <button data-e="😱" title="Panique">😱</button>
+    <button data-e="👏" title="Bravo">👏</button>
+    <button data-e="😤" title="Grrr">😤</button>
   </div>
 
   <div class="bascule" id="bascule" hidden>
@@ -97,6 +105,7 @@
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<script src="jeu.js?v=1"></script>
+<script src="contenu.js?v=2"></script>
+<script src="jeu.js?v=2"></script>
 </body>
 </html>
