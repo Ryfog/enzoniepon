@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Écoute ça 💗</title>
+  <meta name="description" content="Une chanson, et ce que j'ai à te dire dessus.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#12061f">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💗</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;1,300;1,500&family=Karla:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+
+<canvas id="cv"></canvas>
+<div id="lecteur"></div>
+
+<!-- ============ AVANT DE LANCER ============ -->
+<section class="ec on" id="e-debut">
+  <div class="carte">
+    <div class="coeur-bat">💗</div>
+    <p class="sur">Pour toi</p>
+    <h1 class="titre">Mets le son</h1>
+    <p class="chapo">Monte le volume, et laisse-toi porter.<br>J'ai quelque chose à te dire par-dessus.</p>
+    <button class="btn" id="b-lancer">▶ Lancer</button>
+    <p class="note" id="note-debut">Le son se lance avec la chanson — pense à ne pas être en silencieux.</p>
+  </div>
+</section>
+
+<!-- ============ LE DÉFILÉ ============ -->
+<section class="ec" id="e-show">
+  <p class="ligne" id="ligne"></p>
+  <div class="commandes">
+    <button class="rond" id="b-pause" title="Pause">⏸</button>
+    <div class="jauge"><i id="jauge-in"></i></div>
+  </div>
+  <p class="reglage" id="reglage" hidden></p>
+</section>
+
+<!-- ============ LA FIN ============ -->
+<section class="ec" id="e-fin">
+  <div class="carte">
+    <div class="coeur-bat">💗</div>
+    <h2 class="titre petit">Voilà.</h2>
+    <p class="chapo" id="fin-txt">C'est tout ce que j'avais à te dire.<br>Et je te le redirai demain.</p>
+    <button class="btn creux" id="b-rejouer">Réécouter</button>
+  </div>
+</section>
+
+<script src="chanson.js?v=1"></script>
+</body>
+</html>
