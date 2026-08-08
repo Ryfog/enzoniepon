@@ -15,5 +15,6 @@ Disallow: /questions/
 Disallow: /cirque/
 Disallow: /engarde/
 Disallow: /pont/
+Disallow: /calin/
 
 Sitemap: https://enzoniepon.fr/sitemap.xml

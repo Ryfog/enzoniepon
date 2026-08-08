@@ -1,0 +1,212 @@
+@charset "UTF-8";
+/* =========================================================
+   POUR TOI — tout est rond, tout est rose.
+   ========================================================= */
+
+:root{
+  --rose:#ffd9e6;
+  --rose2:#ffc2d8;
+  --fraise:#ff86ae;
+  --framboise:#e6497e;
+  --creme:#fff7fa;
+  --choco:#7b4a55;
+  --or:#f7c66b;
+  --miel:#c98f6a;
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  margin:0;background:var(--rose);color:var(--choco);
+  font-family:'Quicksand',system-ui,sans-serif;font-weight:500;line-height:1.6;
+  overflow:hidden;-webkit-user-select:none;user-select:none;
+}
+/* le château en fond ; en pseudo-élément fixe plutôt qu'en
+   background-attachment:fixed, qui saute sur iPhone */
+body::before{
+  content:'';position:fixed;inset:0;z-index:-1;
+  background:url(chateau.webp) center center / cover no-repeat var(--rose);
+}
+@media(max-width:760px){
+  body::before{background-image:url(chateau-petit.webp)}
+}
+#cv{position:fixed;inset:0;width:100%;height:100%;display:block}
+
+.ec{
+  position:fixed;inset:0;z-index:2;display:none;
+  align-items:center;justify-content:center;flex-direction:column;padding:20px 14px;
+}
+.ec.on{display:flex}
+
+/* ---------- cartes ---------- */
+.carte{
+  /* largeur calculée sur la fenêtre : un pourcentage dans un conteneur
+     flex peut déraper, calc() non */
+  width:min(440px,calc(100vw - 30px));min-width:0;text-align:center;
+  /* verre dépoli : le château reste deviné derrière, le texte reste net */
+  background:rgba(255,247,250,.93);
+  backdrop-filter:blur(10px) saturate(1.08);
+  -webkit-backdrop-filter:blur(10px) saturate(1.08);
+  border:3px solid #fff;border-radius:32px;
+  padding:30px 24px 26px;
+  box-shadow:0 18px 0 rgba(230,73,126,.10), 0 26px 50px rgba(230,73,126,.18);
+  animation:pop .5s cubic-bezier(.2,1.3,.4,1) both;
+  max-height:94vh;overflow-y:auto;
+}
+.carte.large{width:min(540px,calc(100vw - 30px))}
+.carte.rose{background:linear-gradient(180deg,rgba(255,247,250,.95),rgba(255,230,240,.95))}
+@keyframes pop{from{opacity:0;transform:scale(.9) translateY(14px)}to{opacity:1;transform:none}}
+
+.ours-titre{font-size:3.4rem;line-height:1;margin-bottom:8px;animation:danse 2.6s ease-in-out infinite}
+.gros-ours{font-size:5.4rem}
+@keyframes danse{0%,100%{transform:rotate(-7deg) translateY(0)}50%{transform:rotate(7deg) translateY(-8px)}}
+
+.sur{
+  font-size:.68rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--fraise);font-weight:700;margin:0 0 10px;
+}
+.titre{
+  font-family:'Fredoka',sans-serif;font-weight:600;
+  font-size:clamp(2rem,9vw,2.9rem);line-height:1.08;margin:0 0 14px;
+  color:var(--framboise);
+}
+.titre.petit{font-size:clamp(1.5rem,6vw,2rem)}
+.chapo{color:var(--choco);margin:0 0 22px;font-size:.97rem}
+.chapo b{color:var(--framboise);font-weight:700}
+.mini{font-size:.78rem;color:#b98b98;margin:12px 0 0}
+
+.btn{
+  font-family:'Fredoka',sans-serif;font-weight:600;font-size:1.05rem;
+  border:none;border-radius:99px;padding:14px 34px;cursor:pointer;color:#fff;
+  background:linear-gradient(160deg,var(--fraise),var(--framboise));
+  box-shadow:0 6px 0 #c73a68;
+  transition:transform .1s,box-shadow .1s,filter .2s;
+}
+.btn:hover{filter:brightness(1.05)}
+.btn:active{transform:translateY(5px);box-shadow:0 1px 0 #c73a68}
+.btn.gros{font-size:1.15rem;padding:16px 42px}
+.btn.creux{background:#fff;color:var(--framboise);box-shadow:0 5px 0 var(--rose2)}
+.btn.creux:active{box-shadow:0 1px 0 var(--rose2)}
+
+/* ---------- la phrase gagnée ---------- */
+.phrase{
+  font-family:'Fredoka',sans-serif;font-weight:500;
+  font-size:1.18rem;color:var(--framboise);line-height:1.5;
+  margin:6px 0 20px;
+}
+.carnet{
+  text-align:left;margin:0 0 20px;padding:14px 16px;
+  background:#fff;border-radius:18px;border:2px dashed var(--rose2);
+  font-size:.85rem;color:#a97f8c;line-height:1.7;
+}
+.carnet div{margin:0 0 4px}
+.carnet div.neuf{color:var(--framboise);font-weight:700}
+.carnet div.vide{opacity:.45}
+
+/* ---------- la lettre ---------- */
+.cadre-ours{
+  width:150px;height:150px;margin:0 auto 18px;
+  border-radius:50%;overflow:hidden;
+  border:6px solid #fff;
+  box-shadow:0 10px 0 rgba(230,73,126,.12), 0 0 0 4px var(--rose2);
+  animation:respire 3.4s ease-in-out infinite;
+}
+@keyframes respire{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.cadre-ours img{width:100%;height:100%;object-fit:cover;display:block}
+
+.lettre{
+  font-family:'Fredoka',sans-serif;font-weight:400;
+  font-size:1.06rem;line-height:1.75;color:var(--choco);
+  text-align:left;margin:0 0 6px;
+  overflow-wrap:break-word;hyphens:auto;
+}
+.lettre p{margin:0 0 14px;opacity:0;transform:translateY(10px);animation:apparait .8s ease-out forwards}
+.lettre p:last-child{color:var(--framboise);font-weight:600}
+@keyframes apparait{to{opacity:1;transform:none}}
+/* filet de sécurité : quoi qu'il arrive à l'animation, la lettre s'affiche */
+.lettre.tout-vu p{opacity:1;transform:none}
+.signe{
+  text-align:right;font-family:'Fredoka',sans-serif;
+  color:var(--fraise);font-size:.95rem;margin:0 0 20px;
+}
+
+/* =========================================================
+   LE JEU
+   ========================================================= */
+#e-jeu{justify-content:flex-start;pointer-events:none}
+#e-jeu > *{pointer-events:auto}
+
+.barre{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  width:min(560px,100%);margin:2px auto 0;padding:9px 18px;
+  background:rgba(255,255,255,.82);border-radius:99px;
+  box-shadow:0 6px 0 rgba(230,73,126,.09);
+  backdrop-filter:blur(6px);
+}
+.coeurs{display:flex;gap:5px;font-size:1.05rem;line-height:1}
+.coeurs span{filter:grayscale(1);opacity:.4;transition:.3s}
+.coeurs span.on{filter:none;opacity:1;transform:scale(1.15)}
+.score-jeu{
+  font-family:'Fredoka',sans-serif;font-weight:600;color:var(--framboise);
+  font-size:1rem;white-space:nowrap;
+}
+
+.aide{
+  margin:12px auto 0;max-width:min(520px,92%);text-align:center;
+  font-size:.9rem;color:var(--choco);pointer-events:none;
+  background:rgba(255,255,255,.72);border-radius:99px;padding:7px 18px;
+}
+
+/* ---------- memory ---------- */
+.grille{
+  position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+  width:min(400px,90%);
+}
+.grille[hidden]{display:none}
+.carte-jeu{
+  aspect-ratio:1;border-radius:18px;border:none;cursor:pointer;
+  background:linear-gradient(160deg,var(--fraise),var(--framboise));
+  box-shadow:0 5px 0 #c73a68;
+  font-size:1.9rem;display:flex;align-items:center;justify-content:center;
+  transition:transform .18s,background .18s;
+}
+.carte-jeu span{opacity:0;transition:opacity .1s}
+.carte-jeu.ouverte{background:#fff;box-shadow:0 5px 0 var(--rose2)}
+.carte-jeu.ouverte span{opacity:1}
+.carte-jeu.trouvee{background:#fff2f7;box-shadow:0 5px 0 var(--rose2);cursor:default;animation:tremble .4s}
+.carte-jeu.trouvee span{opacity:1}
+@keyframes tremble{0%,100%{transform:scale(1)}40%{transform:scale(1.14)}}
+
+/* ---------- commande ---------- */
+.commande{
+  position:fixed;left:50%;bottom:6%;transform:translateX(-50%);
+  display:flex;justify-content:center;width:min(460px,92%);
+}
+.commande:empty{display:none}
+.bouton-tenir{
+  font-family:'Fredoka',sans-serif;font-weight:600;font-size:1.2rem;
+  border:none;border-radius:99px;padding:20px 50px;cursor:pointer;color:#fff;
+  background:linear-gradient(160deg,var(--fraise),var(--framboise));
+  box-shadow:0 7px 0 #c73a68;touch-action:none;
+}
+.bouton-tenir:active{transform:translateY(5px);box-shadow:0 2px 0 #c73a68}
+
+.bulle{
+  position:fixed;left:50%;bottom:20%;transform:translateX(-50%);z-index:9;
+  background:#fff;border-radius:99px;padding:10px 22px;
+  font-family:'Fredoka',sans-serif;color:var(--framboise);
+  box-shadow:0 6px 0 rgba(230,73,126,.14);animation:pop .3s both;
+}
+.bulle[hidden]{display:none}
+
+@media(max-width:560px){
+  .carte{padding:26px 18px 22px;border-radius:26px}
+  .ours-titre{font-size:2.8rem}
+  .grille{gap:8px}
+  .carte-jeu{font-size:1.5rem;border-radius:14px}
+  .lettre{font-size:.98rem}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}

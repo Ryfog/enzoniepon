@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Pour toi 🧸💗</title>
+  <meta name="description" content="Un petit quelque chose, rien que pour toi.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#ffd9e6">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧸</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+
+<canvas id="cv"></canvas>
+
+<!-- ============ ACCUEIL ============ -->
+<section class="ec on" id="e-accueil">
+  <div class="carte">
+    <div class="ours-titre">🧸</div>
+    <p class="sur">Coucou toi</p>
+    <h1 class="titre">J'ai un truc<br>à te dire</h1>
+    <p class="chapo">Mais je te le donne pas comme ça.<br>
+      Il y a <b>cinq petits jeux</b> — un mot pour chacun.<br>
+      À la fin tu auras tout. 💗</p>
+    <button class="btn gros" id="b-go">C'est parti</button>
+    <p class="mini" id="reprise" hidden></p>
+  </div>
+</section>
+
+<!-- ============ ANNONCE DU JEU ============ -->
+<section class="ec" id="e-annonce">
+  <div class="carte">
+    <div class="ours-titre" id="a-emoji">🧸</div>
+    <p class="sur" id="a-num">Jeu 1 sur 5</p>
+    <h2 class="titre petit" id="a-nom">—</h2>
+    <p class="chapo" id="a-regle">—</p>
+    <button class="btn gros" id="b-jouer">Allez !</button>
+  </div>
+</section>
+
+<!-- ============ LE JEU ============ -->
+<section class="ec" id="e-jeu">
+  <div class="barre">
+    <div class="coeurs" id="coeurs"></div>
+    <div class="score-jeu" id="score-jeu">—</div>
+  </div>
+  <p class="aide" id="aide">—</p>
+  <div class="grille" id="grille" hidden></div>
+  <div class="commande" id="commande"></div>
+</section>
+
+<!-- ============ LE MOT GAGNÉ ============ -->
+<section class="ec" id="e-mot">
+  <div class="carte rose">
+    <div class="ours-titre">💗</div>
+    <p class="sur">Tu as gagné un morceau</p>
+    <p class="phrase" id="mot-txt">—</p>
+    <div class="carnet" id="carnet"></div>
+    <button class="btn gros" id="b-suite">La suite</button>
+  </div>
+</section>
+
+<!-- ============ LA LETTRE ============ -->
+<section class="ec" id="e-lettre">
+  <div class="carte large">
+    <p class="sur">Voilà, tu as tout</p>
+    <div class="cadre-ours">
+      <img src="nounours.webp" alt="Le nounours" id="photo-ours">
+    </div>
+    <div class="lettre" id="lettre"></div>
+    <p class="signe">— ton amoureux</p>
+    <button class="btn gros" id="b-calin">🫂 Viens là</button>
+  </div>
+</section>
+
+<!-- ============ LE CÂLIN ============ -->
+<section class="ec" id="e-calin">
+  <div class="carte">
+    <div class="ours-titre gros-ours">🧸</div>
+    <h2 class="titre petit">Câlin pris.</h2>
+    <p class="chapo">Et je te le redonne demain, et après-demain, et tous les autres jours.</p>
+    <button class="btn creux" id="b-relire">Relire la lettre</button>
+  </div>
+</section>
+
+<div class="bulle" id="bulle" hidden></div>
+
+<script src="jeu.js?v=1"></script>
+</body>
+</html>
