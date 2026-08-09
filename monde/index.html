@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Notre Monde 🌍💗</title>
+  <meta name="description" content="Un monde rien qu'à nous deux.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0f1b33">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+
+<canvas id="cv"></canvas>
+
+<!-- ============ OUVERTURE ============ -->
+<section class="ouverture" id="ouverture">
+  <div class="o-boite">
+    <div class="o-globe">🌍</div>
+    <p class="o-sur">J'ai construit quelque chose pour toi</p>
+    <h1 class="o-titre">Notre<br>Monde</h1>
+    <p class="o-txt">Un monde entier, rien qu'à nous.<br>
+      Tout ce que je t'ai offert y existe pour de vrai.<br>
+      <b>Explore-le du doigt, et trouve les cœurs.</b></p>
+    <button class="o-btn" id="b-entrer">Entrer dans notre monde</button>
+  </div>
+</section>
+
+<!-- ============ HABILLAGE DU MONDE ============ -->
+<div class="hud" id="hud" hidden>
+  <div class="hud-haut">
+    <span class="compte" id="compte">💗 0 / 10</span>
+    <span class="heure" id="heure">—</span>
+  </div>
+  <div class="boussole" id="boussole" title="Vers le prochain cœur">
+    <span id="aiguille">➤</span>
+  </div>
+  <p class="astuce" id="astuce">Fais glisser la carte pour explorer</p>
+</div>
+
+<!-- ============ CARTE D'UN LIEU ============ -->
+<div class="fiche" id="fiche" hidden>
+  <div class="f-carte">
+    <div class="f-emoji" id="f-emoji">💗</div>
+    <p class="f-nom" id="f-nom">—</p>
+    <p class="f-txt" id="f-txt">—</p>
+    <button class="o-btn petit" id="b-fermer">Continuer à explorer</button>
+  </div>
+</div>
+
+<!-- ============ LA FIN ============ -->
+<div class="fiche" id="final" hidden>
+  <div class="f-carte grande">
+    <div class="f-emoji">⭐</div>
+    <p class="f-nom">Tu as trouvé les dix cœurs.</p>
+    <p class="f-txt" id="final-txt">Ce monde, je l'ai construit morceau par morceau — comme tout ce que je t'ai donné depuis le début. Chaque endroit ici, c'est un truc que j'ai fait pour toi.<br><br>
+    Et tu as vu le petit bateau, au milieu de la mer ? Il avance tous les jours. Il n'a pas le choix : il va vers toi.<br><br>
+    <b>Je t'aime. Regarde-le avancer chaque jour, et le 16 septembre, il accoste.</b></p>
+    <button class="o-btn petit" id="b-final-fermer">Rester dans notre monde</button>
+  </div>
+</div>
+
+<script src="monde.js?v=1"></script>
+</body>
+</html>

@@ -17,5 +17,6 @@ Disallow: /engarde/
 Disallow: /pont/
 Disallow: /calin/
 Disallow: /chanson/
+Disallow: /monde/
 
 Sitemap: https://enzoniepon.fr/sitemap.xml
