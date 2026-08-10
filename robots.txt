@@ -18,5 +18,6 @@ Disallow: /pont/
 Disallow: /calin/
 Disallow: /chanson/
 Disallow: /monde/
+Disallow: /film/
 
 Sitemap: https://enzoniepon.fr/sitemap.xml
