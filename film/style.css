@@ -20,6 +20,8 @@ body{
   -webkit-user-select:none;user-select:none;
 }
 #cv{position:fixed;inset:0;width:100%;height:100%;display:block}
+/* le lecteur de la chanson : présent mais invisible, on ne veut que le son */
+#lecteur{position:fixed;left:-20px;top:-20px;width:2px;height:2px;opacity:.01;pointer-events:none}
 
 /* --- les bandes noires : elles se referment quand on n'est pas en séance --- */
 .bande{

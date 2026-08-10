@@ -577,7 +577,49 @@ function carton(k, t) {
 }
 
 /* =========================================================
-   LA MUSIQUE — fabriquée à la volée
+   LA CHANSON — le vrai morceau, joué par le lecteur YouTube.
+   Rien n'est copié : c'est la vidéo d'origine qui tourne, sans image.
+   Si elle refuse de se lancer (hors ligne, intégration bloquée),
+   on retombe sur la musique fabriquée plus bas.
+   ========================================================= */
+const VIDEO = 'HpGzKpBEHsM';
+let yt = null, ytPret = false, ytMort = false;
+
+function chargeYT() {
+  const s = document.createElement('script');
+  s.src = 'https://www.youtube.com/iframe_api';
+  s.onerror = () => { ytMort = true; };
+  document.head.appendChild(s);
+  /* si l'API ne répond pas, on n'attend pas indéfiniment */
+  setTimeout(() => { if (!ytPret) ytMort = true; }, 6000);
+}
+window.onYouTubeIframeAPIReady = () => {
+  try {
+    yt = new YT.Player('lecteur', {
+      videoId: VIDEO,
+      playerVars: { playsinline: 1, controls: 0, rel: 0, modestbranding: 1 },
+      events: {
+        onReady: () => { ytPret = true; if (joue) demarreChanson(); },
+        onError: () => { ytMort = true; }
+      }
+    });
+  } catch (e) { ytMort = true; }
+};
+chargeYT();
+
+function demarreChanson() {
+  if (!yt || !ytPret) return false;
+  try {
+    yt.seekTo(0, true);
+    yt.setVolume(sonCoupe ? 0 : 82);
+    yt.playVideo();
+    return true;
+  } catch (e) { ytMort = true; return false; }
+}
+const chansonJoue = () => yt && ytPret && !ytMort;
+
+/* =========================================================
+   LA MUSIQUE DE SECOURS — fabriquée à la volée
    ========================================================= */
 let ac = null, maitre = null, sonCoupe = false;
 const freq = m => 440 * Math.pow(2, (m - 69) / 12);
@@ -690,7 +732,7 @@ function boucle(now) {
   derImage = now;
   if (joue) {
     tFilm += dt;
-    musique(tFilm);
+    if (!chansonJoue()) musique(tFilm);      /* seulement si la chanson n'a pas pris */
     if (tFilm >= DUREE && !finMontree) termine();
   }
   dessine();
@@ -706,15 +748,20 @@ function lance() {
   $('#e-fin').classList.remove('on');
   document.body.classList.add('projection');
   $('#commandes').hidden = false;
-  ouvreAudio();
-  if (ac) {
-    ac.resume();
-    prochaineNote = ac.currentTime + .2;
-    maitre.gain.cancelScheduledValues(ac.currentTime);
-    maitre.gain.setValueAtTime(0, ac.currentTime);
-    maitre.gain.linearRampToValueAtTime(sonCoupe ? 0 : .9, ac.currentTime + 2.5);
-  }
   joue = true;
+
+  /* d'abord la vraie chanson ; la musique fabriquée n'est qu'un filet */
+  const lancee = demarreChanson();
+  if (!lancee) {
+    ouvreAudio();
+    if (ac) {
+      ac.resume();
+      prochaineNote = ac.currentTime + .2;
+      maitre.gain.cancelScheduledValues(ac.currentTime);
+      maitre.gain.setValueAtTime(0, ac.currentTime);
+      maitre.gain.linearRampToValueAtTime(sonCoupe ? 0 : .9, ac.currentTime + 2.5);
+    }
+  }
   reveille();
 }
 $('#b-jouer').addEventListener('click', lance);
@@ -726,6 +773,14 @@ function termine() {
   $('#commandes').hidden = true;
   $('#soustitre').classList.remove('vu');
   if (ac) maitre.gain.linearRampToValueAtTime(0, ac.currentTime + 3);
+  /* la chanson s'éteint doucement au lieu d'être coupée net */
+  if (chansonJoue()) {
+    let v = 82, fondu = setInterval(() => {
+      v -= 4;
+      try { yt.setVolume(Math.max(0, v)); } catch (e) {}
+      if (v <= 0) { clearInterval(fondu); try { yt.pauseVideo(); } catch (e) {} }
+    }, 110);
+  }
   $('#mot-fin').innerHTML = JOURS > 0
     ? 'Il reste <b>' + JOURS + ' jour' + (JOURS > 1 ? 's' : '') + '</b>.<br>Je les compte avec toi.'
     : 'C\'est aujourd\'hui.<br>Viens là.';
@@ -735,11 +790,13 @@ function termine() {
 $('#b-pause').addEventListener('click', () => {
   joue = !joue;
   $('#b-pause').textContent = joue ? 'II' : '▶';
+  if (chansonJoue()) { try { joue ? yt.playVideo() : yt.pauseVideo(); } catch (e) {} }
   if (ac) joue ? ac.resume() : ac.suspend();
 });
 $('#b-son').addEventListener('click', () => {
   sonCoupe = !sonCoupe;
   $('#b-son').classList.toggle('eteint', sonCoupe);
+  if (chansonJoue()) { try { yt.setVolume(sonCoupe ? 0 : 82); } catch (e) {} }
   if (ac) maitre.gain.linearRampToValueAtTime(sonCoupe ? 0 : .9, ac.currentTime + .4);
 });
 
