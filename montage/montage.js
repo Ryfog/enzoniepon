@@ -146,16 +146,23 @@ const HAUT_PHOTO = .46;        /* hauteur d'un tirage, en part d'écran */
 const TRANSIT = 1.9;           /* le temps que met la lampe d'une photo à l'autre */
 const espace = () => Math.max(W * 1.02, H * .95);
 
-/* la position de la caméra : elle s'arrête sur chaque photo, puis glisse */
-function avancee() {
+/* La caméra s'arrête sur chaque photo, puis glisse vers la suivante.
+   `avance` = 0 au début du transit, 1 à la fin — la boule s'en sert
+   pour partir en avance et arriver avant l'image. */
+function progression(retard) {
   for (let i = 0; i < plan.length; i++) {
     const o = plan[i];
-    if (t < o.a) return i > 0 ? i - 1 + doux(sat(plan[i - 1].b - TRANSIT, plan[i - 1].b, t)) : 0;
-    if (t < o.b - TRANSIT) return i;
-    if (t < o.b) return i + doux(sat(o.b - TRANSIT, o.b, t));
+    if (t < o.a) return { p: i, saut: 0 };
+    if (t < o.b - TRANSIT) return { p: i, saut: 0 };
+    if (t < o.b) {
+      const brut = sat(o.b - TRANSIT, o.b, t);
+      const k = clamp(brut / retard, 0, 1);      /* la boule finit son vol plus tôt */
+      return { p: i + doux(k), saut: Math.sin(clamp(brut, 0, 1) * Math.PI) };
+    }
   }
-  return plan.length - 1;
+  return { p: plan.length - 1, saut: 0 };
 }
+const avancee = () => progression(1).p;
 
 /* la taille d'un tirage, à l'échelle du mur */
 function tirage(im) {
@@ -208,28 +215,66 @@ function salle(now, cam) {
   return sol;
 }
 
-/* ---------- la lampe : un cône chaud, au centre ---------- */
-function lampe(now, force) {
-  const lx = W * .5, ly = -H * .12;
+/* ---------- la boule de magie ---------- */
+let trainee = [];
+
+function boule(now, bx, by, vol) {
+  /* la traînée : des étincelles qui restent un instant derrière elle */
+  if (trainee.length > 90) trainee.shift();
+  trainee.push({ x: bx, y: by, t: now, r: 1.6 + Math.random() * 3.4 + vol * 3 });
+
   cx.save();
   cx.globalCompositeOperation = 'screen';
-  const large = W * .40;
-  const g = cx.createLinearGradient(0, ly, 0, H * .95);
-  g.addColorStop(0, `rgba(255,232,196,${.20 * force})`);
-  g.addColorStop(.55, `rgba(255,224,180,${.075 * force})`);
-  g.addColorStop(1, 'rgba(255,220,175,0)');
+
+  for (const s of trainee) {
+    const age = (now - s.t) / 900;
+    if (age > 1) continue;
+    cx.globalAlpha = (1 - age) * (.34 + vol * .3);
+    cx.fillStyle = '#ffe6b4';
+    cx.beginPath(); cx.arc(s.x, s.y, s.r * (1 - age * .7), 0, 6.3); cx.fill();
+  }
+  cx.globalAlpha = 1;
+
+  /* le grand halo qu'elle projette sur le mur */
+  const bat = 1 + Math.sin(now * .004) * .07;
+  const R = H * (.42 + vol * .12) * bat;
+  const g = cx.createRadialGradient(bx, by, 2, bx, by, R);
+  g.addColorStop(0, 'rgba(255,240,206,.50)');
+  g.addColorStop(.16, 'rgba(255,226,168,.24)');
+  g.addColorStop(.45, 'rgba(255,214,150,.08)');
+  g.addColorStop(1, 'rgba(255,210,150,0)');
   cx.fillStyle = g;
-  cx.beginPath();
-  cx.moveTo(lx - 26, ly); cx.lineTo(lx - large, H * 1.02);
-  cx.lineTo(lx + large, H * 1.02); cx.lineTo(lx + 26, ly);
-  cx.closePath(); cx.fill();
-  /* la poussière qui danse dedans */
+  cx.beginPath(); cx.arc(bx, by, R, 0, 6.3); cx.fill();
+
+  /* le cœur de la boule */
+  const gg = cx.createRadialGradient(bx, by, 0, bx, by, 26 * bat);
+  gg.addColorStop(0, 'rgba(255,255,250,1)');
+  gg.addColorStop(.35, 'rgba(255,242,208,.9)');
+  gg.addColorStop(1, 'rgba(255,226,168,0)');
+  cx.fillStyle = gg;
+  cx.beginPath(); cx.arc(bx, by, 26 * bat, 0, 6.3); cx.fill();
+  cx.fillStyle = '#fffdf6';
+  cx.beginPath(); cx.arc(bx, by, 4.6 * bat, 0, 6.3); cx.fill();
+
+  /* les paillettes qui tournent autour */
+  for (let i = 0; i < 9; i++) {
+    const a = now * .0012 * (i % 2 ? 1 : -1) + i * .7;
+    const rr = 30 + i * 7 + Math.sin(now * .002 + i) * 9;
+    cx.globalAlpha = .30 + .45 * (.5 + .5 * Math.sin(now * .003 + i * 2));
+    cx.fillStyle = '#fff0cc';
+    cx.beginPath(); cx.arc(bx + Math.cos(a) * rr, by + Math.sin(a) * rr * .7, 1.5, 0, 6.3); cx.fill();
+  }
+
+  /* la poussière qu'elle réveille autour d'elle */
   for (const d of GRAINS) {
     const y = ((d.y - now * d.v * .000018) % 1.1 + 1.1) % 1.1 - .05;
-    const x = .5 + (d.x - .5) * .62 + Math.sin(now * .0005 + d.p) * .035;
-    cx.globalAlpha = (.12 + .22 * (.5 + .5 * Math.sin(now * .0016 + d.p))) * force;
+    const x = d.x;
+    const px = x * W, py = y * H;
+    const dist = Math.hypot(px - bx, py - by) / (H * .5);
+    if (dist > 1) continue;
+    cx.globalAlpha = (1 - dist) * (.14 + .26 * (.5 + .5 * Math.sin(now * .0016 + d.p)));
     cx.fillStyle = '#fff0d6';
-    cx.beginPath(); cx.arc(x * W, y * H, d.r, 0, 6.3); cx.fill();
+    cx.beginPath(); cx.arc(px, py, d.r, 0, 6.3); cx.fill();
   }
   cx.restore();
 }
@@ -286,21 +331,28 @@ function dessine(now) {
   cx.setTransform(dpr, 0, 0, dpr, 0, 0);
   cx.clearRect(0, 0, W, H);
 
-  const av = avancee();
-  const sol = salle(now, av * espace());
+  const cam = progression(1);                 /* la caméra suit */
+  const bou = progression(.62);               /* la boule part devant */
+  const ESP = espace();
+  const sol = salle(now, cam.p * ESP);
+
+  /* où se trouve la boule à l'écran, et son envol pendant le trajet */
+  const bx = W / 2 + (bou.p - cam.p) * ESP;
+  const by = H * .46 - bou.saut * H * .26 + Math.sin(now * .0016) * 7;
+  const vol = bou.saut;
 
   /* on ne dessine que les tirages proches : les autres sont hors champ */
-  const ESP = espace();
   for (let i = 0; i < plan.length; i++) {
-    const d = i - av;
-    if (Math.abs(d) > 1.6) continue;
+    const d = i - cam.p;
+    if (Math.abs(d) > 1.7) continue;
     const ecx = W / 2 + d * ESP;
-    /* la lampe est au centre : plus on s'en éloigne, plus on est dans le noir */
-    const eclat = Math.pow(clamp(1 - Math.abs(d) / .62, 0, 1), .8);
+    /* c'est la boule qui éclaire : plus elle est loin, plus l'image reste dans l'ombre */
+    const dist = Math.hypot(ecx - bx, H * .46 - by) / (ESP * .58);
+    const eclat = Math.pow(clamp(1 - dist, 0, 1), .75);
     accroche(images[plan[i].p.f], ecx, sol, eclat, 1);
   }
 
-  lampe(now, 1);
+  boule(now, bx, by, vol);
 
   /* noir d'ouverture et de fin */
   const noir = Math.max(1 - sat(0, OUVERTURE, t), sat(DUREE - 1.8, DUREE, t));
