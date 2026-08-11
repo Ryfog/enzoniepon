@@ -19,5 +19,6 @@ Disallow: /calin/
 Disallow: /chanson/
 Disallow: /monde/
 Disallow: /film/
+Disallow: /montage/
 
 Sitemap: https://enzoniepon.fr/sitemap.xml

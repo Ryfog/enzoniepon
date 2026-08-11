@@ -1,0 +1,113 @@
+@charset "UTF-8";
+/* =========================================================
+   NOUS DEUX — un montage photo, en salle obscure.
+   ========================================================= */
+
+:root{
+  --noir:#07060a;
+  --creme:#f6efe8;
+  --or:#e8c9a0;
+  --doux:#9b8f96;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{
+  background:var(--noir);color:var(--creme);
+  font-family:'Manrope',system-ui,sans-serif;line-height:1.6;
+  -webkit-user-select:none;user-select:none;
+}
+#cv{position:fixed;inset:0;width:100%;height:100%;display:block}
+#lecteur{position:fixed;left:-20px;top:-20px;width:2px;height:2px;opacity:.01;pointer-events:none}
+
+/* --- bandes noires --- */
+.bande{
+  position:fixed;left:0;right:0;height:50vh;background:var(--noir);z-index:3;
+  transition:transform 1.8s cubic-bezier(.6,0,.25,1);pointer-events:none;
+}
+.haut{top:0}.bas{bottom:0}
+body.projection .haut{transform:translateY(calc(-50vh + min(8vh, 9vw)))}
+body.projection .bas{transform:translateY(calc(50vh - min(8vh, 9vw)))}
+body.sans-transition .bande{transition:none}
+
+/* --- grain + halo d'objectif --- */
+.grain{
+  position:fixed;inset:-40%;z-index:4;pointer-events:none;opacity:.10;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='150' height='150' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  animation:bouge .55s steps(3) infinite;
+}
+@keyframes bouge{0%{transform:translate(0,0)}33%{transform:translate(-2%,1%)}66%{transform:translate(1%,-2%)}100%{transform:translate(0,0)}}
+.halo{
+  position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(78% 90% at 50% 46%, rgba(0,0,0,0) 42%, rgba(0,0,0,.55) 100%);
+}
+
+/* --- sous-titres --- */
+.soustitre{
+  position:fixed;left:50%;bottom:min(13vh,14vw);transform:translateX(-50%) translateY(14px);
+  z-index:5;width:min(900px,88vw);text-align:center;pointer-events:none;
+  font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;
+  font-size:clamp(1.3rem,3.5vw,2.3rem);line-height:1.35;
+  color:var(--creme);opacity:0;
+  text-shadow:0 2px 34px rgba(0,0,0,.95), 0 0 70px rgba(0,0,0,.8);
+  transition:opacity 1.1s ease, transform 1.1s cubic-bezier(.2,.9,.3,1);
+}
+.soustitre.vu{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* =========================================================
+   ÉCRANS
+   ========================================================= */
+.ecran{
+  position:fixed;inset:0;z-index:6;display:none;
+  align-items:center;justify-content:center;padding:26px 18px;
+  background:radial-gradient(120% 100% at 50% 40%, rgba(20,16,24,.55), rgba(7,6,10,.96));
+}
+.ecran.on{display:flex}
+.affiche{width:min(520px,100%);text-align:center;animation:monte 1.1s cubic-bezier(.2,.9,.3,1) both}
+@keyframes monte{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+
+.sur{font-size:.62rem;letter-spacing:.44em;text-transform:uppercase;color:var(--or);margin-bottom:22px}
+.titre{
+  font-family:'Cormorant Garamond',serif;font-weight:300;
+  font-size:clamp(3rem,13vw,5.2rem);line-height:.92;margin-bottom:24px;
+}
+.titre em{display:block;font-style:italic;color:var(--or)}
+.dit{color:var(--doux);font-size:1rem;margin-bottom:30px;font-weight:300}
+.mot{
+  font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;
+  font-size:clamp(1.4rem,4.6vw,2.1rem);line-height:1.45;color:var(--creme);margin-bottom:30px;
+}
+.charge{font-size:.72rem;color:#5a5060;margin-top:18px;letter-spacing:.04em;min-height:1.2em}
+
+.bouton{
+  font-family:'Manrope',sans-serif;font-weight:600;font-size:.98rem;letter-spacing:.08em;
+  border:none;border-radius:99px;padding:15px 44px;cursor:pointer;color:#12100f;
+  background:linear-gradient(120deg,var(--or),#d8ac86);
+  box-shadow:0 0 50px rgba(232,201,160,.28);
+  transition:transform .12s,filter .25s,box-shadow .25s;
+}
+.bouton:hover{filter:brightness(1.08);box-shadow:0 0 72px rgba(232,201,160,.42)}
+.bouton:active{transform:translateY(2px)}
+.bouton[disabled]{opacity:.45;pointer-events:none}
+.bouton.creux{background:none;color:var(--creme);border:1px solid rgba(246,239,232,.24);box-shadow:none;font-weight:400}
+.bouton.creux:hover{background:rgba(246,239,232,.07)}
+
+/* --- commandes --- */
+.commandes{
+  position:fixed;left:50%;bottom:2.8vh;transform:translateX(-50%);z-index:7;
+  display:flex;align-items:center;gap:16px;width:min(440px,78vw);
+  opacity:0;transition:opacity .45s;
+}
+.commandes[hidden]{display:none}
+body.montre-commandes .commandes{opacity:.8}
+.rond{
+  width:36px;height:36px;border-radius:50%;flex:0 0 auto;cursor:pointer;
+  border:1px solid rgba(246,239,232,.22);background:rgba(7,6,10,.6);color:var(--creme);
+  font-family:'Manrope',sans-serif;font-size:.76rem;line-height:1;
+}
+.rond:hover{background:rgba(246,239,232,.12)}
+.rond.eteint{opacity:.4}
+.pellicule{flex:1;height:2px;background:rgba(246,239,232,.16);overflow:hidden;border-radius:2px}
+.pellicule i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--or),#e8a0b0)}
+
+@media(prefers-reduced-motion:reduce){.grain{animation:none}.bande{transition-duration:.3s}}
