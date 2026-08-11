@@ -26,8 +26,9 @@ const PHOTOS = [
   /* la capture des messages est petite (319 px) : on la grossit à peine */
   { f: 'messages', poids: 1.05, de: { e: 1.04, x: -.06, y: -.10 }, vers: { e: 1.00, x: .04, y: .10 },
     txt: 'Ça a commencé comme ça. Un soir, des messages.' },
-  /* on reste dans le haut de la photo : la vignette de musique est incrustée en bas */
-  { f: 'stacy',    poids: 1.25, de: { e: 1.16, x: .05, y: .68 },  vers: { e: 1.02, x: -.03, y: .46 },
+  /* la photo a été recadrée sur son visage : la vignette de musique incrustée
+     dans la story d'origine tombait en plein milieu */
+  { f: 'stacy',    poids: 1.25, de: { e: 1.14, x: .05, y: .08 },  vers: { e: 1.00, x: -.03, y: -.06 },
     txt: 'Et puis il y a eu toi.' },
   { f: 'detail',   poids: .95,  de: { e: 1.06, x: .12, y: .10 },  vers: { e: 1.22, x: -.06, y: -.08 } },
   { f: 'lettre',   poids: 1.40, de: { e: 1.30, x: -.02, y: -.34 }, vers: { e: 1.14, x: .02, y: .30 },
@@ -130,29 +131,107 @@ function taille() {
 window.addEventListener('resize', taille);
 taille();
 
-/* dessine une photo en plein cadre, recadrée et déplacée */
-function photo(im, cad, alpha) {
+/* ---------------------------------------------------------
+   La photo est posée au milieu du noir, en petit, et une
+   lumière la traverse lentement — comme un tirage qu'on
+   éclaire à la main dans une pièce sombre.
+   --------------------------------------------------------- */
+const PART = 0.56;                       /* la photo occupe 56 % de la hauteur : elle reste au milieu, le texte a sa place dessous */
+
+function boite(im, e) {
+  const rc = im.naturalWidth / im.naturalHeight;
+  let h = H * PART * e, l = h * rc;
+  const lMax = W * 0.58 * e;
+  if (l > lMax) { l = lMax; h = l / rc; }
+  return { l, h, x: (W - l) / 2, y: (H - h) / 2 };
+}
+
+/* le halo qui la décolle du fond */
+function halo(b, a) {
+  const g = cx.createRadialGradient(W / 2, H / 2, Math.min(b.l, b.h) * .2,
+    W / 2, H / 2, Math.max(b.l, b.h) * 1.25);
+  g.addColorStop(0, `rgba(150,130,120,${.24 * a})`);
+  g.addColorStop(1, 'rgba(0,0,0,0)');
+  cx.fillStyle = g; cx.fillRect(0, 0, W, H);
+}
+
+/* la lumière qui balaie, une seule fois par photo */
+function balaye(b, k, a) {
+  const u = sat(.10, .92, k);
+  const cxx = b.x - b.l * .55 + u * (b.l * 2.1);
+  cx.save();
+  cx.beginPath(); cx.rect(b.x, b.y, b.l, b.h); cx.clip();
+  cx.globalCompositeOperation = 'screen';
+  cx.globalAlpha = a * Math.sin(sat(0, 1, u) * Math.PI) * .95;
+  const larg = Math.max(90, b.l * .22);
+  const g = cx.createLinearGradient(cxx - larg, b.y - b.h * .3, cxx + larg, b.y + b.h * 1.3);
+  g.addColorStop(0, 'rgba(255,236,208,0)');
+  g.addColorStop(.42, 'rgba(255,240,214,.16)');
+  g.addColorStop(.5, 'rgba(255,246,228,.34)');
+  g.addColorStop(.58, 'rgba(255,240,214,.16)');
+  g.addColorStop(1, 'rgba(255,236,208,0)');
+  cx.fillStyle = g; cx.fillRect(b.x, b.y, b.l, b.h);
+  cx.restore();
+}
+
+function photo(im, cad, alpha, k) {
   if (!im || !im.naturalWidth || alpha <= 0) return;
-  const rc = im.naturalWidth / im.naturalHeight, re = W / H;
-  /* on couvre tout l'écran, quitte à rogner */
-  let l, h;
-  if (rc > re) { h = H * cad.e; l = h * rc; }
-  else { l = W * cad.e; h = l / rc; }
-  const x = (W - l) / 2 + cad.x * (l - W) * .5;
-  const y = (H - h) / 2 + cad.y * (h - H) * .5;
+  const b = boite(im, cad.e);
+  /* une dérive très douce, pour que l'image ne soit jamais figée */
+  const dx = cad.x * b.l * .05, dy = cad.y * b.h * .05;
+  const x = b.x + dx, y = b.y + dy;
+
   cx.globalAlpha = alpha;
-  cx.drawImage(im, x, y, l, h);
+  halo(b, alpha);
+
+  /* l'ombre portée : le tirage flotte */
+  cx.save();
+  cx.shadowColor = 'rgba(0,0,0,.85)';
+  cx.shadowBlur = Math.max(30, b.h * .10);
+  cx.shadowOffsetY = 14;
+  cx.fillStyle = '#0b0a0d';
+  cx.fillRect(x, y, b.l, b.h);
+  cx.restore();
+
+  cx.drawImage(im, x, y, b.l, b.h);
+
+  balaye({ ...b, x, y }, k, alpha);
+
+  /* un filet clair sur le bord, comme la marge d'un tirage */
+  cx.strokeStyle = `rgba(232,214,190,${.20 * alpha})`;
+  cx.lineWidth = 1;
+  cx.strokeRect(x + .5, y + .5, b.l - 1, b.h - 1);
   cx.globalAlpha = 1;
 }
 const entre = (a, b, k) => ({ e: lerp(a.e, b.e, k), x: lerp(a.x, b.x, k), y: lerp(a.y, b.y, k) });
 
+/* ---- la poussière qui flotte dans le faisceau ---- */
+const POUSS = Array.from({ length: 60 }, () => ({
+  x: Math.random(), y: Math.random(), r: .5 + Math.random() * 1.6,
+  v: .004 + Math.random() * .012, p: Math.random() * 6.3
+}));
+function poussiere(now) {
+  for (const d of POUSS) {
+    const y = ((d.y - now * d.v * .00004) % 1.1 + 1.1) % 1.1 - .05;
+    const x = d.x + Math.sin(now * .0004 + d.p) * .02;
+    cx.globalAlpha = .10 + .16 * (.5 + .5 * Math.sin(now * .0013 + d.p));
+    cx.fillStyle = '#ffeed6';
+    cx.beginPath(); cx.arc(x * W, y * H, d.r, 0, 6.3); cx.fill();
+  }
+  cx.globalAlpha = 1;
+}
+
 /* ============ PROJECTION ============ */
 let t = 0, joue = false, der = 0, finie = false;
 
-function dessine() {
+function dessine(now) {
   cx.setTransform(dpr, 0, 0, dpr, 0, 0);
   cx.clearRect(0, 0, W, H);
-  cx.fillStyle = '#07060a'; cx.fillRect(0, 0, W, H);
+  /* la pièce sombre : pas un noir plat, un fond qui a du fond */
+  const f = cx.createRadialGradient(W / 2, H * .46, 40, W / 2, H * .5, Math.max(W, H) * .78);
+  f.addColorStop(0, '#16131a'); f.addColorStop(.55, '#0c0a10'); f.addColorStop(1, '#050408');
+  cx.fillStyle = f; cx.fillRect(0, 0, W, H);
+  poussiere(now);
 
   for (const o of plan) {
     if (t < o.a - FONDU || t > o.b + .05) continue;
@@ -163,14 +242,14 @@ function dessine() {
     const a = Math.min(entree, sortie);
     if (a <= 0) continue;
     /* le travelling continue pendant le fondu, sans à-coup */
-    photo(images[o.p.f], entre(o.p.de, o.p.vers, doux(clamp(k, 0, 1))), a);
+    photo(images[o.p.f], entre(o.p.de, o.p.vers, doux(clamp(k, 0, 1))), a, k);
   }
 
   /* le tout premier noir, et le dernier */
   const nOuv = 1 - sat(0, OUVERTURE, t);
   const nFin = sat(DUREE - 1.6, DUREE, t);
   const noir = Math.max(nOuv, nFin);
-  if (noir > 0) { cx.globalAlpha = noir; cx.fillStyle = '#07060a'; cx.fillRect(0, 0, W, H); cx.globalAlpha = 1; }
+  if (noir > 0) { cx.globalAlpha = noir; cx.fillStyle = '#050408'; cx.fillRect(0, 0, W, H); cx.globalAlpha = 1; }
 }
 
 function majCarton() {
@@ -195,7 +274,7 @@ function boucle(now) {
     t += dt;
     if (t >= DUREE && !finie) termine();
   }
-  dessine();
+  dessine(now);
   majCarton();
   $('#avance').style.width = clamp(t / DUREE, 0, 1) * 100 + '%';
 }
