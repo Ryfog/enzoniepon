@@ -23,13 +23,16 @@ const JOURS = Math.max(0, Math.ceil((RETROUVAILLES - new Date()) / 86400000));
    txt    : le carton qui s'affiche par-dessus
    --------------------------------------------------------- */
 const PHOTOS = [
+  /* c'est là que tout a commencé : leur toute première rencontre, en jeu */
+  { f: 'ensemble', poids: 1.35, de: { e: 1.06, x: 0, y: .10 },     vers: { e: 1.00, x: 0, y: -.08 },
+    txt: 'Tout a commencé là. Un jeu, un chien, et toi.' },
   /* la capture des messages est petite (319 px) : on la grossit à peine */
   { f: 'messages', poids: 1.05, de: { e: 1.04, x: -.06, y: -.10 }, vers: { e: 1.00, x: .04, y: .10 },
-    txt: 'Ça a commencé comme ça. Un soir, des messages.' },
+    txt: 'Puis les messages, tard le soir.' },
   /* la photo a été recadrée sur son visage : la vignette de musique incrustée
      dans la story d'origine tombait en plein milieu */
   { f: 'stacy',    poids: 1.25, de: { e: 1.14, x: .05, y: .08 },  vers: { e: 1.00, x: -.03, y: -.06 },
-    txt: 'Et puis il y a eu toi.' },
+    txt: 'Et puis il y a eu toi. Pour de vrai.' },
   { f: 'detail',   poids: .95,  de: { e: 1.06, x: .12, y: .10 },  vers: { e: 1.22, x: -.06, y: -.08 } },
   { f: 'lettre',   poids: 1.40, de: { e: 1.30, x: -.02, y: -.34 }, vers: { e: 1.14, x: .02, y: .30 },
     txt: 'Je t\'ai écrit tout ce que je n\'arrive pas à te dire.' },
@@ -42,8 +45,7 @@ const PHOTOS = [
   { f: 'peche',    poids: .85,  de: { e: 1.02, x: -.12, y: 0 },   vers: { e: 1.18, x: .10, y: .04 },
     txt: 'Et les jours où on ne peut pas se voir…' },
   { f: 'rouge',    poids: .85,  de: { e: 1.20, x: .10, y: -.04 }, vers: { e: 1.04, x: -.08, y: .06 },
-    txt: '…on se retrouve quand même.' },
-  { f: 'ensemble', poids: .95,  de: { e: 1.06, x: 0, y: .12 },    vers: { e: 1.22, x: 0, y: -.10 } },
+    txt: '…on retourne là où tout a commencé.' },
   { f: 'chien',    poids: .75,  de: { e: 1.22, x: -.08, y: -.06 }, vers: { e: 1.04, x: .06, y: .08 } },
   { f: 'voiture',  poids: .80,  de: { e: 1.04, x: .10, y: .06 },  vers: { e: 1.20, x: -.08, y: -.04 },
     txt: 'Ce monde-là compte autant que l\'autre.' },
@@ -131,124 +133,177 @@ function taille() {
 window.addEventListener('resize', taille);
 taille();
 
+/* ============ ÉTAT DE LA PROJECTION ============ */
+let t = 0, joue = false, der = 0, finie = false;
+
 /* ---------------------------------------------------------
-   La photo est posée au milieu du noir, en petit, et une
-   lumière la traverse lentement — comme un tirage qu'on
-   éclaire à la main dans une pièce sombre.
+   LE MUR
+   Les photos sont accrochées côte à côte dans une salle
+   sombre. On avance le long du mur, et une lampe chaude
+   passe de l'une à l'autre, de droite à gauche.
    --------------------------------------------------------- */
-const PART = 0.56;                       /* la photo occupe 56 % de la hauteur : elle reste au milieu, le texte a sa place dessous */
+const HAUT_PHOTO = .46;        /* hauteur d'un tirage, en part d'écran */
+const TRANSIT = 1.9;           /* le temps que met la lampe d'une photo à l'autre */
+const espace = () => Math.max(W * 1.02, H * .95);
 
-function boite(im, e) {
+/* la position de la caméra : elle s'arrête sur chaque photo, puis glisse */
+function avancee() {
+  for (let i = 0; i < plan.length; i++) {
+    const o = plan[i];
+    if (t < o.a) return i > 0 ? i - 1 + doux(sat(plan[i - 1].b - TRANSIT, plan[i - 1].b, t)) : 0;
+    if (t < o.b - TRANSIT) return i;
+    if (t < o.b) return i + doux(sat(o.b - TRANSIT, o.b, t));
+  }
+  return plan.length - 1;
+}
+
+/* la taille d'un tirage, à l'échelle du mur */
+function tirage(im) {
   const rc = im.naturalWidth / im.naturalHeight;
-  let h = H * PART * e, l = h * rc;
-  const lMax = W * 0.58 * e;
+  let h = H * HAUT_PHOTO, l = h * rc;
+  const lMax = W * .52;
   if (l > lMax) { l = lMax; h = l / rc; }
-  return { l, h, x: (W - l) / 2, y: (H - h) / 2 };
+  return { l, h };
 }
 
-/* le halo qui la décolle du fond */
-function halo(b, a) {
-  const g = cx.createRadialGradient(W / 2, H / 2, Math.min(b.l, b.h) * .2,
-    W / 2, H / 2, Math.max(b.l, b.h) * 1.25);
-  g.addColorStop(0, `rgba(150,130,120,${.24 * a})`);
-  g.addColorStop(1, 'rgba(0,0,0,0)');
+/* ---------- le décor ---------- */
+const ETOILES = (function () {
+  let g = 4271;
+  const r = () => (g = (g * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+  return Array.from({ length: 150 }, () => ({ x: r() * 60, y: r() * .55, r: .4 + r() * 1.5, p: r() * 6.3 }));
+})();
+const GRAINS = (function () {
+  let g = 8821;
+  const r = () => (g = (g * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+  return Array.from({ length: 70 }, () => ({ x: r(), y: r(), r: .5 + r() * 1.7, v: .3 + r() * .9, p: r() * 6.3 }));
+})();
+
+function salle(now, cam) {
+  /* le ciel de la salle : très sombre, un peu de bleu nuit */
+  const g = cx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#080810');
+  g.addColorStop(.52, '#0d0b14');
+  g.addColorStop(.72, '#100c12');
+  g.addColorStop(1, '#060509');
   cx.fillStyle = g; cx.fillRect(0, 0, W, H);
-}
 
-/* la lumière qui balaie, une seule fois par photo */
-function balaye(b, k, a) {
-  const u = sat(.10, .92, k);
-  const cxx = b.x - b.l * .55 + u * (b.l * 2.1);
-  cx.save();
-  cx.beginPath(); cx.rect(b.x, b.y, b.l, b.h); cx.clip();
-  cx.globalCompositeOperation = 'screen';
-  cx.globalAlpha = a * Math.sin(sat(0, 1, u) * Math.PI) * .95;
-  const larg = Math.max(90, b.l * .22);
-  const g = cx.createLinearGradient(cxx - larg, b.y - b.h * .3, cxx + larg, b.y + b.h * 1.3);
-  g.addColorStop(0, 'rgba(255,236,208,0)');
-  g.addColorStop(.42, 'rgba(255,240,214,.16)');
-  g.addColorStop(.5, 'rgba(255,246,228,.34)');
-  g.addColorStop(.58, 'rgba(255,240,214,.16)');
-  g.addColorStop(1, 'rgba(255,236,208,0)');
-  cx.fillStyle = g; cx.fillRect(b.x, b.y, b.l, b.h);
-  cx.restore();
-}
-
-function photo(im, cad, alpha, k) {
-  if (!im || !im.naturalWidth || alpha <= 0) return;
-  const b = boite(im, cad.e);
-  /* une dérive très douce, pour que l'image ne soit jamais figée */
-  const dx = cad.x * b.l * .05, dy = cad.y * b.h * .05;
-  const x = b.x + dx, y = b.y + dy;
-
-  cx.globalAlpha = alpha;
-  halo(b, alpha);
-
-  /* l'ombre portée : le tirage flotte */
-  cx.save();
-  cx.shadowColor = 'rgba(0,0,0,.85)';
-  cx.shadowBlur = Math.max(30, b.h * .10);
-  cx.shadowOffsetY = 14;
-  cx.fillStyle = '#0b0a0d';
-  cx.fillRect(x, y, b.l, b.h);
-  cx.restore();
-
-  cx.drawImage(im, x, y, b.l, b.h);
-
-  balaye({ ...b, x, y }, k, alpha);
-
-  /* un filet clair sur le bord, comme la marge d'un tirage */
-  cx.strokeStyle = `rgba(232,214,190,${.20 * alpha})`;
-  cx.lineWidth = 1;
-  cx.strokeRect(x + .5, y + .5, b.l - 1, b.h - 1);
-  cx.globalAlpha = 1;
-}
-const entre = (a, b, k) => ({ e: lerp(a.e, b.e, k), x: lerp(a.x, b.x, k), y: lerp(a.y, b.y, k) });
-
-/* ---- la poussière qui flotte dans le faisceau ---- */
-const POUSS = Array.from({ length: 60 }, () => ({
-  x: Math.random(), y: Math.random(), r: .5 + Math.random() * 1.6,
-  v: .004 + Math.random() * .012, p: Math.random() * 6.3
-}));
-function poussiere(now) {
-  for (const d of POUSS) {
-    const y = ((d.y - now * d.v * .00004) % 1.1 + 1.1) % 1.1 - .05;
-    const x = d.x + Math.sin(now * .0004 + d.p) * .02;
-    cx.globalAlpha = .10 + .16 * (.5 + .5 * Math.sin(now * .0013 + d.p));
-    cx.fillStyle = '#ffeed6';
-    cx.beginPath(); cx.arc(x * W, y * H, d.r, 0, 6.3); cx.fill();
+  /* les étoiles, très loin : elles bougent à peine quand on avance */
+  const par = cam * .06;
+  for (const e of ETOILES) {
+    const x = ((e.x * W * .3 - par) % (W * 1.3) + W * 1.3) % (W * 1.3) - W * .15;
+    cx.globalAlpha = (.18 + .35 * (.5 + .5 * Math.sin(now * .0012 + e.p)));
+    cx.fillStyle = '#dfe4f0';
+    cx.beginPath(); cx.arc(x, e.y * H * .62, e.r, 0, 6.3); cx.fill();
   }
   cx.globalAlpha = 1;
+
+  /* le sol : une bande sombre et brillante qui reflète */
+  const sol = H * .82;
+  const s = cx.createLinearGradient(0, sol - 20, 0, H);
+  s.addColorStop(0, 'rgba(30,26,36,.9)');
+  s.addColorStop(1, 'rgba(6,5,9,1)');
+  cx.fillStyle = s; cx.fillRect(0, sol - 20, W, H - sol + 20);
+  cx.strokeStyle = 'rgba(190,170,150,.10)'; cx.lineWidth = 1;
+  cx.beginPath(); cx.moveTo(0, sol); cx.lineTo(W, sol); cx.stroke();
+  return sol;
 }
 
-/* ============ PROJECTION ============ */
-let t = 0, joue = false, der = 0, finie = false;
+/* ---------- la lampe : un cône chaud, au centre ---------- */
+function lampe(now, force) {
+  const lx = W * .5, ly = -H * .12;
+  cx.save();
+  cx.globalCompositeOperation = 'screen';
+  const large = W * .40;
+  const g = cx.createLinearGradient(0, ly, 0, H * .95);
+  g.addColorStop(0, `rgba(255,232,196,${.20 * force})`);
+  g.addColorStop(.55, `rgba(255,224,180,${.075 * force})`);
+  g.addColorStop(1, 'rgba(255,220,175,0)');
+  cx.fillStyle = g;
+  cx.beginPath();
+  cx.moveTo(lx - 26, ly); cx.lineTo(lx - large, H * 1.02);
+  cx.lineTo(lx + large, H * 1.02); cx.lineTo(lx + 26, ly);
+  cx.closePath(); cx.fill();
+  /* la poussière qui danse dedans */
+  for (const d of GRAINS) {
+    const y = ((d.y - now * d.v * .000018) % 1.1 + 1.1) % 1.1 - .05;
+    const x = .5 + (d.x - .5) * .62 + Math.sin(now * .0005 + d.p) * .035;
+    cx.globalAlpha = (.12 + .22 * (.5 + .5 * Math.sin(now * .0016 + d.p))) * force;
+    cx.fillStyle = '#fff0d6';
+    cx.beginPath(); cx.arc(x * W, y * H, d.r, 0, 6.3); cx.fill();
+  }
+  cx.restore();
+}
+
+/* ---------- un tirage accroché au mur ---------- */
+function accroche(im, ecx, sol, eclat, alpha) {
+  if (!im || !im.naturalWidth) return;
+  const b = tirage(im);
+  const marge = Math.max(9, b.h * .035);        /* la marge blanche du tirage */
+  const x = ecx - b.l / 2, y = H * .46 - b.h / 2;
+
+  cx.save();
+  cx.globalAlpha = alpha;
+
+  /* le fil d'accrochage */
+  cx.strokeStyle = `rgba(180,160,140,${.16 + .3 * eclat})`; cx.lineWidth = 1;
+  cx.beginPath(); cx.moveTo(ecx, y - marge); cx.lineTo(ecx, H * .06); cx.stroke();
+
+  /* l'ombre portée sur le mur */
+  cx.save();
+  cx.shadowColor = 'rgba(0,0,0,.9)';
+  cx.shadowBlur = 34 + eclat * 26; cx.shadowOffsetY = 16;
+  cx.fillStyle = '#efe7dc';
+  cx.fillRect(x - marge, y - marge, b.l + marge * 2, b.h + marge * 2);
+  cx.restore();
+
+  /* le papier, puis l'image */
+  cx.fillStyle = '#efe7dc';
+  cx.fillRect(x - marge, y - marge, b.l + marge * 2, b.h + marge * 2);
+  cx.drawImage(im, x, y, b.l, b.h);
+
+  /* ce qui n'est pas dans la lampe reste dans l'ombre */
+  const ombre = 1 - eclat;
+  if (ombre > .01) {
+    cx.fillStyle = `rgba(4,4,9,${.90 * ombre})`;
+    cx.fillRect(x - marge, y - marge, b.l + marge * 2, b.h + marge * 2);
+  }
+
+  /* le reflet sur le sol */
+  const hRef = Math.min(b.h * .34, sol * .22);
+  cx.save();
+  cx.translate(0, sol * 2 + b.h * .0);
+  cx.scale(1, -1);
+  cx.globalAlpha = alpha * (.10 + .16 * eclat);
+  cx.beginPath(); cx.rect(x, sol * 2 - sol - hRef, b.l, hRef); cx.clip();
+  cx.drawImage(im, x, y, b.l, b.h);
+  cx.restore();
+
+  cx.globalAlpha = 1;
+  cx.restore();
+}
 
 function dessine(now) {
   cx.setTransform(dpr, 0, 0, dpr, 0, 0);
   cx.clearRect(0, 0, W, H);
-  /* la pièce sombre : pas un noir plat, un fond qui a du fond */
-  const f = cx.createRadialGradient(W / 2, H * .46, 40, W / 2, H * .5, Math.max(W, H) * .78);
-  f.addColorStop(0, '#16131a'); f.addColorStop(.55, '#0c0a10'); f.addColorStop(1, '#050408');
-  cx.fillStyle = f; cx.fillRect(0, 0, W, H);
-  poussiere(now);
 
-  for (const o of plan) {
-    if (t < o.a - FONDU || t > o.b + .05) continue;
-    const k = clamp((t - o.a) / (o.b - o.a), 0, 1);
-    /* fondu d'entrée sur le plan précédent, fondu de sortie à la fin */
-    const entree = sat(o.a - FONDU, o.a + FONDU * .15, t);
-    const sortie = 1 - sat(o.b - FONDU * .15, o.b, t);
-    const a = Math.min(entree, sortie);
-    if (a <= 0) continue;
-    /* le travelling continue pendant le fondu, sans à-coup */
-    photo(images[o.p.f], entre(o.p.de, o.p.vers, doux(clamp(k, 0, 1))), a, k);
+  const av = avancee();
+  const sol = salle(now, av * espace());
+
+  /* on ne dessine que les tirages proches : les autres sont hors champ */
+  const ESP = espace();
+  for (let i = 0; i < plan.length; i++) {
+    const d = i - av;
+    if (Math.abs(d) > 1.6) continue;
+    const ecx = W / 2 + d * ESP;
+    /* la lampe est au centre : plus on s'en éloigne, plus on est dans le noir */
+    const eclat = Math.pow(clamp(1 - Math.abs(d) / .62, 0, 1), .8);
+    accroche(images[plan[i].p.f], ecx, sol, eclat, 1);
   }
 
-  /* le tout premier noir, et le dernier */
-  const nOuv = 1 - sat(0, OUVERTURE, t);
-  const nFin = sat(DUREE - 1.6, DUREE, t);
-  const noir = Math.max(nOuv, nFin);
+  lampe(now, 1);
+
+  /* noir d'ouverture et de fin */
+  const noir = Math.max(1 - sat(0, OUVERTURE, t), sat(DUREE - 1.8, DUREE, t));
   if (noir > 0) { cx.globalAlpha = noir; cx.fillStyle = '#050408'; cx.fillRect(0, 0, W, H); cx.globalAlpha = 1; }
 }
 
