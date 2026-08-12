@@ -27,7 +27,7 @@ const SOL = [
     items: [
       { img: 'ligne-annonce.webp', titre: 'La ligne d\'annonce',
         txt: 'Avant une ligne continue, les traits s\'allongent et les espaces se raccourcissent. C\'est un avertissement : terminez votre dépassement maintenant, ou renoncez.' },
-      { img: 'fleches-rabattement.svg', titre: 'Les flèches de rabattement',
+      { img: 'fleches-rabattement.webp', titre: 'Les flèches de rabattement',
         txt: 'Trois flèches successives annoncent la fin de votre voie ou l\'arrivée d\'une ligne continue. Dès la première, on se rabat : à la troisième, il est déjà tard.' },
       { img: 'fleche-rabattement-2.webp', titre: 'La flèche au sol',
         txt: 'Peinte sur la chaussée, elle indique qu\'il faut regagner sa file. Elle ne se discute pas : la ligne continue arrive juste derrière.' },
