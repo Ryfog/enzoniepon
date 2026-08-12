@@ -83,6 +83,18 @@ $('#fiches').innerHTML = FICHES.map(f => `
     <p class="note">${f.note}</p>
   </div>`).join('');
 
+/* ============ FEUX ET MARQUAGE AU SOL ============ */
+$('#sol-liste').innerHTML = SOL.map(g => `
+  <div class="bloc-cat">
+    <h2>${g.groupe}</h2>
+    <p class="regle-cat">${g.intro}</p>
+    <div class="gal">${g.items.map(i => `
+      <figure class="vignette">
+        <img src="photos/${i.img}" alt="${i.titre}" loading="lazy">
+        <figcaption><b>${i.titre}</b>${i.txt}</figcaption>
+      </figure>`).join('')}</div>
+  </div>`).join('');
+
 /* ============ RÉVISION ============ */
 let carteEnCours = null, vues = 0, paquet = [];
 

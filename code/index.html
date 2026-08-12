@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 
@@ -23,7 +23,7 @@
   <nav class="onglets">
     <button class="onglet actif" data-vue="panneaux">Panneaux</button>
     <button class="onglet" data-vue="fiches">Règles</button>
-    <button class="onglet" data-vue="cartes">Révision</button>
+    <button class="onglet" data-vue="sol">Feux &amp; sol</button><button class="onglet" data-vue="cartes">Révision</button>
     <button class="onglet" data-vue="quiz">Quiz</button>
   </nav>
 </header>
@@ -50,6 +50,16 @@
       <p>Douze fiches : vitesses, priorités, dépassement, stationnement, alcool, distances, météo, autoroute, équipement, points, accident, ville.</p>
     </div>
     <div class="fiches" id="fiches"></div>
+  </section>
+
+
+  <!-- ============ FEUX ET MARQUAGE ============ -->
+  <section class="vue" id="v-sol">
+    <div class="intro">
+      <h1>Les feux et le marquage au sol</h1>
+      <p>Ce qui n'est écrit ni sur un panneau, ni dans le manuel : ce qu'il y a sous les roues et au-dessus du carrefour. Photos réelles.</p>
+    </div>
+    <div id="sol-liste"></div>
   </section>
 
   <!-- ============ RÉVISION ============ -->
@@ -127,10 +137,12 @@
 <footer class="pied">
   <p>Fiches, explications et questions rédigées pour ce site. Aide à la révision — seul le Code de la route fait foi.</p>
   <p class=credits>Visuels des panneaux : <a href=https://commons.wikimedia.org/wiki/Category:Road_signs_in_France target=_blank rel=noopener>Wikimedia Commons</a> — Roulex 45, Grondin, Gigillo83 — licences <a href=https://creativecommons.org/licenses/by-sa/3.0/deed.fr target=_blank rel=noopener>CC BY-SA 3.0</a> / <a href=https://creativecommons.org/licenses/by-sa/4.0/deed.fr target=_blank rel=noopener>4.0</a>, fichiers non modifiés.</p>
+  <p class=credits>Photos de marquages et de feux : Wikimedia Commons — Roulex 45, Chabe01, Sebleouf, PanierAvide, Mathis Brancquart, Kamel15, Tabl-trai, Roland45, jean-louis Zimmermann, emmanuel Schaffner, Wazouille, Андрей Романенко — licences CC BY 2.0, CC BY-SA 3.0 et 4.0, et domaine public.</p>
 </footer>
 
 <script src="panneaux.js?v=3"></script>
-<script src="regles.js?v=2"></script>
-<script src="app.js?v=3"></script>
+<script src="regles.js?v=3"></script>
+<script src="sol.js?v=1"></script>
+<script src="app.js?v=4"></script>
 </body>
 </html>

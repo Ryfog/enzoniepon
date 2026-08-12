@@ -139,6 +139,42 @@ const FICHES = [
       ['Bus qui redémarre', 'Lui céder le passage', 'En agglomération, c\'est une obligation.']
     ],
     note: 'En ville, l\'angle mort tue : un cycliste ou un piéton peut disparaître complètement du champ des rétroviseurs.'
+  },
+  {
+    id: 'voyants', titre: 'Les voyants du tableau de bord', emoji: '🔧',
+    lignes: [
+      ['Voyant ROUGE', 'On s\'arrête', 'Danger immédiat pour vous ou pour le moteur : on se range dès que possible et on coupe.'],
+      ['Voyant ORANGE', 'On surveille', 'Anomalie non bloquante : on peut rouler doucement jusqu\'au garage.'],
+      ['Voyant VERT ou BLEU', 'Information', 'Un équipement est simplement en fonctionnement. Aucune action à prévoir.'],
+      ['Huile, température, freins, batterie', 'Rouge', 'Continuer peut casser le moteur ou vous priver de freinage.'],
+      ['ABS, ESP, airbag, pression des pneus', 'Orange', 'La voiture roule, mais une sécurité est hors service.'],
+      ['Voyant bleu fixe', 'Feux de route', 'Le seul voyant bleu du tableau : pensez à repasser en codes.']
+    ],
+    note: 'La règle qui répond à presque toutes les questions : rouge on s\'arrête, orange on surveille, vert ou bleu c\'est une information. Un voyant rouge qui s\'allume en roulant n\'attend pas la prochaine station.'
+  },
+  {
+    id: 'feuxvehicule', titre: 'Les feux du véhicule', emoji: '💡',
+    lignes: [
+      ['Feux de position', 'Être vu à l\'arrêt', 'Insuffisants pour rouler : ils ne font que signaler le véhicule.'],
+      ['Feux de croisement (codes)', 'La nuit, et dès que ça se couvre', 'Obligatoires la nuit, sous la pluie, dans un tunnel.'],
+      ['Feux de route (pleins phares)', 'Nuit, route dégagée', 'À baisser dès qu\'un véhicule apparaît, devant ou en face.'],
+      ['Feux de brouillard avant', 'Brouillard, neige, pluie forte', 'Toujours avec les codes, jamais seuls.'],
+      ['Feux de brouillard arrière', 'Brouillard ou neige seulement', 'Interdits sous la simple pluie : ils éblouissent celui qui suit.'],
+      ['Feux de détresse', 'Signaler un danger', 'Ralentissement brutal, panne, accident. Pas pour se garer en double file.']
+    ],
+    note: 'L\'erreur la plus fréquente : laisser les feux de brouillard arrière allumés une fois le brouillard passé. C\'est verbalisable, et surtout ça aveugle les autres.'
+  },
+  {
+    id: 'chargement', titre: 'Le véhicule et le chargement', emoji: '📦',
+    lignes: [
+      ['Remorque légère', 'Jusqu\'à 750 kg', 'Tractable avec le permis B seul.'],
+      ['Au-delà de 750 kg', 'Selon le poids total', 'Permis B si voiture + remorque ne dépassent pas 3 500 kg. Sinon B96 ou BE.'],
+      ['Le chargement', 'Arrimé', 'Un objet libre dans l\'habitacle devient un projectile en cas de choc.'],
+      ['Dépassement à l\'arrière', 'Signalé au-delà de 1 m', 'Dispositif réfléchissant obligatoire.'],
+      ['Plaque, feux, rétroviseurs', 'Jamais masqués', 'Ils doivent rester visibles et utilisables, chargement compris.'],
+      ['Charge sur le toit', 'Répartie et basse', 'Le poids en hauteur déstabilise fortement en virage et au freinage.']
+    ],
+    note: 'À 50 km/h, un objet de 20 kg non attaché frappe avec l\'énergie d\'une tonne. C\'est vrai pour une caisse à outils comme pour un chien.'
   }
 ];
 
