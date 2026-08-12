@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le Code — panneaux et règles</title>
+<meta name="description" content="Réviser le code de la route : les panneaux dessinés un par un, les règles essentielles et un entraînement au quiz.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#12161f">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,10 92,84 8,84' fill='%23fff' stroke='%23D62128' stroke-width='10'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+
+<header class="tete">
+  <a class="marque" href="#" data-vue="panneaux">
+    <svg viewBox="0 0 100 100" class="logo"><polygon points="50,10 92,84 8,84" fill="#fff" stroke="#D62128" stroke-width="11" stroke-linejoin="round"/><rect x="45" y="34" width="10" height="26" fill="#111"/><circle cx="50" cy="70" r="5.5" fill="#111"/></svg>
+    <span>Le Code</span>
+  </a>
+  <nav class="onglets">
+    <button class="onglet actif" data-vue="panneaux">Panneaux</button>
+    <button class="onglet" data-vue="fiches">Règles</button>
+    <button class="onglet" data-vue="cartes">Révision</button>
+    <button class="onglet" data-vue="quiz">Quiz</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ============ PANNEAUX ============ -->
+  <section class="vue on" id="v-panneaux">
+    <div class="intro">
+      <h1>Tous les panneaux</h1>
+      <p>Chaque panneau est redessiné ici. Clique dessus pour savoir ce qu'il veut dire et ce qu'il faut faire.</p>
+      <div class="recherche">
+        <input id="chercher" type="search" placeholder="Chercher un panneau…" autocomplete="off">
+        <div class="filtres" id="filtres"></div>
+      </div>
+    </div>
+    <div class="grille-cat" id="grille-panneaux"></div>
+    <p class="vide" id="rien" hidden>Aucun panneau ne correspond.</p>
+  </section>
+
+  <!-- ============ RÈGLES ============ -->
+  <section class="vue" id="v-fiches">
+    <div class="intro">
+      <h1>Les règles qui tombent tout le temps</h1>
+      <p>Vitesses, priorités, alcool, distances : l'essentiel, sans détour.</p>
+    </div>
+    <div class="fiches" id="fiches"></div>
+  </section>
+
+  <!-- ============ RÉVISION ============ -->
+  <section class="vue" id="v-cartes">
+    <div class="intro">
+      <h1>Révision</h1>
+      <p>Un panneau s'affiche. Tu réponds dans ta tête, puis tu retournes la carte.</p>
+    </div>
+    <div class="carte-zone">
+      <div class="carte" id="carte">
+        <div class="carte-face avant"><div class="carte-svg" id="c-svg"></div></div>
+        <div class="carte-face arriere">
+          <h3 id="c-nom"></h3>
+          <p id="c-quoi"></p>
+          <p class="faire"><b>À faire :</b> <span id="c-faire"></span></p>
+        </div>
+      </div>
+      <div class="carte-cmd">
+        <button class="btn creux" id="c-retourner">Retourner</button>
+        <button class="btn" id="c-suivant">Panneau suivant</button>
+      </div>
+      <p class="compte" id="c-compte"></p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="vue" id="v-quiz">
+    <div class="intro">
+      <h1>Quiz</h1>
+      <p>Dix questions tirées au hasard. Une seule bonne réponse à chaque fois.</p>
+    </div>
+
+    <div class="quiz-accueil" id="q-accueil">
+      <button class="btn gros" id="q-demarrer">Commencer les 10 questions</button>
+      <p class="score-passe" id="q-passe"></p>
+    </div>
+
+    <div class="quiz" id="q-jeu" hidden>
+      <div class="q-barre">
+        <span id="q-num">1 / 10</span>
+        <div class="q-jauge"><i id="q-avance"></i></div>
+        <span id="q-score">0 bonne</span>
+      </div>
+      <p class="q-texte" id="q-texte"></p>
+      <div class="q-reponses" id="q-reponses"></div>
+      <div class="q-explication" id="q-explication" hidden>
+        <p id="q-exp-txt"></p>
+        <button class="btn" id="q-suivante">Question suivante</button>
+      </div>
+    </div>
+
+    <div class="quiz-fin" id="q-fin" hidden>
+      <div class="note" id="q-note"></div>
+      <h2 id="q-verdict"></h2>
+      <p id="q-detail"></p>
+      <div class="q-revoir" id="q-revoir"></div>
+      <button class="btn gros" id="q-rejouer">Refaire un quiz</button>
+    </div>
+  </section>
+</main>
+
+<!-- ============ FICHE D'UN PANNEAU ============ -->
+<div class="fenetre" id="fenetre" hidden>
+  <div class="fenetre-fond" id="fenetre-fond"></div>
+  <div class="fenetre-boite">
+    <button class="fermer" id="fermer" aria-label="Fermer">✕</button>
+    <div class="f-svg" id="f-svg"></div>
+    <p class="f-cat" id="f-cat"></p>
+    <h2 id="f-nom"></h2>
+    <p class="f-quoi" id="f-quoi"></p>
+    <div class="f-faire"><b>Ce qu'il faut faire</b><p id="f-faire"></p></div>
+  </div>
+</div>
+
+<footer class="pied">
+  <p>Panneaux redessinés et fiches rédigées pour ce site. Aide à la révision — seul le Code de la route fait foi.</p>
+</footer>
+
+<script src="panneaux.js?v=1"></script>
+<script src="regles.js?v=1"></script>
+<script src="app.js?v=1"></script>
+</body>
+</html>

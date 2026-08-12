@@ -20,5 +20,6 @@ Disallow: /chanson/
 Disallow: /monde/
 Disallow: /film/
 Disallow: /montage/
+Disallow: /code/
 
 Sitemap: https://enzoniepon.fr/sitemap.xml
