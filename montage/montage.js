@@ -336,18 +336,31 @@ function dessine(now) {
   const ESP = espace();
   const sol = salle(now, cam.p * ESP);
 
-  /* où se trouve la boule à l'écran, et son envol pendant le trajet */
-  const bx = W / 2 + (bou.p - cam.p) * ESP;
-  const by = H * .46 - bou.saut * H * .26 + Math.sin(now * .0016) * 7;
+  /* La boule ne se pose jamais SUR la photo : elle tourne autour.
+     Son centre de rotation suit le tirage courant, et pendant le
+     trajet ce centre glisse — elle décrit donc une spirale d'une
+     photo à l'autre. */
+  const centreX = W / 2 + (bou.p - cam.p) * ESP;
+  const centreY = H * .46 - bou.saut * H * .20;
   const vol = bou.saut;
+
+  /* le rayon de l'orbite épouse la taille du tirage sous elle */
+  const cour = images[plan[clamp(Math.round(bou.p), 0, plan.length - 1)].p.f];
+  const tc = cour && cour.naturalWidth ? tirage(cour) : { l: W * .3, h: H * .4 };
+  const ang = now * .0011;
+  const rx = tc.l * .5 + Math.max(46, W * .05) + vol * W * .04;
+  const ry = tc.h * .5 + Math.max(38, H * .06) + vol * H * .03;
+  const bx = centreX + Math.cos(ang) * rx;
+  const by = centreY + Math.sin(ang) * ry * .78;
 
   /* on ne dessine que les tirages proches : les autres sont hors champ */
   for (let i = 0; i < plan.length; i++) {
     const d = i - cam.p;
     if (Math.abs(d) > 1.7) continue;
     const ecx = W / 2 + d * ESP;
-    /* c'est la boule qui éclaire : plus elle est loin, plus l'image reste dans l'ombre */
-    const dist = Math.hypot(ecx - bx, H * .46 - by) / (ESP * .58);
+    /* c'est la boule qui éclaire — mais on mesure depuis son centre
+       de rotation, sinon la photo clignoterait à chaque tour */
+    const dist = Math.hypot(ecx - centreX, H * .46 - centreY) / (ESP * .58);
     const eclat = Math.pow(clamp(1 - dist, 0, 1), .75);
     accroche(images[plan[i].p.f], ecx, sol, eclat, 1);
   }
