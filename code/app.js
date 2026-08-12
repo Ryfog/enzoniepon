@@ -6,7 +6,7 @@
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const melange = a => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
-const svg = h => `<svg viewBox="0 0 100 100" role="img">${h}</svg>`;
+const img = p => `<img src="pan/${p.id}.svg" alt="Panneau ${p.nom}" loading="lazy" width="120" height="120">`;
 const sansAccent = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
 /* ============ NAVIGATION ============ */
@@ -35,7 +35,7 @@ function affichePanneaux() {
       <h2>${c.nom}</h2>
       <p class="regle-cat"><b>${c.forme}.</b> ${c.regle}</p>
       <div class="grille">${liste.map(p =>
-        `<div class="panneau" data-id="${p.id}" tabindex="0">${svg(p.svg)}<b>${p.nom}</b></div>`).join('')}</div>
+        `<div class="panneau" data-id="${p.id}" tabindex="0">${img(p)}<b>${p.nom}</b></div>`).join('')}</div>
     </div>`;
   }).join('');
   $('#rien').hidden = total > 0;
@@ -55,7 +55,7 @@ $('#chercher').addEventListener('input', e => { recherche = e.target.value; affi
 function ouvre(id) {
   const p = PANNEAUX.find(x => x.id === id); if (!p) return;
   const c = CATEGORIES.find(x => x.id === p.cat);
-  $('#f-svg').innerHTML = svg(p.svg);
+  $('#f-svg').innerHTML = img(p);
   $('#f-cat').textContent = c ? c.nom : '';
   $('#f-nom').textContent = p.nom;
   $('#f-quoi').textContent = p.quoi;
@@ -92,7 +92,7 @@ function carteSuivante() {
   $('#carte').classList.remove('tournee');
   /* on attend la fin de la rotation avant de changer le contenu */
   setTimeout(() => {
-    $('#c-svg').innerHTML = svg(carteEnCours.svg);
+    $('#c-svg').innerHTML = img(carteEnCours);
     $('#c-nom').textContent = carteEnCours.nom;
     $('#c-quoi').textContent = carteEnCours.quoi;
     $('#c-faire').textContent = carteEnCours.faire;
