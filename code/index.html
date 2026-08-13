@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 
@@ -23,7 +23,9 @@
   <nav class="onglets">
     <button class="onglet actif" data-vue="panneaux">Panneaux</button>
     <button class="onglet" data-vue="fiches">Règles</button>
-    <button class="onglet" data-vue="sol">Feux &amp; sol</button><button class="onglet" data-vue="cartes">Révision</button>
+    <button class="onglet" data-vue="sol">Feux &amp; sol</button>
+    <button class="onglet" data-vue="voyants">Voyants</button>
+    <button class="onglet" data-vue="cartes">Révision</button>
     <button class="onglet" data-vue="quiz">Quiz</button>
   </nav>
 </header>
@@ -47,7 +49,7 @@
   <section class="vue" id="v-fiches">
     <div class="intro">
       <h1>Les règles qui tombent tout le temps</h1>
-      <p>Douze fiches : vitesses, priorités, dépassement, stationnement, alcool, distances, météo, autoroute, équipement, points, accident, ville.</p>
+      <p>Quinze fiches : vitesses, priorités, dépassement, stationnement, alcool, distances, météo, autoroute, équipement, points, accident, ville, voyants, feux du véhicule, chargement.</p>
     </div>
     <div class="fiches" id="fiches"></div>
   </section>
@@ -60,6 +62,20 @@
       <p>Ce qui n'est écrit ni sur un panneau, ni dans le manuel : ce qu'il y a sous les roues et au-dessus du carrefour. Photos réelles.</p>
     </div>
     <div id="sol-liste"></div>
+  </section>
+
+  <!-- ============ VOYANTS ============ -->
+  <section class="vue" id="v-voyants">
+    <div class="intro">
+      <h1>Les voyants du tableau de bord</h1>
+      <p>Les vrais pictogrammes, un par un. La règle qui répond à presque tout : <b>rouge on s'arrête, orange on surveille, vert ou bleu c'est une information</b>.</p>
+      <div class="legende">
+        <span class="pastille rouge">Rouge — arrêt</span>
+        <span class="pastille orange">Orange — surveillance</span>
+        <span class="pastille vert">Vert / bleu — information</span>
+      </div>
+    </div>
+    <div id="voyants-liste"></div>
   </section>
 
   <!-- ============ RÉVISION ============ -->
@@ -89,7 +105,7 @@
   <section class="vue" id="v-quiz">
     <div class="intro">
       <h1>Quiz</h1>
-      <p>Dix questions tirées au hasard parmi 99. Une seule bonne réponse à chaque fois.</p>
+      <p>Dix questions tirées au hasard parmi 114, dont des voyants à reconnaître. Une seule bonne réponse à chaque fois.</p>
     </div>
 
     <div class="quiz-accueil" id="q-accueil">
@@ -103,6 +119,7 @@
         <div class="q-jauge"><i id="q-avance"></i></div>
         <span id="q-score">0 bonne</span>
       </div>
+      <div class="q-image" id="q-image" hidden></div>
       <p class="q-texte" id="q-texte"></p>
       <div class="q-reponses" id="q-reponses"></div>
       <div class="q-explication" id="q-explication" hidden>
@@ -137,12 +154,14 @@
 <footer class="pied">
   <p>Fiches, explications et questions rédigées pour ce site. Aide à la révision — seul le Code de la route fait foi.</p>
   <p class=credits>Visuels des panneaux : <a href=https://commons.wikimedia.org/wiki/Category:Road_signs_in_France target=_blank rel=noopener>Wikimedia Commons</a> — Roulex 45, Grondin, Gigillo83 — licences <a href=https://creativecommons.org/licenses/by-sa/3.0/deed.fr target=_blank rel=noopener>CC BY-SA 3.0</a> / <a href=https://creativecommons.org/licenses/by-sa/4.0/deed.fr target=_blank rel=noopener>4.0</a>, fichiers non modifiés.</p>
+  <p class=credits id=credits-voyants></p>
   <p class=credits>Photos de marquages et de feux : Wikimedia Commons — Roulex 45, Chabe01, Sebleouf, PanierAvide, Mathis Brancquart, Kamel15, Tabl-trai, Roland45, jean-louis Zimmermann, emmanuel Schaffner, Wazouille, Андрей Романенко — licences CC BY 2.0, CC BY-SA 3.0 et 4.0, et domaine public.</p>
 </footer>
 
 <script src="panneaux.js?v=3"></script>
 <script src="regles.js?v=3"></script>
 <script src="sol.js?v=2"></script>
-<script src="app.js?v=4"></script>
+<script src="voyants.js?v=1"></script>
+<script src="app.js?v=5"></script>
 </body>
 </html>

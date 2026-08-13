@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   width="100"
+   height="80"
+   id="svg10649">
+  <defs
+     id="defs10652" />
+  <g
+     transform="translate(-20.465992,3.3906246)"
+     id="g10556">
+    <path
+       d="M 24.516071,38.011064 L 41.060975,17.378203 L 41.060975,28.531101 L 56.333194,28.531101 L 56.333194,46.654561 L 40.806438,46.65456 L 40.806438,57.807459 L 24.516071,38.011064 z"
+       id="path10040"
+       style="fill:none;fill-rule:evenodd;stroke:#008000;stroke-width:4.31890631;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <path
+       d="M 115.7854,38.011064 L 99.240496,17.378203 L 99.240496,28.531101 L 83.968282,28.531101 L 83.968282,46.654561 L 99.49503,46.65456 L 99.49503,57.807459 L 115.7854,38.011064 z"
+       id="path10552"
+       style="fill:none;fill-rule:evenodd;stroke:#008000;stroke-width:4.31890631;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+  </g>
+  <path
+     d="M 58.655102,65.920959 L 52.326977,65.920959 L 52.326977,25.596741 C 50.80352,27.049905 48.805475,28.503028 46.332836,29.956116 C 43.860168,31.409275 41.639467,32.499118 39.670727,33.225647 L 39.670727,27.108459 C 43.209778,25.444437 46.303525,23.428814 48.951977,21.061584 C 51.600395,18.694444 53.475393,16.397571 54.576977,14.170959 L 58.655102,14.170959 L 58.655102,65.920959 z"
+     id="text10663"
+     style="font-size:72px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:89.99999762%;writing-mode:lr-tb;text-anchor:start;fill:#008000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Arial;-inkscape-font-specification:Arial" />
+</svg>

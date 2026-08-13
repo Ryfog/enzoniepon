@@ -253,3 +253,52 @@ main{max-width:1180px;margin:0 auto;padding:clamp(22px,5vw,44px) clamp(14px,4vw,
 .vignette img{width:100%;height:190px;object-fit:cover;display:block;background:#0d1119}
 .vignette figcaption{padding:14px 16px 16px;font-size:.88rem;color:var(--gris);line-height:1.55}
 .vignette b{display:block;color:var(--texte);font-weight:600;font-size:.98rem;margin-bottom:5px}
+
+/* ---------- voyants du tableau de bord ---------- */
+.legende{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.pastille{
+  font-size:.76rem;font-weight:600;padding:5px 11px;border-radius:999px;
+  border:1px solid transparent;letter-spacing:.01em;
+}
+.pastille.rouge{color:#ff8a8f;background:rgba(214,33,40,.14);border-color:rgba(214,33,40,.42)}
+.pastille.orange{color:#f7cb4d;background:rgba(242,194,0,.12);border-color:rgba(242,194,0,.38)}
+.pastille.vert{color:#5fd694;background:rgba(47,185,106,.12);border-color:rgba(47,185,106,.38)}
+
+.bloc-voy{margin-bottom:40px}
+.bloc-voy .tete{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:7px}
+.bloc-voy h2{font-size:1.16rem;margin:0}
+.bloc-voy .regle-cat{color:var(--gris);font-size:.88rem;margin-bottom:18px;max-width:70ch;line-height:1.6}
+.bloc-voy .barre{height:3px;border-radius:3px;margin-bottom:14px;max-width:74px}
+.bloc-voy.rouge .barre{background:var(--rouge)}
+.bloc-voy.orange .barre{background:var(--jaune)}
+.bloc-voy.vert .barre{background:var(--vert)}
+
+.grille-voy{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(252px,1fr))}
+.voy{
+  background:var(--carte);border:1px solid var(--bord);border-radius:14px;
+  padding:16px;display:flex;gap:14px;align-items:flex-start;
+}
+.voy .icone{
+  flex:0 0 auto;min-width:62px;max-width:108px;height:62px;padding:0 9px;
+  border-radius:11px;background:#151b27;
+  display:flex;align-items:center;justify-content:center;border:1px solid var(--bord);
+}
+.voy .icone img{width:auto;height:auto;max-width:90px;max-height:44px;object-fit:contain}
+.voy .txt{min-width:0}
+.voy b{display:block;font-size:.96rem;margin-bottom:4px;line-height:1.3}
+.voy .quoi{color:var(--texte);font-size:.83rem;line-height:1.5;margin-bottom:6px;opacity:.9}
+.voy .faire{color:var(--gris);font-size:.81rem;line-height:1.55}
+
+/* pictogramme dans le quiz */
+.q-image{
+  display:flex;align-items:center;justify-content:center;
+  background:#151b27;border:1px solid var(--bord);border-radius:14px;
+  padding:22px 18px;margin-bottom:18px;min-height:104px;
+}
+.q-image img{width:auto;height:auto;max-width:210px;max-height:104px;object-fit:contain}
+
+@media(max-width:520px){
+  .grille-voy{grid-template-columns:1fr}
+  .voy .icone{min-width:54px;height:54px}
+  .voy .icone img{max-width:76px;max-height:38px}
+}
