@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=13">
+  <link rel="stylesheet" href="style.css?v=15">
 </head>
 <body>
 
@@ -314,6 +314,37 @@
     </div>
 
     <!-- ACTION OU VÉRITÉ -->
+
+    <!-- ---------- DEVINE MA RÉPONSE ---------- -->
+    <div class="mode" id="m-dev" hidden>
+      <p class="q" id="dev-q">—</p>
+      <p class="sous" id="dev-lab">—</p>
+      <div class="col-opts" id="dev-opts"></div>
+      <p class="wait-l" id="dev-w"></p>
+    </div>
+
+    <!-- ---------- LE CURSEUR ---------- -->
+    <div class="mode" id="m-cur" hidden>
+      <p class="q" id="cur-q">—</p>
+      <p class="sous" id="cur-lab">—</p>
+      <div class="cur-boite">
+        <div class="cur-val" id="cur-val">5</div>
+        <input type="range" id="cur-slider" min="0" max="10" step="1" value="5">
+        <div class="cur-bornes"><span id="cur-gauche">—</span><span id="cur-droite">—</span></div>
+      </div>
+      <button class="btn" id="cur-ok">Valider</button>
+      <p class="wait-l" id="cur-w"></p>
+    </div>
+
+    <!-- ---------- LE PODIUM ---------- -->
+    <div class="mode" id="m-top" hidden>
+      <p class="q" id="top-q">—</p>
+      <p class="sous" id="top-lab">—</p>
+      <div class="col-opts" id="top-items"></div>
+      <button class="btn ghost small" id="top-annuler" hidden>↶ Annuler le dernier</button>
+      <p class="wait-l" id="top-w"></p>
+    </div>
+
     <div class="mode" id="m-osa" hidden>
       <span class="osa-genre" id="osa-genre">VÉRITÉ</span>
       <p class="osa-pour" id="osa-pour">—</p>
@@ -426,7 +457,7 @@
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<script src="contenu.js?v=12"></script>
-<script src="game.js?v=13"></script>
+<script src="contenu.js?v=14"></script>
+<script src="game.js?v=14"></script>
 </body>
 </html>

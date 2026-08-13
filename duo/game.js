@@ -11,10 +11,11 @@ const esc = s => String(s).replace(/[<>&"]/g, c => ({ '<': '&lt;', '>': '&gt;', 
 const PREFIXE = 'duo-es-';
 
 const TYPES = ['qui', 'syn', 'des', 'ref', 'bra', 'p4', 'pfc', 'vf', 'pre', 'int', 'cha', 'mem', 'qz',
-  'seq', 'bac', 'tap', 'mdp', 'bom', 'pen', 'pom', 'lab', 'mlp', 'chr', 'emo'];
+  'seq', 'bac', 'tap', 'mdp', 'bom', 'pen', 'pom', 'lab', 'mlp', 'chr', 'emo',
+  'dev', 'cur', 'top'];
 /* en mode piment on ne garde que les épreuves qui parlent de vous deux :
    les jeux d'adresse (puissance 4, bras de fer, tape vite…) n'ont rien de coquin */
-const TYPES_PIMENT = ['qui', 'pre', 'syn', 'vf', 'osa', 'jam'];
+const TYPES_PIMENT = ['qui', 'pre', 'syn', 'vf', 'osa', 'jam', 'dev', 'cur', 'top'];
 const NOMS = {
   qui: 'Qui de nous deux', syn: 'Synchro', des: 'Dessine-moi', ref: 'Duel de réflexe',
   bra: 'Bras de fer', p4: 'Puissance 4', pfc: 'Pierre feuille ciseaux', vf: 'Vrai ou faux',
@@ -24,7 +25,8 @@ const NOMS = {
   mdp: 'Mot de passe', bom: 'Désamorçage',
   osa: 'Action ou vérité', jam: 'Je n\'ai jamais',
   pen: 'Le pendu', pom: 'Plus ou moins', lab: 'Labyrinthe aveugle',
-  mlp: 'Le mot le plus long', chr: 'Chrono aveugle', emo: 'Devine l\'emoji'
+  mlp: 'Le mot le plus long', chr: 'Chrono aveugle', emo: 'Devine l\'emoji',
+  dev: 'Devine ma réponse', cur: 'Le curseur', top: 'Le podium'
 };
 const BAT = { pierre: 'ciseaux', feuille: 'pierre', ciseaux: 'feuille' };
 const P4C = 7, P4L = 6;
@@ -94,6 +96,9 @@ function etatPourInvite() {
   if (!st || st.ph !== 'round') return st;
   const c = JSON.parse(JSON.stringify(st));
   if (c.ans && c.ans.h !== null && c.ans.h !== undefined) c.ans.h = '·';
+  if (c.type === 'dev' && c.sub === 'dev' && c.dev && c.dev.rep !== 'g') c.dev.choix = null;
+  if (c.type === 'cur' && c.sub === 'dev' && c.cur && c.cur.rep !== 'g') c.cur.val = null;
+  if (c.type === 'top' && c.sub === 'dev' && c.top && c.top.rep !== 'g') c.top.ordre = [];
   if (c.type === 'des' && c.drawer !== 'g') c.q = '';
   if (c.type === 'mdp' && c.mdp && c.mdp.donneur !== 'g') c.q = '';
   return c;
@@ -336,6 +341,22 @@ function manche(i) {
   if (T === 'qui') { st.q = piment ? tirer('quiP', PIMENT.qui) : tirer('qui', QUI); diffuse(); return; }
   if (T === 'syn') { st.q = piment ? tirer('synP', PIMENT.syn) : tirer('syn', SYNCHRO); diffuse(); return; }
   if (T === 'pre') { st.q = piment ? tirer('preP', PIMENT.pre) : tirer('pre', PREFERE); diffuse(); return; }
+
+  if (T === 'dev') {
+    st.dev = { rep: i % 2 === 0 ? 'h' : 'g', choix: null, devine: null };
+    st.q = piment ? tirer('devP', PIMENT.dev) : tirer('dev', DEVINE);
+    st.sub = 'rep'; diffuse(); return;
+  }
+  if (T === 'cur') {
+    st.cur = { rep: i % 2 === 0 ? 'g' : 'h', val: null, devine: null };
+    st.q = piment ? tirer('curP', PIMENT.cur) : tirer('cur', CURSEUR);
+    st.sub = 'rep'; diffuse(); return;
+  }
+  if (T === 'top') {
+    const t = piment ? tirer('topP', PIMENT.top) : tirer('top', PODIUM);
+    st.top = { rep: i % 2 === 0 ? 'h' : 'g', ordre: [], devine: [], items: melange(t[1]) };
+    st.q = t; st.sub = 'rep'; diffuse(); return;
+  }
 
 
   if (T === 'des') {
@@ -772,6 +793,66 @@ function action(qui, a) {
   }
 
   /* --- action ou vérité : c'est l'AUTRE qui valide --- */
+  else if (a.k === 'dev' && st.ph === 'round' && st.type === 'dev') {
+    const D = st.dev;
+    if (typeof a.c !== 'number' || a.c < 0 || a.c >= st.q[1].length) return;
+    if (st.sub === 'rep') {
+      if (qui !== D.rep || D.choix !== null) return;
+      D.choix = a.c; st.sub = 'dev'; diffuse(); return;
+    }
+    if (qui === D.rep || D.devine !== null) return;
+    D.devine = a.c;
+    const bon = D.devine === D.choix;
+    if (bon) { st.sc.h++; st.sc.g++; }
+    reveler({
+      e: bon ? '💞' : '🙈',
+      t: bon ? 'Trouvé !' : 'Raté',
+      p: `${st.nm[D.rep]} avait répondu « ${st.q[1][D.choix]} »` +
+         (bon ? ' — un point chacun.' : `, et « ${st.q[1][D.devine]} » a été proposé.`)
+    });
+  }
+
+  else if (a.k === 'cur' && st.ph === 'round' && st.type === 'cur') {
+    const C = st.cur, v = Math.max(0, Math.min(10, Math.round(Number(a.v))));
+    if (!Number.isFinite(v)) return;
+    if (st.sub === 'rep') {
+      if (qui !== C.rep || C.val !== null) return;
+      C.val = v; st.sub = 'dev'; diffuse(); return;
+    }
+    if (qui === C.rep || C.devine !== null) return;
+    C.devine = v;
+    const ecart = Math.abs(C.val - C.devine);
+    const pts = ecart === 0 ? 2 : (ecart <= 2 ? 1 : 0);
+    st.sc.h += pts; st.sc.g += pts;
+    reveler({
+      e: ecart === 0 ? '🎯' : (ecart <= 2 ? '💞' : '🙈'),
+      t: ecart === 0 ? 'Pile au même endroit' : (ecart <= 2 ? 'Tout près' : 'À côté'),
+      p: `${st.nm[C.rep]} avait mis ${C.val} sur 10, et ${C.devine} a été proposé.` +
+         (pts ? ` ${pts} point${pts > 1 ? 's' : ''} chacun.` : '')
+    });
+  }
+
+  else if (a.k === 'top' && st.ph === 'round' && st.type === 'top') {
+    const P = st.top;
+    const liste = st.sub === 'rep' ? P.ordre : P.devine;
+    if ((st.sub === 'rep') !== (qui === P.rep)) return;
+    if (a.c === 'annuler') { liste.pop(); diffuse(); return; }
+    if (typeof a.c !== 'number' || a.c < 0 || a.c >= P.items.length || liste.includes(a.c)) return;
+    liste.push(a.c);
+    if (liste.length < P.items.length) { diffuse(); return; }
+    if (st.sub === 'rep') { st.sub = 'dev'; diffuse(); return; }
+    let justes = 0;
+    for (let k = 0; k < P.items.length; k++) if (P.ordre[k] === P.devine[k]) justes++;
+    const pts = justes === P.items.length ? 2 : (justes >= 2 ? 1 : 0);
+    st.sc.h += pts; st.sc.g += pts;
+    reveler({
+      e: justes === P.items.length ? '🏆' : (justes >= 2 ? '💞' : '🙈'),
+      t: justes === P.items.length ? 'Classement identique !' : `${justes} place${justes > 1 ? 's' : ''} sur ${P.items.length}`,
+      p: `${st.nm[P.rep]} : ${P.ordre.map(k => P.items[k]).join(' › ')}` +
+         (pts ? ` — ${pts} point${pts > 1 ? 's' : ''} chacun.` : '')
+    });
+  }
+
   else if (a.k === 'osa' && st.ph === 'round' && st.type === 'osa') {
     if (qui === st.osa.cible) return;
     if (a.v) { st.sc.h++; st.sc.g++; }
@@ -908,6 +989,7 @@ function jouer(a) { if (hote) action(moi, a); else envoie({ t: 'A', a }); }
    RENDU
    ========================================================= */
 let manchePrec = -1, finLocale = 0, mesCoups = 0, dernierEnvoi = 0, chronoBra = null;
+let curCle = '';
 
 function rendu() {
   if (!st) return;
@@ -1194,6 +1276,84 @@ function rendu() {
       `<span>${esc(m.txt)}</span>`).join('');
     $('#emo-in').disabled = !!st.emo.ko[moi];
     $('#emo-w').textContent = 'Le premier qui trouve marque le point.';
+  }
+
+  else if (T === 'dev') {
+    on('m-dev');
+    const D = st.dev, jeReponds = D.rep === moi, phaseRep = st.sub === 'rep';
+    const monTour = phaseRep === jeReponds;
+    const monChoix = jeReponds ? D.choix : D.devine;
+    $('#dev-q').textContent = st.q[0];
+    $('#dev-lab').textContent = phaseRep
+      ? (jeReponds ? 'Réponds pour toi. Il devra deviner.' : `${st.nm[autre]} répond pour lui…`)
+      : (jeReponds ? `À ${st.nm[autre]} de deviner ce que tu as mis.` : `Qu'est-ce que ${st.nm[autre]} a répondu ?`);
+    const g = $('#dev-opts');
+    if (g.dataset.r !== String(st.i)) {
+      g.dataset.r = String(st.i); g.innerHTML = '';
+      st.q[1].forEach((o, k) => {
+        const b = document.createElement('button');
+        b.className = 'pick pick-l'; b.innerHTML = `<b>${esc(o)}</b>`;
+        b.addEventListener('click', () => jouer({ k: 'dev', c: k }));
+        g.appendChild(b);
+      });
+    }
+    [...g.children].forEach((b, k) => {
+      b.disabled = !monTour || monChoix !== null;
+      b.classList.toggle('on', monChoix === k);
+    });
+    $('#dev-w').textContent = monTour
+      ? (monChoix !== null ? 'C\'est noté…' : 'Choisis une réponse.')
+      : 'On attend l\'autre…';
+  }
+
+  else if (T === 'cur') {
+    on('m-cur');
+    const C = st.cur, jeReponds = C.rep === moi, phaseRep = st.sub === 'rep';
+    const monTour = phaseRep === jeReponds;
+    const fait = jeReponds ? C.val !== null : C.devine !== null;
+    $('#cur-q').textContent = st.q[0];
+    $('#cur-gauche').textContent = st.q[1];
+    $('#cur-droite').textContent = st.q[2];
+    $('#cur-lab').textContent = phaseRep
+      ? (jeReponds ? 'Place le curseur pour toi.' : `${st.nm[autre]} place son curseur…`)
+      : (jeReponds ? `À ${st.nm[autre]} de deviner où tu l'as mis.` : `Où ${st.nm[autre]} a-t-il mis le sien ?`);
+    const sl = $('#cur-slider');
+    if (curCle !== st.i + '-' + st.sub) { curCle = st.i + '-' + st.sub; sl.value = 5; $('#cur-val').textContent = '5'; }
+    sl.disabled = !monTour || fait;
+    $('#cur-ok').disabled = !monTour || fait;
+    $('#cur-ok').hidden = !monTour;
+    $('#cur-w').textContent = monTour ? (fait ? 'Envoyé…' : 'De 0 à 10.') : 'On attend l\'autre…';
+  }
+
+  else if (T === 'top') {
+    on('m-top');
+    const P = st.top, jeReponds = P.rep === moi, phaseRep = st.sub === 'rep';
+    const monTour = phaseRep === jeReponds;
+    const liste = jeReponds ? P.ordre : P.devine;
+    $('#top-q').textContent = st.q[0];
+    $('#top-lab').textContent = phaseRep
+      ? (jeReponds ? 'Classe-les dans ton ordre à toi.' : `${st.nm[autre]} fait son classement…`)
+      : (jeReponds ? `À ${st.nm[autre]} de retrouver ton ordre.` : `Dans quel ordre ${st.nm[autre]} les a-t-il mis ?`);
+    const g = $('#top-items');
+    if (g.dataset.r !== String(st.i)) {
+      g.dataset.r = String(st.i); g.innerHTML = '';
+      P.items.forEach((o, k) => {
+        const b = document.createElement('button');
+        b.className = 'pick pick-l'; b.dataset.k = k;
+        b.addEventListener('click', () => jouer({ k: 'top', c: k }));
+        g.appendChild(b);
+      });
+    }
+    [...g.children].forEach((b, k) => {
+      const rang = liste.indexOf(k);
+      b.innerHTML = `<i class="rang">${rang >= 0 ? rang + 1 : ''}</i><b>${esc(P.items[k])}</b>`;
+      b.classList.toggle('on', rang >= 0);
+      b.disabled = !monTour || rang >= 0;
+    });
+    $('#top-annuler').hidden = !monTour || !liste.length;
+    $('#top-w').textContent = monTour
+      ? `Touche-les du premier au dernier — ${liste.length} / ${P.items.length}`
+      : 'On attend l\'autre…';
   }
 
   else if (T === 'osa') {
@@ -1632,3 +1792,10 @@ function toast(t) {
   clearTimeout(tToast);
   tToast = setTimeout(() => { el.hidden = true; }, 3200);
 }
+
+/* --- le curseur --- */
+$('#cur-slider').addEventListener('input', e => { $('#cur-val').textContent = e.target.value; });
+$('#cur-ok').addEventListener('click', () => jouer({ k: 'cur', v: +$('#cur-slider').value }));
+
+/* --- le podium --- */
+$('#top-annuler').addEventListener('click', () => jouer({ k: 'top', c: 'annuler' }));

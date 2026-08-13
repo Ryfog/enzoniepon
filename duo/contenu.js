@@ -709,3 +709,108 @@ PIMENT.syn.push(
   'Ce que tu enlèves en premier quand tu rentres.',
   'Un chiffre : combien de minutes avant que tu craques.'
 );
+
+/* =========================================================
+   TROIS ÉPREUVES DE PLUS — l'un répond pour lui, l'autre devine.
+   DEVINE  : question à choix multiple
+   CURSEUR : un curseur de 0 à 10
+   PODIUM  : quatre choses à classer
+   ========================================================= */
+
+const DEVINE = [
+  ['Si je gagnais 10 000 € demain…', ['Je pars en voyage avec toi', 'Je mets tout de côté', 'Je nous prends un appart', 'Je fais une folie']],
+  ['Ce qui me manque le plus de toi…', ['Ta voix', 'Tes bras', 'Ton odeur', 'Ton rire']],
+  ['Mon pire défaut, si je suis honnête…', ['Je boude', 'Je suis toujours en retard', 'Je parle trop', 'Je suis têtu']],
+  ['Si on vivait ensemble demain, ce qui t\'énerverait chez moi…', ['Le bazar', 'La musique trop forte', 'Le temps que je passe sous la douche', 'Mes horaires']],
+  ['Ma soirée parfaite…', ['Canapé et série', 'Un restaurant', 'Marcher dehors la nuit', 'Ne rien prévoir du tout']],
+  ['Ce que je regarde en premier chez toi…', ['Les yeux', 'Le sourire', 'Les mains', 'La démarche']],
+  ['Si je ne devais garder qu\'un souvenir de nous…', ['Notre première rencontre', 'Notre premier vrai câlin', 'Un appel qui n\'a jamais fini', 'Le jour où j\'ai su']],
+  ['Ce qui me ferait le plus plaisir, sans prévenir…', ['Un message très long', 'Un colis', 'Un appel à minuit', 'Une photo de toi']],
+  ['Ce que je fais quand je pense à toi…', ['Je relis nos messages', 'Je regarde tes photos', 'Je souris tout seul', 'Je t\'écris direct']],
+  ['Quand je suis en colère, ce qui marche le mieux…', ['Me laisser cinq minutes', 'Me faire rire', 'Me prendre dans les bras', 'En parler tout de suite']],
+  ['Notre futur chez nous, je le vois…', ['En ville', 'À la campagne', 'Près de la mer', 'Peu importe, du moment que tu y es']],
+  ['Ce que j\'ai le plus hâte de refaire…', ['Dormir contre toi', 'Manger ensemble', 'Marcher main dans la main', 'Ne rien faire, à deux']],
+  ['Ce qui me rassure le plus…', ['Quand tu dis mon prénom', 'Quand tu réponds vite', 'Quand tu fais des projets avec moi', 'Quand tu me le dis simplement']],
+  ['Si je pouvais changer une chose à la distance…', ['La supprimer d\'un coup', 'Un train direct', 'Se voir chaque week-end', 'Rien, elle nous a rendus solides']],
+  ['Ce que je préfère chez nous deux…', ['Qu\'on se comprenne sans parler', 'Qu\'on rigole de tout', 'Qu\'on se dise tout', 'Qu\'on tienne malgré tout']],
+  ['Le premier truc que je ferai en te voyant…', ['Te serrer sans rien dire', 'T\'embrasser tout de suite', 'Te regarder deux secondes', 'Pleurer, sûrement']],
+  ['Ce que je garde de plus précieux…', ['Tes messages', 'Une photo', 'Un objet que tu m\'as donné', 'Rien de matériel']],
+  ['Si on devait partir demain, très loin…', ['Je fais ma valise en dix minutes', 'Je réfléchis une nuit', 'Je veux un vrai plan', 'Je dis oui sans écouter la suite']]
+];
+
+const CURSEUR = [
+  ['À quel point tu vas bien, aujourd\'hui ?', 'Pas terrible', 'Au top'],
+  ['À quel point je te manque, là ?', 'Ça va', 'Énormément'],
+  ['À quel point tu es prêt à ce qu\'on vive ensemble ?', 'Pas encore', 'Demain si je peux'],
+  ['À quel point tu penses à nous dans une journée ?', 'Par moments', 'Tout le temps'],
+  ['À quel point tu es jaloux, honnêtement ?', 'Pas du tout', 'Beaucoup'],
+  ['À quel point tu as confiance en nous ?', 'J\'ai des doutes', 'Totale'],
+  ['À quel point tu es stressé en ce moment ?', 'Serein', 'Au bout'],
+  ['À quel point tu as hâte du 16 septembre ?', 'Hâte', 'Je compte les heures'],
+  ['À quel point tu te sens compris par moi ?', 'Pas toujours', 'Complètement'],
+  ['À quel point la distance est dure pour toi ?', 'Ça va', 'C\'est très dur'],
+  ['À quel point tu me trouves têtu ?', 'Pas trop', 'Insupportable'],
+  ['À quel point tu es sûr de nous deux ?', 'Ça dépend des jours', 'Absolument sûr'],
+  ['À quel point tu es fatigué ce soir ?', 'En forme', 'Épuisé'],
+  ['À quel point tu me dis vraiment tout ?', 'Je garde des choses', 'Absolument tout'],
+  ['À quel point tu te sens toi-même avec moi ?', 'Un peu sur mes gardes', 'Complètement moi']
+];
+
+const PODIUM = [
+  ['Classe du plus important au moins important, pour toi.', ['La confiance', 'Le rire', 'Le physique', 'Les projets à deux']],
+  ['Classe ce qui te manque le plus.', ['Ses bras', 'Sa voix', 'Son odeur', 'Sa présence dans le silence']],
+  ['Classe ce que tu veux faire en premier quand on se retrouve.', ['Un câlin interminable', 'Manger ensemble', 'Dormir collés', 'Se promener']],
+  ['Classe du plus au moins insupportable.', ['Le mensonge', 'La jalousie', 'Le désordre', 'Les retards']],
+  ['Classe les endroits où tu voudrais vivre.', ['Au bord de la mer', 'En ville', 'À la campagne', 'À la montagne']],
+  ['Classe ce qui te rend le plus heureux.', ['Un message le matin', 'Un appel qui dure', 'Une photo', 'Un projet à deux']],
+  ['Classe tes priorités pour l\'année qui vient.', ['Nous', 'Le travail', 'L\'argent', 'Les amis']],
+  ['Classe ce qui te fait le plus peur.', ['La distance', 'Qu\'on se lasse', 'Ne pas être à la hauteur', 'Le regard des autres']],
+  ['Classe ce que tu préfères chez l\'autre.', ['Le regard', 'Le sourire', 'La voix', 'Les mains']],
+  ['Classe ce qui compte le plus dans une soirée à deux.', ['Le calme', 'Le repas', 'La musique', 'Le film']],
+  ['Classe ce qui te ressemble le plus.', ['Foncer', 'Réfléchir longtemps', 'Demander l\'avis des autres', 'Suivre son instinct']],
+  ['Classe ce que tu veux dans dix ans.', ['Une maison', 'Des enfants', 'Voyager', 'Juste être tranquilles']]
+];
+
+/* versions piment des trois mêmes épreuves */
+PIMENT.dev = [
+  ['Ce dont j\'ai le plus envie, là, maintenant…', ['Que tu m\'embrasses partout', 'Que tu me déshabilles', 'Que tu me parles à l\'oreille', 'Que tu me prennes tout de suite']],
+  ['Mon endroit préféré pour qu\'on me touche…', ['La nuque', 'Le bas du dos', 'L\'intérieur des cuisses', 'Le ventre']],
+  ['Ce qui me fait craquer le plus vite…', ['Ta voix', 'Tes mains', 'Ton regard', 'Tes mots']],
+  ['Si je devais garder un seul moment…', ['Les préliminaires', 'La seconde juste avant', 'Pendant', 'Le câlin d\'après']],
+  ['Ce que je préfère porter pour toi…', ['Rien du tout', 'Une chemise à toi', 'De la dentelle', 'Ce que tu auras choisi']],
+  ['Ce que j\'aimerais qu\'on essaie…', ['Les yeux bandés', 'Attachés', 'Devant un miroir', 'Dehors, la nuit']],
+  ['Ce qui me plaît le plus…', ['Commander', 'Me laisser faire', 'Alterner', 'Décider sur le moment']],
+  ['Le moment de la journée où j\'ai le plus envie…', ['Au réveil', 'L\'après-midi', 'Le soir', 'En pleine nuit']],
+  ['Ce que je veux entendre juste avant…', ['Mon prénom', 'Que tu me veux', 'Rien, juste ton souffle', 'Quelque chose de très cru']],
+  ['Combien de fois j\'y pense dans une journée…', ['Une ou deux', 'Cinq ou six', 'Plus de dix', 'En permanence']],
+  ['Ce qui me manque le plus physiquement…', ['Ta bouche', 'Tes mains', 'Ton poids sur moi', 'M\'endormir contre toi']],
+  ['Ce que je préfère quand c\'est fini…', ['Un câlin sans un mot', 'Recommencer', 'Parler dans le noir', 'Dormir collés']],
+  ['Si on n\'avait qu\'une seule nuit…', ['On ne dort pas', 'On prend tout notre temps', 'Tout, sans exception', 'On improvise']],
+  ['Le message que je voudrais recevoir là…', ['Une photo', 'Un vocal', 'Ce que tu me ferais', 'Juste : viens']]
+];
+
+PIMENT.cur = [
+  ['À quel point tu as envie de moi, là, maintenant ?', 'Ça va', 'C\'est intenable'],
+  ['À quel point tu y penses dans la journée ?', 'Rarement', 'Sans arrêt'],
+  ['À quel point tu aimes prendre le contrôle ?', 'Je me laisse faire', 'Je décide de tout'],
+  ['À quel point tu oserais dehors ?', 'Jamais', 'Sans hésiter'],
+  ['À quel point tu aimes qu\'on te fasse attendre ?', 'Je déteste', 'J\'adore'],
+  ['À quel point tu es bruyant ?', 'Silencieux', 'On m\'entend'],
+  ['À quel point tu te retiens de me dire ce que tu veux ?', 'Je dis tout', 'Je garde beaucoup pour moi'],
+  ['À quel point tu voudrais qu\'on essaie des choses nouvelles ?', 'On est bien comme ça', 'Tout, tout de suite'],
+  ['À quel point tu craquerais si je commençais maintenant ?', 'Je résiste', 'Immédiatement'],
+  ['À quel point tu es satisfait de nous, à ce niveau-là ?', 'Il manque des choses', 'Parfait'],
+  ['À quel point tu aimes être regardé ?', 'Ça me gêne', 'Beaucoup'],
+  ['À quel point tu penses à la première nuit où on se retrouvera ?', 'De temps en temps', 'Tous les jours']
+];
+
+PIMENT.top = [
+  ['Classe du plus excitant au moins.', ['Les mains', 'La bouche', 'La voix', 'Le regard']],
+  ['Classe les endroits, du plus tentant au moins.', ['Sous la douche', 'Dans le lit', 'Sur le canapé', 'Dehors']],
+  ['Classe ce que tu préfères.', ['Les préliminaires', 'La seconde juste avant', 'Pendant', 'Le câlin d\'après']],
+  ['Classe du plus au moins tentant.', ['Les yeux bandés', 'Les mains attachées', 'Devant un miroir', 'Dans le noir complet']],
+  ['Classe ce qui te fait craquer le plus vite.', ['Un mot très cru', 'Un geste très lent', 'Un regard', 'Un souffle dans le cou']],
+  ['Classe ce dont tu as le plus envie ce soir.', ['Un vocal', 'Une photo', 'Un appel vidéo', 'Que je te raconte tout']],
+  ['Classe du plus au moins toi.', ['Prendre le contrôle', 'Me laisser faire', 'Provoquer', 'Faire attendre']],
+  ['Classe le moment idéal.', ['Au réveil', 'L\'après-midi', 'Le soir', 'En pleine nuit']]
+];
