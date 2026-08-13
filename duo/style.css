@@ -601,3 +601,63 @@ body{
 @media(prefers-reduced-motion:reduce){
   *{animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
+
+/* ---------- le dilemme ---------- */
+.bareme{
+  color:var(--soft);font-size:.8rem;line-height:1.6;max-width:520px;
+  margin:16px auto 0;padding:11px 14px;border:1px solid var(--edge);
+  border-radius:12px;background:var(--glass);
+}
+
+/* ---------- les tirs au but ---------- */
+.cage{
+  position:relative;max-width:420px;height:150px;margin:18px auto 0;
+  border:3px solid rgba(255,255,255,.5);border-bottom:none;
+  border-radius:8px 8px 0 0;background:rgba(255,255,255,.03);overflow:hidden;
+}
+.cage .filet{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.13) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.13) 1px,transparent 1px);
+  background-size:17px 17px;
+}
+.cage .gardien,.cage .ballon{
+  position:absolute;font-size:2rem;line-height:1;
+  transition:left .45s cubic-bezier(.3,1.4,.5,1),top .45s ease;
+}
+.cage .gardien{top:44px;left:50%;transform:translateX(-50%)}
+.cage .ballon{top:96px;left:50%;transform:translateX(-50%);font-size:1.7rem}
+.cage.jG .ballon{left:17%} .cage.jC .ballon{left:50%} .cage.jD .ballon{left:83%}
+.cage.jG .ballon,.cage.jC .ballon,.cage.jD .ballon{top:38px}
+.cage.gG .gardien{left:17%} .cage.gC .gardien{left:50%} .cage.gD .gardien{left:83%}
+.cage.but{box-shadow:inset 0 0 40px rgba(94,224,230,.4)}
+.cage.arret{box-shadow:inset 0 0 40px rgba(255,111,174,.4)}
+.tir-choix{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;max-width:460px;margin:16px auto 0}
+.score-tir{color:var(--gold);font-size:.9rem;margin:14px 0 0;font-variant-numeric:tabular-nums}
+
+/* ---------- la fusion ---------- */
+.fus-hist{max-width:460px;margin:14px auto 0;display:flex;flex-direction:column;gap:6px}
+.fus-l{
+  display:grid;grid-template-columns:26px 1fr 1fr;gap:8px;align-items:center;
+  border:1px solid var(--edge);border-radius:11px;padding:8px 10px;background:var(--glass);
+}
+.fus-l i{color:var(--soft);font-style:normal;font-size:.76rem;text-align:center}
+.fus-l span{font-size:.92rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fus-l span:nth-child(2){color:var(--cyan)}
+.fus-l span:nth-child(3){color:var(--rose);text-align:right}
+
+/* ---------- le compte est bon ---------- */
+.cal-nums{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin:16px 0 4px}
+.cal-nums span{
+  min-width:52px;padding:11px 6px;border:1px solid var(--edge);border-radius:12px;
+  background:var(--glass);font-size:1.28rem;font-weight:700;color:var(--gold);
+  font-variant-numeric:tabular-nums;
+}
+
+@media(max-width:520px){
+  .cage{height:120px}
+  .cage .gardien{top:32px} .cage .ballon{top:74px}
+  .cage.jG .ballon,.cage.jC .ballon,.cage.jD .ballon{top:28px}
+  .tir-choix{gap:6px}
+  .cal-nums span{min-width:44px;font-size:1.1rem}
+}
