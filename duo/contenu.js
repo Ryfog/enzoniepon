@@ -497,3 +497,215 @@ const INTRUS = [
   ['🌙', '🌛'], ['🐟', '🐠'], ['🍋', '🍈'], ['❤️', '🧡'], ['🎈', '🎀'],
   ['🐸', '🐢'], ['🍇', '🫐'], ['☁️', '🌥️'], ['🦊', '🐱'], ['🌵', '🌲']
 ];
+
+/* =========================================================
+   RALLONGE — nouvelles séries ajoutées aux banques ci-dessus.
+   Rien n'est remplacé : tout s'ajoute à la suite.
+   ========================================================= */
+
+/* ---------- MODE NORMAL ---------- */
+
+QUI.push(
+  'Qui craquerait le premier pour un deuxième animal ?',
+  'Qui a le pire sens de l\'orientation ?',
+  'Qui chante le plus faux sous la douche ?',
+  'Qui dépense le plus sans réfléchir ?',
+  'Qui pardonne le plus vite après une dispute ?',
+  'Qui parle le plus à Milo comme s\'il répondait ?',
+  'Qui perd le plus souvent ses clés ?',
+  'Qui tiendrait le plus longtemps sans son téléphone ?',
+  'Qui rit le plus fort au cinéma ?',
+  'Qui raconte le mieux une histoire ?',
+  'Qui est le plus rancunier des deux ?',
+  'Qui ferait le premier pas après trois jours de silence ?',
+  'Qui a le plus de photos inutiles dans sa galerie ?',
+  'Qui gagnerait un bras de fer ?',
+  'Qui serait le plus insupportable en voiture pendant six heures ?',
+  'Qui tiendrait le plus longtemps sans sucre ?',
+  'Qui est le plus doué pour garder un secret ?'
+);
+
+SYNCHRO.push(
+  'Un plat qu\'on mangera le premier soir.',
+  'Une couleur qui nous représente.',
+  'Un film qu\'on peut revoir cent fois.',
+  'Un pays où on ira, un jour.',
+  'Un mot pour décrire l\'attente.',
+  'Une saison, la nôtre.',
+  'Un objet qui te fait penser à moi.',
+  'Un chiffre entre 1 et 10.',
+  'Une ville où on vivrait bien.',
+  'Le meilleur jour de la semaine.',
+  'Le premier mot qui te vient en pensant à Milo.',
+  'Un mot pour le 16 septembre.',
+  'Le surnom qu\'on utilise le plus.',
+  'Une heure de la nuit.',
+  'Un truc qu\'on fera qu\'on n\'a jamais fait.'
+);
+
+PREFERE.push(
+  ['Ne plus jamais revoir un film', 'Ne plus jamais réécouter une chanson'],
+  ['Vivre sans télévision', 'Vivre sans musique'],
+  ['Un an sans réseaux sociaux', 'Un an sans sucreries'],
+  ['Avoir toujours froid', 'Avoir toujours chaud'],
+  ['Savoir tout cuisiner', 'Parler dix langues'],
+  ['Dormir 4 h sans jamais être fatigué', 'Dormir 12 h chaque nuit'],
+  ['Voyager toute l\'année', 'Avoir la maison de tes rêves'],
+  ['Revenir un jour en arrière', 'Voir un jour à l\'avance'],
+  ['Un chien qui parle', 'Un chat qui comprend tout'],
+  ['Ne plus jamais avoir mal', 'Ne plus jamais être triste'],
+  ['Gagner beaucoup en travaillant tout le temps', 'Gagner peu et avoir tout ton temps'],
+  ['Perdre toutes tes photos', 'Perdre tous tes messages'],
+  ['Vivre au bord d\'un lac', 'Vivre en pleine forêt'],
+  ['Ne plus jamais mentir', 'Qu\'on ne te mente plus jamais'],
+  ['Être toujours en avance', 'Ne plus jamais attendre']
+);
+
+QUIZ.push(
+  ['Quelle est la capitale de l\'Australie ?', ['Canberra', 'Sydney', 'Melbourne', 'Perth'], 0],
+  ['Quel est le symbole chimique de l\'or ?', ['Au', 'Or', 'Ag', 'Go'], 0],
+  ['Dans quel pays se trouve le Machu Picchu ?', ['Le Pérou', 'La Bolivie', 'Le Chili', 'Le Mexique'], 0],
+  ['Quel animal terrestre court le plus vite ?', ['Le guépard', 'Le lion', 'Le cheval', 'L\'autruche'], 0],
+  ['Combien de temps met la Terre pour tourner sur elle-même ?', ['24 heures', '12 heures', '365 jours', '48 heures'], 0],
+  ['Qui a peint la Joconde ?', ['Léonard de Vinci', 'Michel-Ange', 'Raphaël', 'Botticelli'], 0],
+  ['Quelle est la monnaie du Japon ?', ['Le yen', 'Le won', 'Le yuan', 'Le baht'], 0],
+  ['Combien de côtés a un triangle équilatéral ?', ['3', '4', '6', '2'], 0],
+  ['Quel est le plus grand désert chaud du monde ?', ['Le Sahara', 'Le Gobi', 'L\'Atacama', 'Le Kalahari'], 0],
+  ['Combien font 7 × 8 ?', ['56', '54', '48', '64'], 0],
+  ['Quelle est la langue la plus parlée au Brésil ?', ['Le portugais', 'L\'espagnol', 'Le brésilien', 'Le français'], 0],
+  ['Quel est le plus petit os du corps humain ?', ['L\'étrier', 'Le radius', 'La rotule', 'Le fémur'], 0]
+);
+
+PHRASES.push(
+  'Le chat a encore renversé le verre d\'eau',
+  'On a marché jusqu\'à ne plus sentir nos jambes',
+  'La valise est prête depuis trois jours',
+  'Il pleut sur la fenêtre et on est très bien',
+  'Le café refroidit pendant qu\'on parle',
+  'On se lève tôt demain et personne n\'y croit',
+  'La musique est trop forte mais on s\'en fiche',
+  'Il reste une part de gâteau et deux prétendants',
+  'Le train arrive dans quatorze minutes',
+  'On a dit dix minutes il y a deux heures'
+);
+
+SECRETS.push(
+  'silence', 'tempête', 'velours', 'marée', 'carnet', 'fumée',
+  'sablier', 'falaise', 'lanterne', 'écharpe', 'boussole', 'grenier'
+);
+
+CATEGORIES.push(
+  'une marque de voiture', 'une série', 'quelque chose de rouge',
+  'un dessert', 'un mot de plus de dix lettres', 'une chanson',
+  'quelque chose qui vole', 'un truc qu\'on oublie toujours',
+  'une île', 'quelque chose qui pique'
+);
+
+MOTS.push(
+  'sirène', 'dragon', 'pyramide', 'sorcière', 'boussole', 'trampoline',
+  'accordéon', 'cerise', 'flamant', 'koala', 'lanterne', 'menotte',
+  'harpe', 'orage', 'perroquet', 'quille', 'sablier', 'trompette',
+  'vampire', 'xylophone', 'yaourt', 'zeppelin', 'chameau', 'donut'
+);
+
+INTRUS.push(
+  ['😄', '😁'], ['🐭', '🐹'], ['🦋', '🐝'], ['🍑', '🍅'],
+  ['🌻', '🌼'], ['🚌', '🚐'], ['💧', '💦'], ['🎃', '🥭']
+);
+
+/* ---------- MODE PIMENT ---------- */
+
+PIMENT.qui.push(
+  'Qui se touche le plus souvent en pensant à l\'autre ?',
+  'Qui jouit le plus vite des deux ?',
+  'Qui a le plus de mal à rester silencieux ?',
+  'Qui supplierait le premier ?',
+  'Qui aime le plus utiliser sa bouche ?',
+  'Qui craquerait si l\'autre commençait sans prévenir ?',
+  'Qui tiendrait le plus longtemps sans avoir le droit de bouger ?',
+  'Qui réclamerait une deuxième fois dans la foulée ?',
+  'Qui aime le plus se faire attacher ?',
+  'Qui prendrait le plus de plaisir à faire attendre l\'autre des heures ?',
+  'Qui oserait le faire dans la voiture ?',
+  'Qui laisse le plus de marques ?',
+  'Qui dit les choses les plus crues à voix haute ?',
+  'Qui a le plus envie qu\'on lui donne des ordres ?',
+  'Qui reprendrait tout de suite après une douche ?',
+  'Qui a déjà fait semblant de dormir pour voir ce que l\'autre ferait ?'
+);
+
+PIMENT.pre.push(
+  ['Contre le mur', 'Dans le lit'],
+  ['Ma bouche', 'Mes mains'],
+  ['Que tu me supplies', 'Que je te supplie'],
+  ['Sans un mot', 'En me disant absolument tout'],
+  ['Attaché et sans rien pouvoir faire', 'Libre de tout me faire'],
+  ['Que je m\'arrête juste avant', 'Que je ne m\'arrête jamais'],
+  ['Deux fois d\'affilée', 'Une seule fois mais interminable'],
+  ['Devant un miroir', 'Dans le noir complet'],
+  ['Que je décide de tout', 'Que tu décides de tout'],
+  ['Que je te réveille comme ça', 'Que tu me réveilles comme ça'],
+  ['Sur la table de la cuisine', 'Sous la douche brûlante'],
+  ['Que tu me montres comment tu fais seul', 'Que je te regarde sans droit de toucher'],
+  ['Des mots très crus', 'Des gestes très lents'],
+  ['En appel vidéo ce soir', 'Attendre, et que ce soit dix fois plus fort'],
+  ['Une nuit blanche entière', 'Une matinée qui ne finit pas'],
+  ['Que je te fasse attendre une heure', 'Que je te saute dessus sans prévenir']
+);
+
+PIMENT.osa.push(
+  ['v', 'Raconte-moi exactement ce que tu te fais quand tu penses à moi.'],
+  ['v', 'Quel mot très cru tu aimerais que je te dise à l\'oreille ?'],
+  ['v', 'Qu\'est-ce que tu n\'as jamais osé me demander au lit ?'],
+  ['v', 'Décris la dernière fois où tu t\'es touché en pensant à moi.'],
+  ['v', 'Quelle est la chose la plus sale dont tu as envie ?'],
+  ['v', 'Combien de temps tu tiendrais si je m\'occupais de toi sans m\'arrêter ?'],
+  ['v', 'Y a-t-il une limite que tu voudrais qu\'on dépasse ensemble ?'],
+  ['v', 'Qu\'est-ce qui te fait basculer le plus vite ?'],
+  ['v', 'Y a-t-il un endroit de ton corps que je néglige ?'],
+  ['a', 'Décris-moi mot pour mot ce que tu me ferais dans les cinq prochaines minutes.'],
+  ['a', 'Enlève tout ce qu\'il te reste au-dessus de la taille.'],
+  ['a', 'Touche-toi dix secondes, puis dis-moi à quoi tu as pensé.'],
+  ['a', 'Dis la phrase la plus crue dont tu es capable, sans rire.'],
+  ['a', 'Envoie-moi un vocal de dix secondes, sans un seul mot.'],
+  ['a', 'Décris ce que tu portes en dessous. Sois précis.'],
+  ['a', 'Écris-moi le message le plus sale dont tu es capable, maintenant.'],
+  ['a', 'Mords-toi la lèvre en me regardant et tiens dix secondes.'],
+  ['a', 'Montre-moi l\'endroit exact où tu veux que je t\'embrasse en premier.']
+);
+
+PIMENT.jam.push(
+  'Je ne me suis jamais touché juste après un de tes messages.',
+  'Je n\'ai jamais eu envie de toi au point d\'en avoir mal.',
+  'Je n\'ai jamais imaginé une scène très précise avec toi ce matin.',
+  'Je n\'ai jamais choisi mes sous-vêtements en pensant à ta réaction.',
+  'Je n\'ai jamais gardé une photo de toi rien que pour moi.',
+  'Je n\'ai jamais eu envie qu\'on me prenne sans discuter.',
+  'Je n\'ai jamais pensé à ça en pleine conversation avec quelqu\'un d\'autre.',
+  'Je n\'ai jamais eu un fantasme que je trouve trop gênant pour le dire.',
+  'Je n\'ai jamais fait durer exprès pour te voir craquer.',
+  'Je n\'ai jamais rejoué une de nos nuits dans ma tête, en détail.',
+  'Je n\'ai jamais menti en disant que j\'étais trop fatigué.',
+  'Je n\'ai jamais eu envie de le faire là où on aurait pu se faire surprendre.',
+  'Je n\'ai jamais compté combien de fois on l\'a fait en une seule journée.',
+  'Je n\'ai jamais espéré que tu insistes après avoir dit non.',
+  'Je n\'ai jamais eu envie de tout arrêter pour t\'appeler et te le dire.'
+);
+
+PIMENT.syn.push(
+  'Un mot très cru, le premier qui vient.',
+  'Une partie de mon corps.',
+  'Un endroit de la maison où on ne l\'a jamais fait.',
+  'Le vêtement à faire disparaître en premier.',
+  'Une position, en un mot.',
+  'Le nombre de fois idéal en une nuit.',
+  'Ce que tu veux entendre juste avant.',
+  'Un moment de la journée pour recommencer.',
+  'Un mot pour la première nuit où on se retrouvera.',
+  'Une limite qu\'on n\'a pas encore franchie.',
+  'Une texture, la première qui vient.',
+  'Un endroit sur la carte, pour une nuit entière.',
+  'Le mot de passe de nos nuits.',
+  'Ce que tu enlèves en premier quand tu rentres.',
+  'Un chiffre : combien de minutes avant que tu craques.'
+);
