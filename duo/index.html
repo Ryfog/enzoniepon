@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=12">
+  <link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
 
@@ -314,57 +314,6 @@
     </div>
 
     <!-- ACTION OU VÉRITÉ -->
-
-    <!-- ---------- LE DILEMME ---------- -->
-    <div class="mode" id="m-dil" hidden>
-      <p class="q" id="dil-q">Partager, ou tout garder ?</p>
-      <div class="two big-two">
-        <button class="pick" id="dil-p"><span class="av">🤝</span><b>Partager</b></button>
-        <button class="pick" id="dil-g"><span class="av">🎁</span><b>Tout garder</b></button>
-      </div>
-      <p class="bareme" id="dil-bareme">Les deux partagent : 1 point chacun · Un seul garde : il en prend 2, l'autre 0 · Les deux gardent : rien pour personne.</p>
-      <p class="wait-l" id="dil-w"></p>
-    </div>
-
-    <!-- ---------- LES TIRS AU BUT ---------- -->
-    <div class="mode" id="m-tir" hidden>
-      <p class="q" id="tir-q">—</p>
-      <div class="cage" id="tir-cage">
-        <i class="filet"></i>
-        <span class="gardien" id="tir-gardien">🧤</span>
-        <span class="ballon" id="tir-ballon">⚽</span>
-      </div>
-      <div class="tir-choix">
-        <button class="pick tir" data-v="G"><span class="av">⬅️</span><b>Gauche</b></button>
-        <button class="pick tir" data-v="C"><span class="av">⬆️</span><b>Centre</b></button>
-        <button class="pick tir" data-v="D"><span class="av">➡️</span><b>Droite</b></button>
-      </div>
-      <p class="score-tir" id="tir-sc">—</p>
-      <p class="wait-l" id="tir-w"></p>
-    </div>
-
-    <!-- ---------- LA FUSION ---------- -->
-    <div class="mode" id="m-fus" hidden>
-      <p class="q" id="fus-q">—</p>
-      <div class="fus-hist" id="fus-hist"></div>
-      <form id="fus-form" autocomplete="off">
-        <input class="in" id="fus-in" maxlength="30" placeholder="un seul mot…" autocomplete="off">
-        <button class="btn" type="submit">Envoyer</button>
-      </form>
-      <p class="wait-l" id="fus-w"></p>
-    </div>
-
-    <!-- ---------- LE COMPTE EST BON ---------- -->
-    <div class="mode" id="m-cal" hidden>
-      <p class="q" id="cal-q">—</p>
-      <div class="cal-nums" id="cal-nums"></div>
-      <form id="cal-form" autocomplete="off">
-        <input class="in" id="cal-in" maxlength="40" placeholder="ex : (5 + 3) × 7" autocomplete="off">
-        <button class="btn" type="submit">Valider</button>
-      </form>
-      <p class="wait-l" id="cal-w"></p>
-    </div>
-
     <div class="mode" id="m-osa" hidden>
       <span class="osa-genre" id="osa-genre">VÉRITÉ</span>
       <p class="osa-pour" id="osa-pour">—</p>
@@ -478,6 +427,6 @@
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="contenu.js?v=12"></script>
-<script src="game.js?v=12"></script>
+<script src="game.js?v=13"></script>
 </body>
 </html>

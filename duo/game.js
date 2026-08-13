@@ -11,11 +11,10 @@ const esc = s => String(s).replace(/[<>&"]/g, c => ({ '<': '&lt;', '>': '&gt;', 
 const PREFIXE = 'duo-es-';
 
 const TYPES = ['qui', 'syn', 'des', 'ref', 'bra', 'p4', 'pfc', 'vf', 'pre', 'int', 'cha', 'mem', 'qz',
-  'seq', 'bac', 'tap', 'mdp', 'bom', 'pen', 'pom', 'lab', 'mlp', 'chr', 'emo',
-  'dil', 'tir', 'fus', 'cal'];
+  'seq', 'bac', 'tap', 'mdp', 'bom', 'pen', 'pom', 'lab', 'mlp', 'chr', 'emo'];
 /* en mode piment on ne garde que les épreuves qui parlent de vous deux :
    les jeux d'adresse (puissance 4, bras de fer, tape vite…) n'ont rien de coquin */
-const TYPES_PIMENT = ['qui', 'pre', 'syn', 'vf', 'osa', 'jam', 'dil'];
+const TYPES_PIMENT = ['qui', 'pre', 'syn', 'vf', 'osa', 'jam'];
 const NOMS = {
   qui: 'Qui de nous deux', syn: 'Synchro', des: 'Dessine-moi', ref: 'Duel de réflexe',
   bra: 'Bras de fer', p4: 'Puissance 4', pfc: 'Pierre feuille ciseaux', vf: 'Vrai ou faux',
@@ -25,8 +24,7 @@ const NOMS = {
   mdp: 'Mot de passe', bom: 'Désamorçage',
   osa: 'Action ou vérité', jam: 'Je n\'ai jamais',
   pen: 'Le pendu', pom: 'Plus ou moins', lab: 'Labyrinthe aveugle',
-  mlp: 'Le mot le plus long', chr: 'Chrono aveugle', emo: 'Devine l\'emoji',
-  dil: 'Le dilemme', tir: 'Les tirs au but', fus: 'La fusion', cal: 'Le compte est bon'
+  mlp: 'Le mot le plus long', chr: 'Chrono aveugle', emo: 'Devine l\'emoji'
 };
 const BAT = { pierre: 'ciseaux', feuille: 'pierre', ciseaux: 'feuille' };
 const P4C = 7, P4L = 6;
@@ -46,89 +44,6 @@ function tirer(cat, arr) {
   vus.push(i);
   HIST[cat] = vus; sauveHist();
   return arr[i];
-}
-
-
-/* =========================================================
-   QUATRE ÉPREUVES DE PLUS
-   dil — le dilemme      tir — les tirs au but
-   fus — la fusion       cal — le compte est bon
-   ========================================================= */
-
-/* ---------- le compte est bon : outils ----------
-   On fabrique la cible EN PARTANT des nombres tirés, donc il existe
-   toujours au moins une solution. */
-function fabriqueCompte() {
-  for (let essai = 0; essai < 300; essai++) {
-    const n = [];
-    for (let k = 0; k < 4; k++) n.push(1 + Math.floor(Math.random() * 10));
-    if (Math.random() < .5) n[3] = pick([25, 50, 75, 100]);
-    const ordre = melange(n);
-    let v = ordre[0];
-    for (let k = 1; k < ordre.length; k++) {
-      const o = pick(['+', '+', '*', '-']);
-      if (o === '+') v += ordre[k];
-      else if (o === '*') v *= ordre[k];
-      else v -= ordre[k];
-    }
-    if (v >= 12 && v <= 400 && Number.isInteger(v)) return { nums: n, cible: v };
-  }
-  return { nums: [2, 3, 5, 7], cible: 2 * 3 + 5 + 7 };
-}
-
-/* analyse une expression sans jamais utiliser eval :
-   entiers, + - * / et parenthèses. Renvoie null si c'est mal formé. */
-function calcule(txt) {
-  const t = String(txt).replace(/\s+/g, '')
-    .replace(/[x×X]/g, '*').replace(/[÷:]/g, '/')
-    .replace(/[\[\{]/g, '(').replace(/[\]\}]/g, ')');
-  if (!t || !/^[0-9+\-*/()]+$/.test(t)) return null;
-  let i = 0;
-  const nombres = [];
-  const expr = () => {
-    let v = terme(); if (v === null) return null;
-    while (t[i] === '+' || t[i] === '-') {
-      const o = t[i++], d = terme();
-      if (d === null) return null;
-      v = o === '+' ? v + d : v - d;
-    }
-    return v;
-  };
-  const terme = () => {
-    let v = facteur(); if (v === null) return null;
-    while (t[i] === '*' || t[i] === '/') {
-      const o = t[i++], d = facteur();
-      if (d === null || (o === '/' && d === 0)) return null;
-      v = o === '*' ? v * d : v / d;
-    }
-    return v;
-  };
-  const facteur = () => {
-    if (t[i] === '(') {
-      i++; const v = expr();
-      if (v === null || t[i] !== ')') return null;
-      i++; return v;
-    }
-    let n = '';
-    while (i < t.length && t[i] >= '0' && t[i] <= '9') n += t[i++];
-    if (!n) return null;
-    nombres.push(+n);
-    return +n;
-  };
-  const v = expr();
-  if (v === null || i !== t.length) return null;
-  return { valeur: v, nombres };
-}
-
-/* vérifie qu'on n'a utilisé que les nombres proposés, chacun au plus une fois */
-function nombresAutorises(utilises, dispo) {
-  const reste = [...dispo];
-  for (const n of utilises) {
-    const k = reste.indexOf(n);
-    if (k === -1) return false;
-    reste.splice(k, 1);
-  }
-  return true;
 }
 
 /* ============ ÉTAT ============ */
@@ -179,7 +94,6 @@ function etatPourInvite() {
   if (!st || st.ph !== 'round') return st;
   const c = JSON.parse(JSON.stringify(st));
   if (c.ans && c.ans.h !== null && c.ans.h !== undefined) c.ans.h = '·';
-  if (c.tir && c.tir.choix) delete c.tir.choix.h;
   if (c.type === 'des' && c.drawer !== 'g') c.q = '';
   if (c.type === 'mdp' && c.mdp && c.mdp.donneur !== 'g') c.q = '';
   return c;
@@ -423,10 +337,6 @@ function manche(i) {
   if (T === 'syn') { st.q = piment ? tirer('synP', PIMENT.syn) : tirer('syn', SYNCHRO); diffuse(); return; }
   if (T === 'pre') { st.q = piment ? tirer('preP', PIMENT.pre) : tirer('pre', PREFERE); diffuse(); return; }
 
-  if (T === 'dil') { diffuse(); return; }
-  if (T === 'tir') { st.tir = { n: 0, max: 4, but: { h: 0, g: 0 }, choix: {}, dernier: null }; diffuse(); return; }
-  if (T === 'fus') { st.fus = { tour: 1, max: 5, hist: [] }; diffuse(); return; }
-  if (T === 'cal') { const C = fabriqueCompte(); st.cal = { nums: C.nums, cible: C.cible, rate: {} }; diffuse(); return; }
 
   if (T === 'des') {
     st.drawer = i % 2 === 0 ? 'h' : 'g';
@@ -862,80 +772,6 @@ function action(qui, a) {
   }
 
   /* --- action ou vérité : c'est l'AUTRE qui valide --- */
-  else if (a.k === 'dil' && st.ph === 'round' && st.type === 'dil') {
-    if (st.ans[qui]) return;
-    st.ans[qui] = a.v === 'g' ? 'g' : 'p';
-    if (!st.ans.h || !st.ans.g) { diffuse(); return; }
-    const H = st.ans.h, G = st.ans.g;
-    if (H === 'p' && G === 'p') {
-      st.sc.h++; st.sc.g++;
-      reveler({ e: '🤝', t: 'Partagé tous les deux', p: 'Un point chacun. C\'est le seul choix où personne ne perd.' });
-    } else if (H === 'g' && G === 'g') {
-      reveler({ e: '💥', t: 'Vous avez tout gardé tous les deux', p: 'Donc zéro pour tout le monde. C\'est le piège.' });
-    } else {
-      const w = H === 'g' ? 'h' : 'g', p = w === 'h' ? 'g' : 'h';
-      st.sc[w] += 2;
-      reveler({ e: '🎁', t: `${st.nm[w]} a tout gardé`, p: `${st.nm[p]} avait partagé. 2 points contre 0.` });
-    }
-  }
-
-  else if (a.k === 'tir' && st.ph === 'round' && st.type === 'tir') {
-    const R = st.tir;
-    if (R.choix[qui] !== undefined) return;
-    if (!['G', 'C', 'D'].includes(a.v)) return;
-    R.choix[qui] = a.v;
-    if (R.choix.h === undefined || R.choix.g === undefined) { diffuse(); return; }
-    const tireur = R.n % 2 === 0 ? 'h' : 'g', gardien = tireur === 'h' ? 'g' : 'h';
-    const but = R.choix[tireur] !== R.choix[gardien];
-    if (but) R.but[tireur]++;
-    R.dernier = { tir: R.choix[tireur], gar: R.choix[gardien], but };
-    R.n++; R.choix = {};
-    if (R.n < R.max) { diffuse(); return; }
-    const bh = R.but.h, bg = R.but.g;
-    if (bh > bg) st.sc.h++; else if (bg > bh) st.sc.g++; else { st.sc.h++; st.sc.g++; }
-    reveler({
-      e: bh === bg ? '🤝' : '⚽',
-      t: bh === bg ? 'Séance nulle' : `${st.nm[bh > bg ? 'h' : 'g']} gagne la séance`,
-      p: `${st.nm.h} ${bh} — ${bg} ${st.nm.g}, sur ${R.max} tirs.`
-    });
-  }
-
-  else if (a.k === 'fus' && st.ph === 'round' && st.type === 'fus') {
-    if (st.ans[qui] !== null) return;
-    const v = String(a.v || '').trim().slice(0, 30);
-    if (!v) return;
-    st.ans[qui] = v;
-    if (st.ans.h === null || st.ans.g === null) { diffuse(); return; }
-    const F = st.fus;
-    F.hist.push({ h: st.ans.h, g: st.ans.g });
-    if (norm(st.ans.h) === norm(st.ans.g)) {
-      st.sc.h++; st.sc.g++;
-      reveler({ e: '🧠', t: 'Fusion !', p: `« ${st.ans.h} » — trouvé en ${F.tour} essai${F.tour > 1 ? 's' : ''}. Un point chacun.` });
-      return;
-    }
-    if (F.tour >= F.max) {
-      reveler({ e: '🌀', t: 'Pas de fusion cette fois', p: `Vous avez fini sur « ${st.ans.h} » et « ${st.ans.g} ».` });
-      return;
-    }
-    F.tour++;
-    st.ans = { h: null, g: null };
-    diffuse();
-  }
-
-  else if (a.k === 'cal' && st.ph === 'round' && st.type === 'cal') {
-    const C = st.cal, r = calcule(a.v);
-    if (!r) { C.rate[qui] = 'Expression incomprise — réessaie.'; diffuse(); return; }
-    if (!nombresAutorises(r.nombres, C.nums)) {
-      C.rate[qui] = 'Un nombre n\'est pas proposé, ou tu l\'as pris deux fois.'; diffuse(); return;
-    }
-    if (r.valeur !== C.cible) {
-      C.rate[qui] = `Ça fait ${Number.isInteger(r.valeur) ? r.valeur : r.valeur.toFixed(2)}, pas ${C.cible}.`;
-      diffuse(); return;
-    }
-    st.sc[qui]++;
-    reveler({ e: '🧮', t: `${st.nm[qui]} trouve !`, p: `${a.v} = ${C.cible}` });
-  }
-
   else if (a.k === 'osa' && st.ph === 'round' && st.type === 'osa') {
     if (qui === st.osa.cible) return;
     if (a.v) { st.sc.h++; st.sc.g++; }
@@ -1072,7 +908,6 @@ function jouer(a) { if (hote) action(moi, a); else envoie({ t: 'A', a }); }
    RENDU
    ========================================================= */
 let manchePrec = -1, finLocale = 0, mesCoups = 0, dernierEnvoi = 0, chronoBra = null;
-let calRound = -1, fusCle = '';
 
 function rendu() {
   if (!st) return;
@@ -1359,51 +1194,6 @@ function rendu() {
       `<span>${esc(m.txt)}</span>`).join('');
     $('#emo-in').disabled = !!st.emo.ko[moi];
     $('#emo-w').textContent = 'Le premier qui trouve marque le point.';
-  }
-
-  else if (T === 'dil') {
-    on('m-dil');
-    const f = st.ans[moi];
-    $('#dil-q').textContent = 'Un point est sur la table. Partager, ou tout garder ?';
-    $('#dil-p').classList.toggle('on', f === 'p');
-    $('#dil-g').classList.toggle('on', f === 'g');
-    $('#dil-p').disabled = !!f; $('#dil-g').disabled = !!f;
-    $('#dil-w').textContent = f ? 'Choisi. On attend l\'autre…' : 'Vous choisissez en même temps, sans savoir.';
-  }
-
-  else if (T === 'tir') {
-    on('m-tir');
-    const R = st.tir, tireur = R.n % 2 === 0 ? 'h' : 'g';
-    const jeTire = tireur === moi, fait = R.choix[moi] !== undefined;
-    $('#tir-q').textContent = jeTire ? 'À toi de tirer. Choisis ton côté.' : 'Tu es dans les buts. Choisis ton côté.';
-    $$('.tir').forEach(b => { b.disabled = fait; b.classList.toggle('on', R.choix[moi] === b.dataset.v); });
-    $('#tir-sc').textContent = `${st.nm.h} ${R.but.h} — ${R.but.g} ${st.nm.g}  ·  tir ${R.n + 1} / ${R.max}`;
-    const D = R.dernier;
-    $('#tir-cage').className = 'cage' + (D ? ` j${D.tir} g${D.gar} ${D.but ? 'but' : 'arret'}` : '');
-    $('#tir-w').textContent = fait ? 'Envoyé. On attend l\'autre…'
-      : (D ? (D.but ? '⚽ But sur le tir précédent.' : '🧤 Arrêt sur le tir précédent.') : 'Vous choisissez à l\'aveugle, en même temps.');
-  }
-
-  else if (T === 'fus') {
-    on('m-fus');
-    const F = st.fus, fait = st.ans[moi] !== null;
-    $('#fus-q').textContent = F.tour === 1
-      ? 'Écrivez un mot, n\'importe lequel. Le but : tomber sur le même.'
-      : 'Maintenant un mot qui relie les deux derniers. Toujours en même temps.';
-    $('#fus-hist').innerHTML = F.hist.map((p, k) =>
-      `<div class="fus-l"><i>${k + 1}</i><span>${esc(p.h)}</span><span>${esc(p.g)}</span></div>`).join('');
-    $('#fus-in').disabled = fait;
-    if (fusCle !== st.i + '-' + F.tour) { fusCle = st.i + '-' + F.tour; $('#fus-in').value = ''; }
-    $('#fus-w').textContent = fait ? 'Envoyé. On attend l\'autre…' : `Essai ${F.tour} sur ${F.max}`;
-  }
-
-  else if (T === 'cal') {
-    on('m-cal');
-    const C = st.cal;
-    $('#cal-q').textContent = `Atteins exactement ${C.cible}.`;
-    $('#cal-nums').innerHTML = C.nums.map(n => `<span>${n}</span>`).join('');
-    if (calRound !== st.i) { calRound = st.i; $('#cal-in').value = ''; }
-    $('#cal-w').textContent = C.rate[moi] || 'Chaque nombre au plus une fois. + − × ÷ et parenthèses.';
   }
 
   else if (T === 'osa') {
@@ -1842,26 +1632,3 @@ function toast(t) {
   clearTimeout(tToast);
   tToast = setTimeout(() => { el.hidden = true; }, 3200);
 }
-
-/* --- le dilemme --- */
-$('#dil-p').addEventListener('click', () => jouer({ k: 'dil', v: 'p' }));
-$('#dil-g').addEventListener('click', () => jouer({ k: 'dil', v: 'g' }));
-
-/* --- les tirs au but --- */
-$$('.tir').forEach(b => b.addEventListener('click', () => jouer({ k: 'tir', v: b.dataset.v })));
-
-/* --- la fusion --- */
-$('#fus-form').addEventListener('submit', e => {
-  e.preventDefault();
-  const el = $('#fus-in'), v = el.value.trim();
-  if (!v) { el.focus(); return; }
-  jouer({ k: 'fus', v }); el.value = '';
-});
-
-/* --- le compte est bon --- */
-$('#cal-form').addEventListener('submit', e => {
-  e.preventDefault();
-  const el = $('#cal-in'), v = el.value.trim();
-  if (!v) { el.focus(); return; }
-  jouer({ k: 'cal', v }); el.select();
-});
