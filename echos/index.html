@@ -1,73 +1,30 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ÉCHOS — deux époques, deux joueurs</title>
-  <meta name="description" content="Un jeu coopératif en écran partagé : la même cité, à trois siècles d'écart.">
-  <meta name="robots" content="noindex">
-  <meta name="theme-color" content="#14121c">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⧗</text></svg>">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>&nbsp;</title>
+<link rel="icon" href="data:,">
+<style>
+  html, body { height: 100%; margin: 0; background: #000; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    font-family: Georgia, 'Times New Roman', serif;
+  }
+  /* Le texte est visible par defaut. L'animation ne fait que l'amener :
+     si elle ne part pas, la page reste lisible au lieu de rester noire. */
+  p {
+    margin: 0; padding: 0 24px; color: #6a6a6a;
+    font-size: clamp(1.5rem, 6vw, 2.6rem);
+    letter-spacing: .04em; text-align: center;
+    animation: venir 2.6s ease;
+  }
+  @keyframes venir { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { p { animation: none; } }
+</style>
 </head>
 <body>
-
-<!-- ==================== ACCUEIL ==================== -->
-<section class="ecran on" id="e-menu">
-  <div class="carte">
-    <p class="sur">Coopératif · 2 joueurs · un seul clavier</p>
-    <h1 class="titre">ÉCHOS</h1>
-    <p class="tag">La même cité, à trois siècles d'écart.<br>
-      L'un bâtit. L'autre récolte les ruines.</p>
-
-    <div class="roles">
-      <div class="role r1">
-        <span class="pastille"></span>
-        <b>AUTREFOIS</b>
-        <small>Joueur 1</small>
-        <p><kbd>Q</kbd><kbd>D</kbd> courir · <kbd>Z</kbd> sauter · <kbd>E</kbd> agir</p>
-      </div>
-      <div class="role r2">
-        <span class="pastille"></span>
-        <b>AUJOURD'HUI</b>
-        <small>Joueur 2</small>
-        <p><kbd>←</kbd><kbd>→</kbd> courir · <kbd>↑</kbd> sauter · <kbd>Entrée</kbd> agir</p>
-      </div>
-    </div>
-
-    <button class="btn" id="b-jouer">Commencer à deux</button>
-    <button class="btn creux" id="b-solo">Jouer seul (Tab pour changer)</button>
-    <p class="note">Ce que le joueur du passé modifie apparaît dans le présent.</p>
-  </div>
-</section>
-
-<!-- ==================== JEU ==================== -->
-<section class="ecran" id="e-jeu">
-  <div class="bandeau">
-    <span class="etiq e-passe">AUTREFOIS</span>
-    <span class="titre-niv" id="h-niv">—</span>
-    <span class="etiq e-present">AUJOURD'HUI</span>
-  </div>
-
-  <div class="scene">
-    <canvas id="cv" width="1440" height="720"></canvas>
-    <div class="aide" id="aide"></div>
-    <div class="fin" id="fin" hidden>
-      <p class="fin-t">LES DEUX ÉPOQUES SE REJOIGNENT</p>
-      <div class="fin-stats" id="fin-stats"></div>
-      <button class="btn" id="b-rejouer">Recommencer</button>
-    </div>
-  </div>
-
-  <p class="etat" id="etat">—</p>
-</section>
-
-<div class="toast" id="toast" hidden></div>
-
-<script src="monde.js?v=1"></script>
-<script src="jeu.js?v=1"></script>
+  <p>c'est fini</p>
 </body>
 </html>

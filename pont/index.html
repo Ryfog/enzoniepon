@@ -1,104 +1,30 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Le Pont 💛</title>
-  <meta name="description" content="Qui connaît le mieux l'autre ?">
-  <meta name="robots" content="noindex">
-  <meta name="theme-color" content="#1a1028">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💛</text></svg>">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Karla:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>&nbsp;</title>
+<link rel="icon" href="data:,">
+<style>
+  html, body { height: 100%; margin: 0; background: #000; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    font-family: Georgia, 'Times New Roman', serif;
+  }
+  /* Le texte est visible par defaut. L'animation ne fait que l'amener :
+     si elle ne part pas, la page reste lisible au lieu de rester noire. */
+  p {
+    margin: 0; padding: 0 24px; color: #6a6a6a;
+    font-size: clamp(1.5rem, 6vw, 2.6rem);
+    letter-spacing: .04em; text-align: center;
+    animation: venir 2.6s ease;
+  }
+  @keyframes venir { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { p { animation: none; } }
+</style>
 </head>
 <body>
-
-<canvas id="cv"></canvas>
-
-<!-- ============ LA RIVE ============ -->
-<section class="ec on" id="e-entree">
-  <div class="carte">
-    <p class="sur">Deux rives, une nuit</p>
-    <h1 class="titre">Le Pont</h1>
-    <p class="chapo">Treize questions sur nous deux.<br>
-      Chacun répond pour soi — et devine ce que l'autre a répondu.<br>
-      <em>À chaque bonne intuition, une planche se pose.</em></p>
-
-    <label class="lab" for="nom">Ton prénom</label>
-    <input class="in" id="nom" maxlength="14" placeholder="Enzo" autocomplete="off">
-
-    <div class="deux">
-      <button class="btn" id="b-ouvrir">Allumer ma rive</button>
-      <button class="btn creux" id="b-rejoindre">Rejoindre</button>
-    </div>
-
-    <div class="join" id="joinbox" hidden>
-      <label class="lab" for="code">Code de l'autre rive</label>
-      <input class="in code" id="code" maxlength="4" placeholder="ABCD" autocomplete="off">
-      <button class="btn" id="b-entrer">Traverser</button>
-    </div>
-
-    <button class="btn creux large" id="b-seul">Regarder seul, pour voir</button>
-    <p class="err" id="err"></p>
-  </div>
-</section>
-
-<!-- ============ ATTENTE ============ -->
-<section class="ec" id="e-attente">
-  <div class="carte">
-    <p class="sur">Ta rive est allumée</p>
-    <div class="code-geant" id="code-geant">····</div>
-    <button class="btn creux mini" id="b-copier">Copier le code</button>
-    <p class="chapo" id="attente-txt">On attend l'autre lumière…</p>
-    <div class="paire-noms">
-      <div class="rive r1"><span></span><b id="nm1">—</b></div>
-      <div class="entre">et</div>
-      <div class="rive r2"><span></span><b id="nm2">—</b></div>
-    </div>
-    <button class="btn" id="b-commencer" hidden>Commencer</button>
-  </div>
-</section>
-
-<!-- ============ LE JEU ============ -->
-<section class="ec" id="e-jeu">
-  <div class="bandeau-haut">
-    <span class="pts p1"><b id="s1">0</b><i id="n1">—</i></span>
-    <span class="centre"><b id="etape">Question 1 / 13</b><i id="genre">—</i></span>
-    <span class="pts p2"><i id="n2">—</i><b id="s2">0</b></span>
-  </div>
-
-  <p class="consigne" id="consigne">—</p>
-
-  <div class="reponses" id="reponses"></div>
-
-  <div class="revele" id="revele" hidden>
-    <p class="r-titre" id="r-titre"></p>
-    <p class="r-sous" id="r-sous"></p>
-  </div>
-
-  <div class="basculer" id="basculer" hidden>
-    <button class="btn creux mini" id="b-switch">Tu réponds pour : <b id="switch-nom">—</b></button>
-  </div>
-</section>
-
-<!-- ============ FIN ============ -->
-<section class="ec" id="e-fin">
-  <div class="carte">
-    <p class="sur">Le pont est posé</p>
-    <h2 class="titre petit" id="fin-t">—</h2>
-    <div class="bilan" id="fin-sc"></div>
-    <p class="chapo" id="fin-p"></p>
-    <p class="mot" id="fin-mot"></p>
-    <button class="btn" id="b-rejouer">Recommencer une nuit</button>
-  </div>
-</section>
-
-<div class="toast" id="toast" hidden></div>
-
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<script src="contenu.js?v=1"></script>
-<script src="jeu.js?v=1"></script>
+  <p>c'est fini</p>
 </body>
 </html>

@@ -1,143 +1,30 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pour toi, mon bébé d'amour 🤍</title>
-  <meta name="description" content="Un petit mot rien que pour toi.">
-  <meta name="robots" content="noindex">
-  <meta name="theme-color" content="#fff2ee">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤍</text></svg>">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Shantell+Sans:wght@400;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>&nbsp;</title>
+<link rel="icon" href="data:,">
+<style>
+  html, body { height: 100%; margin: 0; background: #000; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    font-family: Georgia, 'Times New Roman', serif;
+  }
+  /* Le texte est visible par defaut. L'animation ne fait que l'amener :
+     si elle ne part pas, la page reste lisible au lieu de rester noire. */
+  p {
+    margin: 0; padding: 0 24px; color: #6a6a6a;
+    font-size: clamp(1.5rem, 6vw, 2.6rem);
+    letter-spacing: .04em; text-align: center;
+    animation: venir 2.6s ease;
+  }
+  @keyframes venir { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { p { animation: none; } }
+</style>
 </head>
 <body>
-
-<canvas id="coeurs" aria-hidden="true"></canvas>
-
-<!-- ============ LE PLI ============ -->
-<div class="pli" id="pli">
-  <div class="pli-in">
-    <div class="pli-papier">
-      <span class="pli-coin"></span>
-      <p class="pli-pour">Pour toi</p>
-      <p class="pli-nom">Stacy</p>
-      <p class="pli-sous">— de la part de quelqu'un<br>qui s'y prend mal —</p>
-    </div>
-    <button class="btn" id="pli-btn">Déplier le mot 🤍</button>
-  </div>
-</div>
-
-<main class="wrap" id="wrap">
-
-  <!-- ============ LE MOT ============ -->
-  <header class="tete">
-    <p class="kick">Il fallait que je te le dise</p>
-    <h1 class="h1">Mon bébé<br><em>d'amour</em></h1>
-  </header>
-
-  <section class="carte papier">
-    <span class="ruban" aria-hidden="true"></span>
-    <img class="rose rose-hg" src="img/rose1.webp" alt="" aria-hidden="true">
-    <img class="rose rose-bd" src="img/rose2.webp" alt="" aria-hidden="true">
-    <div class="lettre">
-      <p>Mon bébé d'amour,</p>
-      <p>
-        Je sais qu'il y a des jours où tu dois te demander si je t'aime
-        vraiment. Parce que je ne suis pas assez mignon avec toi. Parce
-        que je ne te le dis pas assez, ou pas comme il faudrait, ou pas
-        au bon moment.
-      </p>
-      <p>
-        Je veux que ce soit clair une bonne fois : ce n'est pas que je
-        t'aime moins. C'est que je le montre mal. Et ça, c'est mon
-        problème à moi, pas le tien.
-      </p>
-      <p>
-        Tu ne devrais jamais avoir à deviner. Tu ne devrais jamais avoir
-        à te demander. Alors je vais faire mieux — pas en promettant des
-        grandes choses, mais en faisant les petites, tous les jours.
-      </p>
-      <p class="sign">Je t'aime à la folie.<br>— ton Enzo 🤍</p>
-    </div>
-  </section>
-
-  <!-- ============ LES PETITS NOMS ============ -->
-  <section class="carte">
-    <h2 class="h2 c">Tous les noms que tu es</h2>
-    <p class="sub c">Touche-les un par un. Il y en a six.</p>
-    <div class="noms" id="noms"></div>
-    <p class="compteur" id="compteur">0 / 6</p>
-  </section>
-
-  <!-- ============ CE QUE JE VAIS CHANGER ============ -->
-  <section class="carte">
-    <h2 class="h2 c">Ce que je vais faire, à partir de maintenant</h2>
-    <p class="sub c">Des petites choses. Mais tous les jours.</p>
-    <ul class="promesses" id="promesses"></ul>
-  </section>
-
-  <!-- ============ CE QUE JE T'ENVERRAIS ============ -->
-  <section class="carte">
-    <h2 class="h2 c">Si je pouvais te les envoyer maintenant</h2>
-    <p class="sub c">En attendant de pouvoir te les donner en vrai.</p>
-    <div class="cadeaux">
-      <figure>
-        <img src="img/ours.webp" alt="Un ours en peluche" loading="lazy">
-        <figcaption>Pour les nuits où je ne suis pas là.<br>Serre-le fort, c'est un peu moi.</figcaption>
-      </figure>
-      <figure>
-        <img src="img/dessert.webp" alt="Une tartelette aux fraises" loading="lazy">
-        <figcaption>Et ça, on le mangera ensemble.<br>Tu prendras la plus grosse fraise, évidemment.</figcaption>
-      </figure>
-    </div>
-  </section>
-
-  <!-- ============ LA VÉRITÉ ============ -->
-  <section class="carte doux">
-    <p class="grand">
-      Je ne suis pas quelqu'un qui sait bien dire les choses.<br>
-      Mais tu es la première personne à qui j'ai envie d'apprendre.
-    </p>
-  </section>
-
-  <!-- ============ LE FINAL ============ -->
-  <section class="carte final ferme" id="final">
-    <div class="cadenas" id="cadenas">
-      <span class="cad-e">🤍</span>
-      <p>Il reste un dernier mot.</p>
-      <p class="cad-l" id="cad-l">Touche les 6 petits noms pour l'ouvrir.</p>
-    </div>
-    <div class="final-in" id="final-in">
-      <img class="f-coeurs" src="img/coeurs.webp" alt="" aria-hidden="true">
-      <p class="f-sur">Alors voilà, ma dernière chose à te demander</p>
-      <h2 class="f-titre">Viens avec moi,<br>on fait un appel<br><em>mon chat</em> 🐱</h2>
-      <p class="f-sous">
-        Tout de suite. Maintenant. Là.<br>
-        J'ai encore plein de choses à te dire, et je préfère
-        te les dire avec ma voix.
-      </p>
-      <button class="btn gros" id="oui">J'arrive 💛</button>
-      <p class="f-note" id="f-note"></p>
-    </div>
-  </section>
-
-  <footer class="pied">fait à la main, en pensant à toi · 🤍</footer>
-</main>
-
-<!-- fenêtre -->
-<div class="pop" id="pop" hidden>
-  <div class="pop-c">
-    <button class="pop-x" id="pop-x" aria-label="Fermer">✕</button>
-    <div class="pop-e" id="pop-e">🤍</div>
-    <h3 class="pop-t" id="pop-t"></h3>
-    <p class="pop-p" id="pop-p"></p>
-    <button class="btn" id="pop-ok">🤍</button>
-  </div>
-</div>
-
-<script src="script.js?v=2"></script>
+  <p>c'est fini</p>
 </body>
 </html>

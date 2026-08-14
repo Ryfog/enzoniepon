@@ -1,57 +1,30 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Nous deux 🎞</title>
-<meta name="description" content="Un film avec nos photos.">
-<meta name="robots" content="noindex">
-<meta name="theme-color" content="#07060a">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤍</text></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Manrope:wght@300;400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=3">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>&nbsp;</title>
+<link rel="icon" href="data:,">
+<style>
+  html, body { height: 100%; margin: 0; background: #000; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    font-family: Georgia, 'Times New Roman', serif;
+  }
+  /* Le texte est visible par defaut. L'animation ne fait que l'amener :
+     si elle ne part pas, la page reste lisible au lieu de rester noire. */
+  p {
+    margin: 0; padding: 0 24px; color: #6a6a6a;
+    font-size: clamp(1.5rem, 6vw, 2.6rem);
+    letter-spacing: .04em; text-align: center;
+    animation: venir 2.6s ease;
+  }
+  @keyframes venir { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { p { animation: none; } }
+</style>
 </head>
 <body>
-
-<canvas id="cv"></canvas>
-<div id="lecteur" aria-hidden="true"></div>
-
-<div class="bande haut" aria-hidden="true"></div>
-<div class="bande bas" aria-hidden="true"></div>
-<div class="grain" aria-hidden="true"></div>
-<div class="halo" aria-hidden="true"></div>
-
-<p class="soustitre" id="soustitre"></p>
-
-<!-- ============ AVANT ============ -->
-<section class="ecran on" id="e-debut">
-  <div class="affiche">
-    <p class="sur">Pour Stacy</p>
-    <h1 class="titre">Nous<em>deux</em></h1>
-    <p class="dit">Mets le son.<br>Et regarde jusqu'à la fin.</p>
-    <button class="bouton" id="b-jouer">Lancer</button>
-    <p class="charge" id="charge">…</p>
-  </div>
-</section>
-
-<!-- ============ COMMANDES ============ -->
-<div class="commandes" id="commandes" hidden>
-  <button class="rond" id="b-pause" aria-label="Pause">II</button>
-  <div class="pellicule"><i id="avance"></i></div>
-  <button class="rond" id="b-son" aria-label="Couper le son">♪</button>
-</div>
-
-<!-- ============ APRÈS ============ -->
-<section class="ecran" id="e-fin">
-  <div class="affiche">
-    <p class="sur">Fin</p>
-    <p class="mot" id="mot-fin"></p>
-    <button class="bouton creux" id="b-revoir">Revoir</button>
-  </div>
-</section>
-
-<script src="montage.js?v=5"></script>
+  <p>c'est fini</p>
 </body>
 </html>

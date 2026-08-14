@@ -1,41 +1,30 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>La boîte à musique 🎵</title>
-  <meta name="description" content="Remonte-la.">
-  <meta name="robots" content="noindex">
-  <meta name="theme-color" content="#161020">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>&nbsp;</title>
+<link rel="icon" href="data:,">
+<style>
+  html, body { height: 100%; margin: 0; background: #000; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    font-family: Georgia, 'Times New Roman', serif;
+  }
+  /* Le texte est visible par defaut. L'animation ne fait que l'amener :
+     si elle ne part pas, la page reste lisible au lieu de rester noire. */
+  p {
+    margin: 0; padding: 0 24px; color: #6a6a6a;
+    font-size: clamp(1.5rem, 6vw, 2.6rem);
+    letter-spacing: .04em; text-align: center;
+    animation: venir 2.6s ease;
+  }
+  @keyframes venir { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { p { animation: none; } }
+</style>
 </head>
 <body>
-
-<canvas id="scene"></canvas>
-
-<p class="consigne" id="consigne">Tourne la manivelle</p>
-
-<div class="phrase" id="phrase" hidden>
-  <span class="phrase-num" id="phrase-num"></span>
-  <p class="phrase-txt" id="phrase-txt"></p>
-</div>
-
-<div class="final" id="final" hidden>
-  <div class="final-in">
-    <p class="final-sur">Elle ne s'arrêtera que si tu la laisses</p>
-    <h1 class="final-titre">Alors je la<br><em>remonterai</em></h1>
-    <p class="final-txt">
-      Tous les jours s'il le faut.<br>
-      Reviens l'écouter quand tu veux.
-    </p>
-    <button class="final-btn" id="rejouer">Tout recommencer</button>
-  </div>
-</div>
-
-<script src="script.js?v=1"></script>
+  <p>c'est fini</p>
 </body>
 </html>

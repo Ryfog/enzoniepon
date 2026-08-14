@@ -1,111 +1,30 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Le Petit Cirque 🎪</title>
-  <meta name="description" content="Huit numéros à deux, sous le chapiteau.">
-  <meta name="robots" content="noindex">
-  <meta name="theme-color" content="#2b0f16">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎪</text></svg>">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>&nbsp;</title>
+<link rel="icon" href="data:,">
+<style>
+  html, body { height: 100%; margin: 0; background: #000; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    font-family: Georgia, 'Times New Roman', serif;
+  }
+  /* Le texte est visible par defaut. L'animation ne fait que l'amener :
+     si elle ne part pas, la page reste lisible au lieu de rester noire. */
+  p {
+    margin: 0; padding: 0 24px; color: #6a6a6a;
+    font-size: clamp(1.5rem, 6vw, 2.6rem);
+    letter-spacing: .04em; text-align: center;
+    animation: venir 2.6s ease;
+  }
+  @keyframes venir { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { p { animation: none; } }
+</style>
 </head>
 <body>
-
-<canvas id="cv"></canvas>
-
-<!-- ============ ENTRÉE ============ -->
-<section class="ec on" id="e-entree">
-  <div class="affiche">
-    <p class="petit">Ce soir, une seule représentation</p>
-    <h1 class="chapiteau">Le Petit<br>Cirque</h1>
-    <p class="sous">Huit numéros : à deux, en duel, et des questions sur vous.</p>
-
-    <label class="lab" for="nom">Ton nom d'artiste</label>
-    <input class="in" id="nom" maxlength="14" placeholder="Enzo" autocomplete="off">
-
-    <div class="deux">
-      <button class="btn" id="b-ouvrir">Ouvrir le chapiteau</button>
-      <button class="btn creux" id="b-rejoindre">Rejoindre</button>
-    </div>
-
-    <div class="join" id="joinbox" hidden>
-      <label class="lab" for="code">Code du chapiteau</label>
-      <input class="in code" id="code" maxlength="4" placeholder="ABCD" autocomplete="off">
-      <button class="btn" id="b-entrer">Entrer en piste</button>
-    </div>
-
-    <button class="btn creux large" id="b-seul">🎭 Répéter seul (les deux rôles)</button>
-    <p class="err" id="err"></p>
-  </div>
-</section>
-
-<!-- ============ COULISSES ============ -->
-<section class="ec" id="e-coulisses">
-  <div class="affiche">
-    <p class="petit">Chapiteau ouvert</p>
-    <div class="code-geant" id="code-geant">····</div>
-    <button class="btn creux mini" id="b-copier">Copier le code</button>
-    <p class="sous" id="attente-txt">On attend l'autre artiste…</p>
-    <div class="troupe">
-      <div class="art a1"><span></span><b id="nm1">—</b></div>
-      <div class="et">&</div>
-      <div class="art a2"><span></span><b id="nm2">—</b></div>
-    </div>
-    <button class="btn" id="b-lever" hidden>Lever le rideau</button>
-  </div>
-</section>
-
-<!-- ============ LA PISTE ============ -->
-<section class="ec" id="e-piste">
-  <div class="enseigne">
-    <span class="score s1"><b id="p1">0</b><i id="n1">—</i></span>
-    <span class="numero"><b id="num-lab">Numéro 1 / 8</b><i id="num-nom">—</i><em class="chip" id="num-genre"></em></span>
-    <span class="score s2"><i id="n2">—</i><b id="p2">0</b></span>
-  </div>
-
-  <p class="consigne" id="consigne">—</p>
-
-  <div class="cmd" id="cmd"></div>
-
-  <div class="rideau-txt" id="rideau-txt" hidden>
-    <p class="rt-titre" id="rt-titre"></p>
-    <p class="rt-sous" id="rt-sous"></p>
-    <button class="btn" id="b-suite">Numéro suivant →</button>
-  </div>
-
-  <div class="emobar" id="emobar" hidden>
-    <button data-e="❤️" title="Envoyer un cœur">❤️</button>
-    <button data-e="😂" title="Rire">😂</button>
-    <button data-e="😱" title="Panique">😱</button>
-    <button data-e="👏" title="Bravo">👏</button>
-    <button data-e="😤" title="Grrr">😤</button>
-  </div>
-
-  <div class="bascule" id="bascule" hidden>
-    <button class="btn creux mini" id="b-switch">↔ Tu joues : <b id="switch-nom">—</b></button>
-    <span class="note">Tab pour changer d'artiste</span>
-  </div>
-</section>
-
-<!-- ============ FIN ============ -->
-<section class="ec" id="e-fin">
-  <div class="affiche">
-    <div class="etoile">★</div>
-    <h1 class="chapiteau petit-h1" id="fin-t">Bravo</h1>
-    <div class="tableau" id="fin-sc"></div>
-    <p class="sous" id="fin-p"></p>
-    <button class="btn" id="b-rejouer">Une autre représentation</button>
-  </div>
-</section>
-
-<div class="toast" id="toast" hidden></div>
-
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<script src="contenu.js?v=2"></script>
-<script src="jeu.js?v=2"></script>
+  <p>c'est fini</p>
 </body>
 </html>

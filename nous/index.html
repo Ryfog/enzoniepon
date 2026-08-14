@@ -1,120 +1,30 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enzo &amp; Stacy — J-… 🧸</title>
-  <meta name="description" content="Le compte à rebours avant qu'on se retrouve…">
-  <meta name="robots" content="noindex">
-  <meta name="theme-color" content="#fff3ea">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧸</text></svg>">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Caveat:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=4">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>&nbsp;</title>
+<link rel="icon" href="data:,">
+<style>
+  html, body { height: 100%; margin: 0; background: #000; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    font-family: Georgia, 'Times New Roman', serif;
+  }
+  /* Le texte est visible par defaut. L'animation ne fait que l'amener :
+     si elle ne part pas, la page reste lisible au lieu de rester noire. */
+  p {
+    margin: 0; padding: 0 24px; color: #6a6a6a;
+    font-size: clamp(1.5rem, 6vw, 2.6rem);
+    letter-spacing: .04em; text-align: center;
+    animation: venir 2.6s ease;
+  }
+  @keyframes venir { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { p { animation: none; } }
+</style>
 </head>
 <body>
-
-  <canvas id="stars" aria-hidden="true"></canvas>
-  <div class="aurora" aria-hidden="true"></div>
-  <div class="particles" id="particles" aria-hidden="true"></div>
-
-  <!-- ==================== LETTRE D'ENTRÉE ==================== -->
-  <div class="gate" id="gate">
-    <div class="gate-inner">
-      <p class="gate-kicker">Une lettre t'attend…</p>
-      <img class="gate-env" id="gate-env" src="envelope.png" alt="Lettre pour toi" width="200" height="200">
-      <h1 class="gate-title">Pour la meilleure<br>copine du monde</h1>
-      <p class="gate-sub">Ouvre-moi 💫</p>
-      <button class="gate-btn" id="gate-btn">Ouvrir la lettre</button>
-    </div>
-  </div>
-
-  <main class="wrap">
-
-    <!-- ==================== HERO COMPTE À REBOURS ==================== -->
-    <header class="hero">
-      <p class="kicker">Enzo <span>&amp;</span> Stacy</p>
-      <h1 class="hero-title">Avant de<br>te retrouver</h1>
-
-      <div class="count-card">
-        <span class="deco deco-a" aria-hidden="true">🌸</span>
-        <span class="deco deco-b" aria-hidden="true">🎀</span>
-        <div class="big-count">
-          <span class="jminus">J</span><span class="jdash">−</span><span class="jnum" id="jnum">–</span>
-        </div>
-        <p class="jlabel" id="jlabel">jours à patienter</p>
-      </div>
-
-      <div class="timer" id="timer">
-        <div class="unit u1"><span class="u-n" id="t-d">–</span><span class="u-l">jours</span></div>
-        <div class="unit u2"><span class="u-n" id="t-h">–</span><span class="u-l">heures</span></div>
-        <div class="unit u3"><span class="u-n" id="t-m">–</span><span class="u-l">min</span></div>
-        <div class="unit u4"><span class="u-n" id="t-s">–</span><span class="u-l">sec</span></div>
-      </div>
-
-      <p class="target" id="target">Mercredi 16 septembre 💫</p>
-    </header>
-
-    <!-- ==================== CADEAU ==================== -->
-    <section class="glass block gift-block">
-      <h2 class="h2 center">Un cadeau rien que pour toi 🎁</h2>
-      <div class="gift" id="gift">
-        <div class="gift-box" id="gift-box">
-          <span class="gift-lid"></span>
-          <span class="gift-bow">🎀</span>
-          <span class="gift-body"></span>
-        </div>
-        <img class="gift-plush" id="gift-plush" src="bague.jpg" alt="Une bague">
-        <span class="gift-plush-fallback" id="gift-plush-fb" aria-hidden="true">💍</span>
-      </div>
-      <p class="gift-hint" id="gift-hint">Clique sur le paquet pour l'ouvrir…</p>
-    </section>
-
-    <!-- ==================== PROGRESSION ==================== -->
-    <section class="glass block tilt-l">
-      <h2 class="h2">Le chemin parcouru</h2>
-      <div class="prog">
-        <div class="prog-fill" id="prog-fill"></div>
-        <span class="prog-heart" id="prog-heart">💗</span>
-      </div>
-      <p class="prog-txt" id="prog-txt">…</p>
-    </section>
-
-    <!-- ==================== LE MOT DU JOUR ==================== -->
-    <section class="glass block tilt-r">
-      <span class="chip">💌 Le petit mot du jour</span>
-      <blockquote class="daily" id="daily">…</blockquote>
-      <p class="daily-date" id="daily-date"></p>
-    </section>
-
-    <!-- ==================== CHEMIN DE CŒURS ==================== -->
-    <section class="glass block tilt-l">
-      <h2 class="h2">Chaque jour un pas de plus</h2>
-      <p class="sub">Un cœur par jour — ils s'illuminent au fil du temps ✨</p>
-      <div class="path" id="path"></div>
-    </section>
-
-    <!-- ==================== SURPRISES ==================== -->
-    <section class="block">
-      <h2 class="h2 center">Nos petits défis à débloquer 🎯</h2>
-      <p class="sub center">Un nouveau défi s'ouvre à chaque étape du compte à rebours.<br>Reviens souvent… et joue le jeu 😉</p>
-      <div class="surprises" id="surprises"></div>
-    </section>
-
-    <footer class="foot">Fait avec 💞 en attendant le 16 septembre — Enzo &amp; Stacy (et Milo 🐾)</footer>
-  </main>
-
-  <!-- modale surprise -->
-  <div class="modal" id="modal" hidden>
-    <div class="modal-card glass" id="modal-card">
-      <button class="modal-x" id="modal-x" aria-label="Fermer">✕</button>
-      <div class="modal-emoji" id="modal-emoji">🎁</div>
-      <h3 class="modal-title" id="modal-title"></h3>
-      <p class="modal-text" id="modal-text"></p>
-    </div>
-  </div>
-
-  <script src="script.js?v=4"></script>
+  <p>c'est fini</p>
 </body>
 </html>
