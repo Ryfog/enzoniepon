@@ -20,6 +20,7 @@ Disallow: /chanson/
 Disallow: /monde/
 Disallow: /film/
 Disallow: /montage/
+Disallow: /cadeaux/
 Disallow: /reviens/
 Disallow: /code/
 

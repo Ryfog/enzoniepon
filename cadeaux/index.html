@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Pour toi</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+
+<div class="ciel" aria-hidden="true"></div>
+
+<header>
+  <p class="petits-coeurs" aria-hidden="true">🤍 ⋆ ˚ 🤍 ⋆ ˚ 🤍</p>
+  <h1>Des petits cadeaux</h1>
+  <p class="intro">Il y en a douze.<br>Ouvre-les quand tu veux, un par jour ou tous d'un coup.</p>
+  <p class="score"><b id="fait">0</b> / <span id="total">12</span> ouverts</p>
+</header>
+
+<main class="grille" id="grille"></main>
+
+<section class="final" id="final" hidden>
+  <div class="feu" aria-hidden="true">✨</div>
+  <p class="final-titre">Tu les as tous ouverts.</p>
+  <p class="final-txt">Il en restera toujours d'autres.<br>Il suffit de demander.</p>
+</section>
+
+<footer>
+  <button class="rejouer" id="rejouer" hidden>Tout refermer</button>
+</footer>
+
+<!-- la boîte qui s'ouvre en grand -->
+<div class="voile" id="voile" hidden>
+  <div class="carte" id="carte" role="dialog" aria-modal="true" aria-labelledby="c-titre">
+    <button class="fermer" id="fermer" aria-label="Fermer">×</button>
+    <div class="dessin" id="c-dessin">🌹</div>
+    <p class="c-titre" id="c-titre">—</p>
+    <p class="c-mot" id="c-mot">—</p>
+  </div>
+</div>
+
+<script src="script.js?v=1"></script>
+</body>
+</html>

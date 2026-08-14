@@ -1,0 +1,148 @@
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --fond:#fff5f7; --rose:#ff8fb1; --rose-f:#e8628f; --or:#f0c36d;
+  --encre:#5d3a49; --doux:#9c7686; --papier:#fff;
+}
+body{
+  margin:0;min-height:100svh;background:var(--fond);color:var(--encre);
+  font-family:'Quicksand',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+/* petits pois roses en fond */
+.ciel{
+  position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+  background-image:radial-gradient(circle,rgba(255,143,177,.28) 1.6px,transparent 1.6px);
+  background-size:26px 26px;
+}
+header,main,.final,footer{position:relative;z-index:1}
+
+header{text-align:center;padding:9vh 6vw 3vh;max-width:640px;margin:0 auto}
+.petits-coeurs{color:var(--rose);letter-spacing:.3em;font-size:.9rem;margin:0 0 14px}
+h1{
+  font-family:'Caveat',cursive;font-weight:600;
+  font-size:clamp(2.4rem,9vw,3.8rem);margin:0 0 14px;color:var(--rose-f);
+}
+.intro{color:var(--doux);font-size:1rem;line-height:1.7;margin:0 0 22px}
+.score{
+  display:inline-block;margin:0;padding:8px 20px;border-radius:30px;
+  background:var(--papier);box-shadow:0 4px 16px rgba(232,98,143,.14);
+  color:var(--doux);font-size:.88rem;font-weight:600;
+}
+.score b{color:var(--rose-f);font-size:1.1rem}
+
+/* ---------- la grille de cadeaux ---------- */
+.grille{
+  display:grid;gap:36px 18px;padding:2vh 6vw 6vh;max-width:720px;margin:0 auto;
+  grid-template-columns:repeat(auto-fill,minmax(112px,1fr));
+}
+.cadeau{
+  position:relative;aspect-ratio:1;border:0;background:none;padding:0;
+  cursor:pointer;animation:arrive .6s ease var(--d,0ms) both;
+}
+@keyframes arrive{from{opacity:0;transform:translateY(18px) scale(.9)}to{opacity:1;transform:none}}
+.boite{
+  position:absolute;inset:0;border-radius:16px;
+  background:linear-gradient(160deg,#ffa9c4,var(--rose));
+  box-shadow:0 8px 20px rgba(232,98,143,.28);
+  transition:transform .35s ease,box-shadow .35s ease;
+  overflow:visible;
+}
+.cadeau:hover .boite{transform:translateY(-6px) rotate(-2deg)}
+.couvercle{
+  position:absolute;left:-4%;right:-4%;top:-2%;height:30%;border-radius:12px;
+  background:linear-gradient(160deg,#ffbdd2,#ff9ab9);
+  box-shadow:0 3px 8px rgba(232,98,143,.25);
+  transform-origin:center bottom;
+  transition:transform .55s cubic-bezier(.5,-.4,.4,1.4),opacity .45s ease;
+  z-index:3;
+}
+.ruban-v{position:absolute;left:calc(50% - 7px);top:0;bottom:0;width:14px;background:rgba(255,255,255,.62);z-index:2}
+.ruban-h{position:absolute;top:calc(50% - 7px);left:0;right:0;height:14px;background:rgba(255,255,255,.62);z-index:2}
+.noeud{
+  position:absolute;left:50%;top:22%;transform:translate(-50%,-50%);
+  font-size:1.5rem;z-index:4;transition:opacity .35s ease,transform .45s ease;
+}
+.dedans{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:clamp(2.2rem,9vw,2.9rem);opacity:0;transform:scale(.4);
+  transition:opacity .4s ease .18s,transform .5s cubic-bezier(.2,1.3,.4,1.2) .18s;
+  z-index:5;
+}
+.num{
+  position:absolute;left:50%;bottom:-24px;transform:translateX(-50%);
+  color:var(--doux);font-size:.78rem;font-weight:600;
+}
+/* état ouvert */
+.cadeau.ouvert .couvercle{transform:translateY(-140%) rotate(-16deg);opacity:0}
+.cadeau.ouvert .noeud{opacity:0;transform:translate(-50%,-160%) rotate(22deg)}
+.cadeau.ouvert .ruban-v,.cadeau.ouvert .ruban-h{opacity:.25}
+.cadeau.ouvert .dedans{opacity:1;transform:none}
+.cadeau.ouvert .boite{
+  background:linear-gradient(160deg,#fff2f6,#ffe1ea);
+  box-shadow:0 4px 14px rgba(232,98,143,.16);
+}
+
+/* ---------- la carte qui s'ouvre ---------- */
+.voile{
+  position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;
+  padding:6vw;background:rgba(93,58,73,.45);backdrop-filter:blur(4px);
+  opacity:0;transition:opacity .3s ease;
+}
+.voile.la{opacity:1}
+.carte{
+  position:relative;background:var(--papier);border-radius:26px;
+  padding:44px 30px 36px;max-width:400px;width:100%;text-align:center;
+  box-shadow:0 24px 60px rgba(93,58,73,.3);
+  transform:translateY(20px) scale(.94);transition:transform .38s cubic-bezier(.2,1.2,.4,1.1);
+}
+.voile.la .carte{transform:none}
+.fermer{
+  position:absolute;right:12px;top:10px;border:0;background:none;cursor:pointer;
+  font-size:1.7rem;line-height:1;color:#d8b7c3;padding:6px 10px;
+}
+.fermer:hover{color:var(--rose-f)}
+.dessin{font-size:4.4rem;line-height:1;margin-bottom:14px;animation:pop .55s cubic-bezier(.2,1.5,.4,1.1) both}
+@keyframes pop{from{transform:scale(.3) rotate(-14deg);opacity:0}to{transform:none;opacity:1}}
+.c-titre{
+  font-family:'Caveat',cursive;font-size:2.1rem;color:var(--rose-f);
+  margin:0 0 12px;font-weight:600;
+}
+.c-mot{color:var(--encre);font-size:1rem;line-height:1.75;margin:0;opacity:.9}
+
+/* ---------- fin ---------- */
+.final{
+  text-align:center;max-width:520px;margin:0 auto;padding:0 6vw 4vh;
+  opacity:0;transform:translateY(16px);transition:.7s ease;
+}
+.final.la{opacity:1;transform:none}
+.feu{font-size:2.6rem}
+.final-titre{font-family:'Caveat',cursive;font-size:2.2rem;color:var(--rose-f);margin:8px 0 10px}
+.final-txt{color:var(--doux);line-height:1.75;margin:0}
+footer{text-align:center;padding:2vh 6vw 10vh}
+.rejouer{
+  border:1.5px solid rgba(232,98,143,.4);background:none;color:var(--rose-f);
+  padding:11px 26px;border-radius:30px;cursor:pointer;
+  font-family:'Quicksand',sans-serif;font-weight:600;font-size:.9rem;transition:.25s;
+}
+.rejouer:hover{background:rgba(255,143,177,.14)}
+
+/* ---------- cœurs qui s'envolent ---------- */
+.envol{
+  position:fixed;z-index:30;pointer-events:none;font-size:1.15rem;
+  animation:envole 1.7s ease-out forwards;
+}
+@keyframes envole{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}
+  18%{opacity:1}
+  100%{opacity:0;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.1) rotate(var(--r))}
+}
+
+@media(max-width:420px){
+  .grille{gap:32px 14px;grid-template-columns:repeat(3,1fr)}
+  .carte{padding:38px 22px 30px}
+}
+@media (prefers-reduced-motion:reduce){
+  .cadeau,.dessin{animation:none}
+  .boite,.couvercle,.dedans,.noeud,.carte,.voile,.final{transition:none}
+  .envol{display:none}
+}
