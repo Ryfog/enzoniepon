@@ -1,0 +1,174 @@
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --noir:#0a0a0c; --blanc:#efe9e2; --gris:#8c8680; --or:#c9a227;
+  --creme:#f3ece1;
+}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--noir);color:var(--blanc);
+  font-family:'Manrope',system-ui,sans-serif;font-weight:300;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+body.verrouille{overflow:hidden;height:100svh}
+.grain{
+  position:fixed;inset:0;pointer-events:none;z-index:9;opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============ L'ENVELOPPE ============ */
+.scene{
+  position:fixed;inset:0;z-index:6;display:flex;
+  flex-direction:column;align-items:center;justify-content:center;gap:38px;
+  background:radial-gradient(ellipse at 50% 45%,#16161b 0%,var(--noir) 68%);
+  transition:opacity 1s ease,transform 1s ease;
+}
+.scene.parti{opacity:0;transform:scale(1.12);pointer-events:none}
+.pour{
+  font-size:.72rem;letter-spacing:.44em;text-transform:uppercase;
+  color:var(--or);margin:0;animation:doux 1.6s ease both;
+}
+.enveloppe{
+  position:relative;width:min(78vw,330px);aspect-ratio:1.5/1;
+  border:0;padding:0;background:none;cursor:pointer;
+  animation:doux 1.6s ease .3s both,flotte 5s ease-in-out 2s infinite;
+  transition:transform .5s ease;
+}
+.enveloppe:hover{transform:translateY(-6px)}
+.enveloppe .dos{
+  position:absolute;inset:0;border-radius:5px;
+  background:linear-gradient(160deg,#2a2a31,#1a1a20);
+  box-shadow:0 26px 60px rgba(0,0,0,.72);
+}
+.enveloppe .rabat{
+  position:absolute;top:0;left:0;right:0;height:62%;
+  background:linear-gradient(170deg,#33333c,#23232a);
+  clip-path:polygon(0 0,100% 0,50% 100%);
+  transform-origin:top center;transition:transform 1.1s cubic-bezier(.6,-.25,.3,1.3);
+  z-index:3;border-radius:5px 5px 0 0;
+}
+.enveloppe .feuille{
+  position:absolute;left:7%;right:7%;top:12%;bottom:8%;
+  background:linear-gradient(#fdfaf4,var(--creme));border-radius:3px;
+  display:flex;align-items:center;justify-content:center;
+  transform:translateY(14%) scale(.94);opacity:0;z-index:2;
+  transition:transform 1.1s cubic-bezier(.2,.9,.3,1.2) .45s,opacity .5s ease .45s;
+}
+.enveloppe .feuille i{
+  font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;
+  font-size:3.2rem;color:#b9985f;
+}
+.enveloppe .cachet{
+  position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);
+  width:52px;height:52px;border-radius:50%;z-index:4;
+  background:radial-gradient(circle at 34% 30%,#8d2033,#5d1120);
+  display:flex;align-items:center;justify-content:center;font-size:1.2rem;
+  box-shadow:0 5px 16px rgba(0,0,0,.6);transition:opacity .4s ease,transform .5s ease;
+}
+body.ouvert .enveloppe .rabat{transform:rotateX(180deg)}
+body.ouvert .enveloppe .cachet{opacity:0;transform:translate(-50%,-50%) scale(.4)}
+body.ouvert .enveloppe .feuille{transform:translateY(-30%) scale(1);opacity:1}
+body.ouvert .enveloppe{animation:none}
+.invite{
+  color:var(--gris);font-size:.9rem;letter-spacing:.16em;margin:0;
+  animation:doux 1.6s ease .7s both,clignote 2.8s ease-in-out 2s infinite;
+}
+@keyframes doux{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes flotte{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes clignote{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* ============ LA LETTRE ============ */
+.papier{
+  max-width:660px;margin:0 auto;padding:16vh 7vw 12vh;
+  opacity:0;transition:opacity 1.2s ease;
+}
+.papier.la{opacity:1}
+.mots p{
+  font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;
+  font-size:clamp(1.15rem,3.5vw,1.5rem);line-height:1.95;
+  margin:0 0 26px;color:var(--blanc);
+}
+.mots span{opacity:0;animation:venir .9s ease forwards}
+/* si les animations ne partent pas, on force la lisibilité */
+.mots.tout-vu span{opacity:1;animation:none}
+@keyframes venir{from{opacity:0;filter:blur(5px)}to{opacity:1;filter:none}}
+
+.signe,.suite{opacity:0;transition:opacity 1.1s ease}
+.signe.la,.suite.la{opacity:1}
+.signe{
+  margin:34px 0 0;font-family:'Cormorant Garamond',Georgia,serif;
+  font-style:italic;font-size:1.4rem;color:var(--or);
+}
+.suite{
+  display:block;margin:56px auto 0;padding:15px 30px;cursor:pointer;
+  background:none;border:1px solid rgba(201,162,39,.45);border-radius:40px;
+  color:var(--or);font-family:'Manrope',sans-serif;font-size:.9rem;
+  letter-spacing:.1em;transition:background .3s ease,opacity 1.1s ease;
+}
+.suite:hover{background:rgba(201,162,39,.1)}
+
+/* ============ L'HISTOIRE ============ */
+.ecran{
+  min-height:100svh;display:flex;flex-direction:column;justify-content:center;
+  padding:13vh 7vw;max-width:900px;margin:0 auto;
+}
+.ecran.centre{text-align:center;align-items:center}
+[data-vue]{transition:opacity 1.1s ease,transform 1.1s ease}
+.js [data-vue]{opacity:0;transform:translateY(26px)}
+.js [data-vue].la{opacity:1;transform:none}
+
+.date{font-size:.72rem;letter-spacing:.34em;text-transform:uppercase;color:var(--or);margin:0 0 22px}
+.grand{
+  font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;
+  font-size:clamp(1.6rem,4.8vw,2.7rem);line-height:1.28;margin:0 0 26px;
+}
+.grand em{font-style:italic;color:var(--or)}
+.grand.fort{font-size:clamp(1.9rem,5.6vw,3.2rem)}
+.sous2{color:var(--gris);font-size:.95rem;margin:0 0 34px}
+.petit{color:var(--gris);font-size:clamp(.92rem,2.3vw,1.02rem);line-height:1.8;margin:26px 0 0}
+.petit em{color:var(--blanc);font-style:normal}
+blockquote{
+  margin:0;padding:22px 26px;border-left:2px solid var(--or);
+  background:rgba(255,255,255,.028);
+  font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;
+  font-size:clamp(1.15rem,3.4vw,1.55rem);line-height:1.6;
+}
+blockquote.long{font-size:clamp(1rem,2.8vw,1.24rem)}
+
+.chiffres{display:grid;gap:26px 30px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.ch b{
+  display:block;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;
+  font-size:clamp(2.1rem,6.6vw,3.3rem);line-height:1;color:var(--or);
+  font-variant-numeric:tabular-nums;
+}
+.ch span{display:block;margin-top:8px;color:var(--gris);font-size:.84rem;line-height:1.5}
+
+.graphe svg{width:100%;height:190px;display:block;overflow:visible}
+.trait{stroke-dasharray:900;stroke-dashoffset:900;transition:stroke-dashoffset 2.6s ease .3s}
+.aire{opacity:0;transition:opacity 1.4s ease 1.4s}
+.la .trait{stroke-dashoffset:0}
+.la .aire{opacity:1}
+body:not(.js) .trait{stroke-dashoffset:0}
+body:not(.js) .aire{opacity:1}
+.bornes{display:flex;justify-content:space-between;margin-top:14px;color:var(--gris);font-size:.76rem}
+.bornes b{display:block;color:var(--or);font-size:1.05rem;font-weight:400;margin-top:3px}
+.bornes span:last-child{text-align:right}
+.fin{min-height:88svh}
+
+/* ============ SON ============ */
+.son{
+  position:fixed;right:18px;bottom:18px;z-index:8;
+  width:44px;height:44px;border-radius:50%;cursor:pointer;
+  background:rgba(255,255,255,.05);border:1px solid rgba(201,162,39,.4);
+  color:var(--or);font-size:1rem;transition:.3s;
+}
+.son:hover{background:rgba(201,162,39,.14)}
+.son.coupe{opacity:.4}
+#yt{position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;left:-100px}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .mots span{opacity:1;animation:none}
+  .js [data-vue]{opacity:1;transform:none}
+  .trait{stroke-dashoffset:0}.aire{opacity:1}
+  .enveloppe,.invite,.pour{animation:none}
+}

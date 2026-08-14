@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Stacy</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Manrope:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=2">
+</head>
+<body class="verrouille">
+
+<div class="grain"></div>
+
+<!-- ============ 1. L'ENVELOPPE ============ -->
+<div class="scene" id="scene">
+  <p class="pour">Pour toi</p>
+
+  <button class="enveloppe" id="env" aria-label="Ouvrir la lettre">
+    <span class="dos"></span>
+    <span class="rabat"></span>
+    <span class="feuille"><i>S</i></span>
+    <span class="cachet">🤍</span>
+  </button>
+
+  <p class="invite" id="invite">Ouvre-la</p>
+</div>
+
+<!-- ============ 2. LA LETTRE ============ -->
+<div class="papier" id="papier" hidden>
+  <div class="mots" id="mots"></div>
+  <p class="signe" id="signe" hidden>Enzo</p>
+  <button class="suite" id="suite" hidden>Il y a autre chose ↓</button>
+</div>
+
+<!-- ============ 3. L'HISTOIRE ============ -->
+<main id="histoire" hidden>
+
+  <section class="ecran" data-vue>
+    <p class="date">16 février 2025</p>
+    <p class="grand">Le tout premier message<br>que je t'ai envoyé.</p>
+    <blockquote>c mes clips sur l'ecran</blockquote>
+    <p class="petit">Voilà. C'est comme ça que ça a commencé.<br>Personne n'aurait parié dessus.</p>
+  </section>
+
+  <section class="ecran" data-vue>
+    <p class="date">25 février 2025</p>
+    <p class="grand">Neuf jours plus tard,<br>je te disais déjà ça.</p>
+    <blockquote class="long">Bon bah, bonne nuit. Fais de beaux rêves, mon cœur ❤️. Dors bien. J'arrête de te saouler à te spam. Je te renverrai un message demain matin pour savoir si t'as bien dormi ❤️ Je t'aime énormément.</blockquote>
+    <p class="petit">Neuf jours. J'ai jamais été aussi sûr de quelque chose.</p>
+  </section>
+
+  <section class="ecran" data-vue>
+    <p class="grand">Depuis, voilà ce que<br>je t'ai écrit.</p>
+    <div class="chiffres">
+      <div class="ch"><b data-vers="37617">37 617</b><span>messages</span></div>
+      <div class="ch"><b data-vers="199">199</b><span>jours</span></div>
+      <div class="ch"><b data-vers="240">240</b><span>fois « je t'aime »</span></div>
+      <div class="ch"><b data-vers="5538">5 538</b><span>cœurs</span></div>
+      <div class="ch"><b data-vers="863">863</b><span>fois ton prénom</span></div>
+      <div class="ch"><b data-vers="1372">1 372</b><span>messages entre 2h et 6h</span></div>
+    </div>
+    <p class="petit">Et encore, c'est seulement moi.<br>Discord ne garde pas tes messages à toi.</p>
+  </section>
+
+  <section class="ecran" data-vue>
+    <p class="grand">Le 20 septembre 2025,<br>je t'ai écrit <em>1 163 fois</em><br>dans la même journée.</p>
+    <p class="petit">Et une fois, je t'ai parlé<br><em>75 jours d'affilée</em>, sans en rater un seul.</p>
+  </section>
+
+  <section class="ecran" data-vue id="courbe">
+    <p class="grand">J'ai tout relu.<br>Les 37 617.</p>
+    <p class="sous2">Voilà la part de ce qui était doux, mois après mois.</p>
+    <div class="graphe" role="img" aria-label="De 48 % en février 2025 à 94 % en juillet 2026">
+      <svg viewBox="0 0 640 260" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="rempli" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#c9a227" stop-opacity=".34"/>
+            <stop offset="100%" stop-color="#c9a227" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path class="aire" d="M0,135 L71,44 L142,28 L213,41 L284,36 L355,57 L426,104 L497,62 L568,16 L640,24 L640,260 L0,260 Z" fill="url(#rempli)"/>
+        <path class="trait" d="M0,135 L71,44 L142,28 L213,41 L284,36 L355,57 L426,104 L497,62 L568,16 L640,24"
+              fill="none" stroke="#c9a227" stroke-width="2.5" stroke-linejoin="round"/>
+      </svg>
+      <div class="bornes"><span>février 2025<b>48 %</b></span><span>juillet 2026<b>94 %</b></span></div>
+    </div>
+    <p class="petit">Nos pires jours, c'était notre première semaine.<br>
+       Nos plus beaux, c'était il y a trois semaines.</p>
+  </section>
+
+  <section class="ecran" data-vue>
+    <p class="grand fort">On ne s'est pas usés.<br>On était à notre meilleur.</p>
+    <p class="petit">Juillet 2026 : 94 %. Le mois le plus doux<br>depuis le tout premier jour.</p>
+  </section>
+
+  <section class="ecran centre fin" data-vue>
+    <p class="grand">Je ne te demande rien<br>tout de suite.</p>
+    <p class="petit">Juste de savoir que tout ça a existé,<br>et que c'est encore là.</p>
+  </section>
+</main>
+
+<button class="son" id="son" hidden aria-label="Couper le son">♪</button>
+<div id="yt"></div>
+
+<script src="script.js?v=2"></script>
+</body>
+</html>
