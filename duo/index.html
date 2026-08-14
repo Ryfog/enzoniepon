@@ -1,30 +1,463 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
-<title>&nbsp;</title>
-<link rel="icon" href="data:,">
-<style>
-  html, body { height: 100%; margin: 0; background: #000; }
-  body {
-    display: flex; align-items: center; justify-content: center;
-    font-family: Georgia, 'Times New Roman', serif;
-  }
-  /* Le texte est visible par defaut. L'animation ne fait que l'amener :
-     si elle ne part pas, la page reste lisible au lieu de rester noire. */
-  p {
-    margin: 0; padding: 0 24px; color: #6a6a6a;
-    font-size: clamp(1.5rem, 6vw, 2.6rem);
-    letter-spacing: .04em; text-align: center;
-    animation: venir 2.6s ease;
-  }
-  @keyframes venir { from { opacity: 0; } to { opacity: 1; } }
-  @media (prefers-reduced-motion: reduce) { p { animation: none; } }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Duo — jeu pour ma princesse 💜</title>
+  <meta name="description" content="Un jeu que pour notre couple.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#1a1030">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💜</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=15">
 </head>
 <body>
-  <p>c'est fini</p>
+
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<!-- ==================== LOBBY ==================== -->
+<section class="screen on" id="s-lobby">
+  <div class="glass lobby">
+    <p class="kick">Jeu que pour notre couple</p>
+    <h1 class="big">DUO</h1>
+    <p class="tag">Jeu pour ma princesse</p>
+
+    <label class="lab" for="pseudo">Ton prénom</label>
+    <input class="in" id="pseudo" maxlength="14" placeholder="Enzo" autocomplete="off">
+
+    <div class="two">
+      <button class="btn" id="b-create">Créer un salon</button>
+      <button class="btn ghost" id="b-joinmode">Rejoindre</button>
+    </div>
+
+    <div class="join" id="joinbox" hidden>
+      <label class="lab" for="code">Code du salon</label>
+      <input class="in code" id="code" maxlength="4" placeholder="ABCD" autocomplete="off">
+      <button class="btn" id="b-join">Entrer</button>
+    </div>
+
+    <button class="btn ghost wide" id="b-seul">🧪 Tester seul (tu joues les deux)</button>
+
+    <p class="err" id="lobby-err"></p>
+    <p class="mini">Un seul de vous deux crée le salon. L'autre entre le code.</p>
+  </div>
+</section>
+
+<!-- ==================== SALLE D'ATTENTE ==================== -->
+<section class="screen" id="s-wait">
+  <div class="glass wait">
+    <p class="kick">Salon ouvert</p>
+    <div class="code-big" id="code-big">····</div>
+    <button class="btn ghost small" id="b-copy">Copier le code</button>
+    <p class="tag" id="wait-txt">En attente de l'autre…</p>
+    <div class="dots"><i></i><i></i><i></i></div>
+    <div class="players">
+      <div class="pl" id="pl-h"><span class="av">🫶</span><b>—</b></div>
+      <div class="vs">×</div>
+      <div class="pl off" id="pl-g"><span class="av">💭</span><b>—</b></div>
+    </div>
+    <div class="lens" id="lens" hidden>
+      <button class="piment" id="b-piment">
+        <span class="tick"></span>
+        <b>🌶️ Mode piment</b>
+        <small>Questions coquines · réservé à vous deux</small>
+      </button>
+
+      <p class="lab">Longueur de la partie</p>
+      <div class="len-row">
+        <button class="len" data-n="10">10<small>~15 min</small></button>
+        <button class="len on" data-n="16">16<small>~25 min</small></button>
+        <button class="len" data-n="24">24<small>~40 min</small></button>
+        <button class="len" data-n="32">32<small>~55 min</small></button>
+      </div>
+
+      <p class="lab">Rythme</p>
+      <div class="len-row three-row">
+        <button class="ryt" data-r="1.4">Tranquille</button>
+        <button class="ryt on" data-r="1">Normal</button>
+        <button class="ryt" data-r="0.7">Rapide</button>
+      </div>
+
+      <button class="btn ghost small wide" id="b-opt">⚙️ Choisir les épreuves</button>
+      <div class="opts" id="opts" hidden>
+        <div class="opt-grid" id="opt-grid"></div>
+        <div class="opt-foot">
+          <button class="btn ghost small" id="b-all">Tout cocher</button>
+          <button class="btn ghost small" id="b-hist">Vider l'historique</button>
+        </div>
+        <p class="mini" id="opt-info"></p>
+      </div>
+    </div>
+    <button class="btn" id="b-start" hidden>Commencer la partie</button>
+  </div>
+</section>
+
+<!-- ==================== JEU ==================== -->
+<section class="screen" id="s-game">
+
+  <header class="hud">
+    <div class="sc">
+      <span class="sc-n" id="n1">—</span>
+      <b id="p1">0</b>
+    </div>
+    <div class="rd">
+      <span id="r-lab">Manche 1 / 10</span>
+      <span class="r-type" id="r-type">—</span>
+    </div>
+    <div class="sc r">
+      <b id="p2">0</b>
+      <span class="sc-n" id="n2">—</span>
+    </div>
+  </header>
+
+  <div class="board">
+
+    <!-- QUI DE NOUS DEUX -->
+    <div class="mode" id="m-qui" hidden>
+      <p class="q" id="qui-q">…</p>
+      <div class="two big-two">
+        <button class="pick" id="qui-a"><span class="av">💙</span><b id="qui-an">—</b></button>
+        <button class="pick" id="qui-b"><span class="av">💜</span><b id="qui-bn">—</b></button>
+      </div>
+      <p class="wait-l" id="qui-w"></p>
+    </div>
+
+    <!-- SYNCHRO -->
+    <div class="mode" id="m-syn" hidden>
+      <p class="q" id="syn-q">…</p>
+      <input class="in" id="syn-in" maxlength="60" placeholder="ta réponse…" autocomplete="off">
+      <button class="btn" id="syn-ok">Valider</button>
+      <p class="wait-l" id="syn-w"></p>
+    </div>
+
+    <!-- RÉFLEXE -->
+    <div class="mode" id="m-ref" hidden>
+      <p class="q">Le premier qui clique sur le cœur marque le point.</p>
+      <button class="target" id="ref-t"><span id="ref-face">⏳</span></button>
+      <p class="wait-l" id="ref-w">Attends le signal… ne clique pas trop tôt.</p>
+    </div>
+
+    <!-- DESSIN -->
+    <div class="mode" id="m-des" hidden>
+      <p class="q" id="des-q">…</p>
+      <canvas id="pad" width="800" height="520"></canvas>
+      <div class="des-bar">
+        <div class="tools" id="des-tools" hidden>
+          <button class="tool" data-c="#ffffff" style="--c:#fff"></button>
+          <button class="tool" data-c="#ff7ab8" style="--c:#ff7ab8"></button>
+          <button class="tool" data-c="#7ae0ff" style="--c:#7ae0ff"></button>
+          <button class="tool" data-c="#ffd76e" style="--c:#ffd76e"></button>
+          <button class="btn ghost small" id="des-clear">Effacer</button>
+        </div>
+        <form class="guessbox" id="des-form" hidden>
+          <input class="in" id="des-in" maxlength="30" placeholder="c'est quoi ?"
+                 autocomplete="off" autocapitalize="off" enterkeyhint="send">
+          <button class="btn small" type="submit" id="des-send">Envoyer</button>
+        </form>
+      </div>
+      <p class="wait-l" id="des-w"></p>
+      <p class="guesses" id="des-live"></p>
+    </div>
+
+    <!-- BRAS DE FER -->
+    <div class="mode" id="m-bra" hidden>
+      <p class="q">Bras de fer&nbsp;! Martèle le bouton.</p>
+      <div class="rope">
+        <span class="rope-end l" id="bra-nl">—</span>
+        <div class="rope-track"><span class="rope-heart" id="bra-h">💗</span></div>
+        <span class="rope-end r" id="bra-nr">—</span>
+      </div>
+      <button class="masher" id="bra-b">TIRE&nbsp;!</button>
+      <p class="wait-l" id="bra-w">—</p>
+    </div>
+
+    <!-- PUISSANCE 4 -->
+    <div class="mode" id="m-p4" hidden>
+      <p class="q" id="p4-q">Puissance 4</p>
+      <div class="p4" id="p4-grid"></div>
+      <p class="wait-l" id="p4-w">—</p>
+    </div>
+
+    <!-- PIERRE FEUILLE CISEAUX -->
+    <div class="mode" id="m-pfc" hidden>
+      <p class="q">Pierre, feuille, ciseaux — au meilleur des 3.</p>
+      <div class="pfc-sc" id="pfc-sc">0 — 0</div>
+      <div class="three">
+        <button class="pick pfc" data-v="pierre"><span class="av">✊</span><b>Pierre</b></button>
+        <button class="pick pfc" data-v="feuille"><span class="av">✋</span><b>Feuille</b></button>
+        <button class="pick pfc" data-v="ciseaux"><span class="av">✌️</span><b>Ciseaux</b></button>
+      </div>
+      <p class="wait-l" id="pfc-w">—</p>
+    </div>
+
+    <!-- VRAI OU FAUX -->
+    <div class="mode" id="m-vf" hidden>
+      <p class="q" id="vf-q">—</p>
+      <div id="vf-write" hidden>
+        <input class="in" id="vf-in" maxlength="90" placeholder="Ex : j'ai déjà mangé une pizza entière tout seul" autocomplete="off">
+        <div class="two vf-two">
+          <button class="btn" id="vf-true">C'est VRAI</button>
+          <button class="btn ghost" id="vf-false">C'est FAUX</button>
+        </div>
+      </div>
+      <div id="vf-guess" hidden>
+        <p class="vf-claim" id="vf-claim">—</p>
+        <div class="two vf-two">
+          <button class="btn" id="vf-gt">Je dis VRAI</button>
+          <button class="btn ghost" id="vf-gf">Je dis FAUX</button>
+        </div>
+      </div>
+      <p class="wait-l" id="vf-w">—</p>
+    </div>
+
+    <!-- TU PRÉFÈRES -->
+    <div class="mode" id="m-pre" hidden>
+      <p class="q">Tu préfères…</p>
+      <div class="two big-two">
+        <button class="pick" id="pre-a"><span class="av">🅰️</span><b id="pre-an">—</b></button>
+        <button class="pick" id="pre-b"><span class="av">🅱️</span><b id="pre-bn">—</b></button>
+      </div>
+      <p class="wait-l" id="pre-w"></p>
+    </div>
+
+    <!-- TROUVE L'INTRUS -->
+    <div class="mode" id="m-int" hidden>
+      <p class="q">Trouve l'intrus. Le plus rapide marque.</p>
+      <div class="intru" id="int-grid"></div>
+      <p class="wait-l" id="int-w">Cherche bien…</p>
+    </div>
+
+    <!-- CHASSE AUX CŒURS -->
+    <div class="mode" id="m-cha" hidden>
+      <p class="q" id="cha-q">Attrapez les cœurs à deux&nbsp;!</p>
+      <div class="chasse" id="cha-grid"></div>
+      <p class="wait-l" id="cha-w">—</p>
+    </div>
+
+    <!-- MEMORY À DEUX -->
+    <div class="mode" id="m-mem" hidden>
+      <p class="q" id="mem-q">Memory — à vous deux.</p>
+      <div class="memo" id="mem-grid"></div>
+      <p class="wait-l" id="mem-w">—</p>
+    </div>
+
+    <!-- QUIZ ÉCLAIR -->
+    <div class="mode" id="m-qz" hidden>
+      <p class="q" id="qz-q">—</p>
+      <div class="qz-opts" id="qz-opts"></div>
+      <p class="wait-l" id="qz-w">Le premier qui trouve marque le point.</p>
+    </div>
+
+    <!-- LE PENDU -->
+    <div class="mode" id="m-pen" hidden>
+      <p class="q">Trouvez le mot ensemble. Vous partagez les erreurs.</p>
+      <p class="pendu-mot" id="pen-mot">—</p>
+      <div class="clavier" id="pen-clavier"></div>
+      <p class="wait-l" id="pen-w">—</p>
+    </div>
+
+    <!-- PLUS OU MOINS -->
+    <div class="mode" id="m-pom" hidden>
+      <p class="q">Un nombre entre 1 et 500. Le premier qui le trouve marque.</p>
+      <form class="rangee" id="pom-form">
+        <input class="in" id="pom-in" type="number" min="1" max="500" placeholder="ton nombre" inputmode="numeric">
+        <button class="btn small" type="submit">Tenter</button>
+      </form>
+      <p class="guesses" id="pom-fil"></p>
+      <p class="wait-l" id="pom-w">—</p>
+    </div>
+
+    <!-- LABYRINTHE AVEUGLE -->
+    <div class="mode" id="m-lab" hidden>
+      <p class="q" id="lab-q">—</p>
+      <div class="laby" id="lab-grille"></div>
+      <div class="dpad" id="lab-dpad" hidden>
+        <button data-d="h">▲</button>
+        <div>
+          <button data-d="g">◀</button>
+          <button data-d="b">▼</button>
+          <button data-d="d">▶</button>
+        </div>
+      </div>
+      <p class="wait-l" id="lab-w">—</p>
+    </div>
+
+    <!-- LE MOT LE PLUS LONG -->
+    <div class="mode" id="m-mlp" hidden>
+      <p class="q">Le mot le plus long avec ces lettres.</p>
+      <div class="tirage" id="mlp-lettres"></div>
+      <form class="rangee" id="mlp-form">
+        <input class="in" id="mlp-in" maxlength="20" placeholder="ton mot…" autocomplete="off" autocapitalize="off">
+        <button class="btn small" type="submit">Valider</button>
+      </form>
+      <p class="wait-l" id="mlp-w">—</p>
+    </div>
+
+    <!-- CHRONO AVEUGLE -->
+    <div class="mode" id="m-chr" hidden>
+      <p class="q" id="chr-q">—</p>
+      <button class="masher" id="chr-btn">DÉMARRER</button>
+      <p class="wait-l" id="chr-w">—</p>
+    </div>
+
+    <!-- DEVINE L'EMOJI -->
+    <div class="mode" id="m-emo" hidden>
+      <p class="emo-suite" id="emo-suite">—</p>
+      <form class="rangee" id="emo-form">
+        <input class="in" id="emo-in" maxlength="30" placeholder="c'est quoi ?" autocomplete="off" autocapitalize="off">
+        <button class="btn small" type="submit">Envoyer</button>
+      </form>
+      <p class="guesses" id="emo-fil"></p>
+      <p class="wait-l" id="emo-w">—</p>
+    </div>
+
+    <!-- ACTION OU VÉRITÉ -->
+
+    <!-- ---------- DEVINE MA RÉPONSE ---------- -->
+    <div class="mode" id="m-dev" hidden>
+      <p class="q" id="dev-q">—</p>
+      <p class="sous" id="dev-lab">—</p>
+      <div class="col-opts" id="dev-opts"></div>
+      <p class="wait-l" id="dev-w"></p>
+    </div>
+
+    <!-- ---------- LE CURSEUR ---------- -->
+    <div class="mode" id="m-cur" hidden>
+      <p class="q" id="cur-q">—</p>
+      <p class="sous" id="cur-lab">—</p>
+      <div class="cur-boite">
+        <div class="cur-val" id="cur-val">5</div>
+        <input type="range" id="cur-slider" min="0" max="10" step="1" value="5">
+        <div class="cur-bornes"><span id="cur-gauche">—</span><span id="cur-droite">—</span></div>
+      </div>
+      <button class="btn" id="cur-ok">Valider</button>
+      <p class="wait-l" id="cur-w"></p>
+    </div>
+
+    <!-- ---------- LE PODIUM ---------- -->
+    <div class="mode" id="m-top" hidden>
+      <p class="q" id="top-q">—</p>
+      <p class="sous" id="top-lab">—</p>
+      <div class="col-opts" id="top-items"></div>
+      <button class="btn ghost small" id="top-annuler" hidden>↶ Annuler le dernier</button>
+      <p class="wait-l" id="top-w"></p>
+    </div>
+
+    <div class="mode" id="m-osa" hidden>
+      <span class="osa-genre" id="osa-genre">VÉRITÉ</span>
+      <p class="osa-pour" id="osa-pour">—</p>
+      <p class="osa-txt" id="osa-txt">—</p>
+      <div class="row c" id="osa-boutons" hidden>
+        <button class="btn" id="osa-ok">Relevé ✅</button>
+        <button class="btn ghost" id="osa-non">Passé ❌</button>
+      </div>
+      <p class="wait-l" id="osa-w">—</p>
+    </div>
+
+    <!-- JE N'AI JAMAIS -->
+    <div class="mode" id="m-jam" hidden>
+      <p class="q" id="jam-q">—</p>
+      <div class="two big-two">
+        <button class="pick" id="jam-si"><span class="av">🙋</span><b>Moi si</b></button>
+        <button class="pick" id="jam-non"><span class="av">🙅</span><b>Moi jamais</b></button>
+      </div>
+      <p class="wait-l" id="jam-w">—</p>
+    </div>
+
+    <!-- LA SÉQUENCE -->
+    <div class="mode" id="m-seq" hidden>
+      <p class="q" id="seq-q">Retiens la séquence…</p>
+      <div class="pads" id="seq-pads">
+        <button class="pad p0" data-i="0"></button>
+        <button class="pad p1" data-i="1"></button>
+        <button class="pad p2" data-i="2"></button>
+        <button class="pad p3" data-i="3"></button>
+      </div>
+      <p class="wait-l" id="seq-w">—</p>
+    </div>
+
+    <!-- PETIT BAC -->
+    <div class="mode" id="m-bac" hidden>
+      <p class="q" id="bac-q">—</p>
+      <div class="lettre-geante" id="bac-lettre">A</div>
+      <form class="rangee" id="bac-form">
+        <input class="in" id="bac-in" maxlength="24" placeholder="ta réponse…" autocomplete="off" enterkeyhint="send">
+        <button class="btn small" type="submit">Valider</button>
+      </form>
+      <p class="wait-l" id="bac-w">—</p>
+    </div>
+
+    <!-- TAPE VITE -->
+    <div class="mode" id="m-tap" hidden>
+      <p class="q">Recopie cette phrase le plus vite possible.</p>
+      <p class="phrase" id="tap-phrase">—</p>
+      <form class="rangee large" id="tap-form">
+        <input class="in" id="tap-in" placeholder="tape ici…" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </form>
+      <div class="jauge"><span id="tap-jauge"></span></div>
+      <p class="wait-l" id="tap-w">—</p>
+    </div>
+
+    <!-- MOT DE PASSE -->
+    <div class="mode" id="m-mdp" hidden>
+      <p class="q" id="mdp-q">—</p>
+      <form class="rangee large" id="mdp-form">
+        <input class="in" id="mdp-in" maxlength="28" placeholder="…" autocomplete="off" enterkeyhint="send">
+        <button class="btn small" type="submit">Envoyer</button>
+      </form>
+      <p class="wait-l" id="mdp-w">—</p>
+      <p class="guesses" id="mdp-fil"></p>
+    </div>
+
+    <!-- DÉSAMORÇAGE -->
+    <div class="mode" id="m-bom" hidden>
+      <p class="q" id="bom-q">—</p>
+      <div id="bom-panneau" hidden>
+        <div class="fils" id="bom-fils"></div>
+      </div>
+      <div id="bom-manuel" hidden>
+        <p class="manuel" id="bom-regle">—</p>
+      </div>
+      <p class="wait-l" id="bom-w">—</p>
+    </div>
+
+    <!-- RÉVÉLATION -->
+    <div class="mode reveal" id="m-rev" hidden>
+      <div class="rev-e" id="rev-e">✨</div>
+      <h2 class="rev-t" id="rev-t"></h2>
+      <div class="rev-two" id="rev-two"></div>
+      <p class="rev-p" id="rev-p"></p>
+      <button class="btn" id="rev-next">Manche suivante →</button>
+      <p class="wait-l" id="rev-w"></p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ==================== FIN ==================== -->
+<section class="screen" id="s-end">
+  <div class="glass end">
+    <div class="end-e" id="end-e">🏆</div>
+    <h2 class="end-t" id="end-t">—</h2>
+    <div class="end-sc" id="end-sc"></div>
+    <p class="end-p" id="end-p"></p>
+    <button class="btn" id="b-again">Rejouer</button>
+  </div>
+
+  <div class="bascule" id="bascule" hidden>
+    <button class="btn ghost small" id="b-switch">↔ Tu joues : <b id="switch-nom">—</b></button>
+    <span class="bascule-note">Tab pour changer de joueur</span>
+  </div>
+</section>
+
+<canvas id="conf" aria-hidden="true"></canvas>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="contenu.js?v=14"></script>
+<script src="game.js?v=14"></script>
 </body>
 </html>

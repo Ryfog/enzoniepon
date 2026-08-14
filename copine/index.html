@@ -1,30 +1,236 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
-<title>&nbsp;</title>
-<link rel="icon" href="data:,">
-<style>
-  html, body { height: 100%; margin: 0; background: #000; }
-  body {
-    display: flex; align-items: center; justify-content: center;
-    font-family: Georgia, 'Times New Roman', serif;
-  }
-  /* Le texte est visible par defaut. L'animation ne fait que l'amener :
-     si elle ne part pas, la page reste lisible au lieu de rester noire. */
-  p {
-    margin: 0; padding: 0 24px; color: #6a6a6a;
-    font-size: clamp(1.5rem, 6vw, 2.6rem);
-    letter-spacing: .04em; text-align: center;
-    animation: venir 2.6s ease;
-  }
-  @keyframes venir { from { opacity: 0; } to { opacity: 1; } }
-  @media (prefers-reduced-motion: reduce) { p { animation: none; } }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ta journée 🌞</title>
+  <meta name="description" content="Une journée entière, du réveil jusqu'aux étoiles.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#ffd9c0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌞</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Kalam:wght@400;700&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
-  <p>c'est fini</p>
+
+<!-- le ciel, il change au fil de la journée -->
+<div class="sky" id="sky" aria-hidden="true">
+  <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+</div>
+<div class="stars" id="starfield" aria-hidden="true"></div>
+<canvas id="conf" aria-hidden="true"></canvas>
+
+<!-- ============ ENTRÉE ============ -->
+<div class="gate" id="gate">
+  <div class="gate-in">
+    <img class="gate-billet" id="gate-billet" src="billet.webp" width="900" height="661"
+         alt="Billet d'entrée, 1 personne. Le 2 août, c'est pour elle. Pas de raison particulière, juste l'envie de te faire plaisir. Au nom de : Stacy">
+    <button class="btn" id="gate-btn">Lever le soleil ☀️</button>
+  </div>
+</div>
+
+<main class="wrap" id="wrap">
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <p class="kick">Rien que pour toi</p>
+    <h1 class="hero-t" id="hero-t">C'est <em>ta</em><br>journée</h1>
+    <p class="hero-p">
+      Pas d'occasion, pas d'anniversaire, aucune bonne raison.
+      Justement. J'en avais assez d'attendre une bonne raison.
+      Elle commence au réveil et elle finit dans les étoiles —
+      il n'y a rien à réussir, prends-la comme elle vient. 🌻
+    </p>
+    <p class="sig">— Enzo</p>
+    <div class="cue" aria-hidden="true">↓</div>
+  </header>
+
+  <!-- ============ PROGRESSION : LE SOLEIL ============ -->
+  <section class="card arc-card">
+    <h2 class="h2 c">Le soleil de ta journée</h2>
+    <p class="sub c">Il avance à chaque étape. Emmène-le jusqu'aux étoiles.</p>
+    <div class="arc">
+      <svg viewBox="0 0 300 150" class="arc-svg" aria-hidden="true">
+        <path d="M14,145 A136,136 0 0 1 286,145" class="arc-line"/>
+      </svg>
+      <button class="arc-sun" id="arc-sun" aria-label="Le soleil">🌞</button>
+    </div>
+    <p class="arc-n" id="arc-n">0 / 7</p>
+  </section>
+
+  <!-- ============ 1 · LE RÉVEIL ============ -->
+  <section class="card" id="j-reveil">
+    <span class="hr">07:00</span>
+    <h2 class="h2">Le réveil sonne</h2>
+    <p class="sub">Éteins-le. Enfin… essaie.</p>
+    <div class="clock" id="clock">
+      <div class="clock-face"><span id="clock-h">07:00</span><span class="clock-bell">⏰</span></div>
+      <button class="btn small" id="snooze">Éteindre le réveil</button>
+    </div>
+    <p class="hint" id="reveil-msg">Il sonne depuis un moment, là.</p>
+  </section>
+
+  <!-- ============ LA LETTRE ============ -->
+  <section class="card paper">
+    <span class="clip" aria-hidden="true"></span>
+    <h2 class="hand">Le mot du matin</h2>
+    <div class="lettre">
+      <p>Stacy,</p>
+      <p>
+        Désolé pour tout le mal que je peux te donner. Désolé pour toutes ces
+        bêtises, pour les bonne nuit que je ne t'ai pas dites, et pour mon
+        manque de sommeil qui impacte notre couple.
+      </p>
+      <p>
+        Je veux vraiment souligner, avec tout ça, que tu es la meilleure copine
+        du monde et la seule à mes yeux qui compte pour moi.
+      </p>
+      <p>
+        Tu es douce et magnifiquement belle.
+      </p>
+      <p>
+        Je te veux pour la vie. Alors laisse-moi profiter avec toi de chaque
+        seconde, malgré mes erreurs.
+      </p>
+      <p class="sign">Ton homme, je t'aime.<br>— Enzo 🤍</p>
+    </div>
+  </section>
+
+  <!-- ============ 2 · LE PETIT-DÉJ ============ -->
+  <section class="card" id="j-dej">
+    <span class="hr">08:30</span>
+    <h2 class="h2">Ton plateau du petit-déj</h2>
+    <p class="sub">Choisis 4 choses. Je te les aurais apportées au lit.</p>
+    <div class="menu" id="menu"></div>
+    <div class="tray"><span class="tray-in" id="tray-in"></span><span class="tray-b">🛎️</span></div>
+    <p class="hint" id="dej-msg">0 / 4</p>
+  </section>
+
+  <!-- ============ 3 · LE PUZZLE ============ -->
+  <section class="card" id="j-puzzle">
+    <span class="hr">12:00</span>
+    <h2 class="h2">Le puzzle du midi</h2>
+    <p class="sub">Glisse les morceaux pour remettre l'image d'aplomb. Indice&nbsp;: tu la connais très bien.</p>
+    <div class="puz" id="puz"></div>
+    <div class="row">
+      <button class="btn small ghost" id="puz-mix">Remélanger</button>
+      <span class="puz-n" id="puz-n">0 coup</span>
+    </div>
+  </section>
+
+  <!-- ============ SI J'ÉTAIS LÀ ============ -->
+  <section class="card">
+    <h2 class="h2 c">Si j'étais là aujourd'hui</h2>
+    <p class="sub c">Heure par heure. Touche pour voir.</p>
+    <div class="jour" id="jour"></div>
+  </section>
+
+  <!-- ============ 4 · PLUS OU MOINS ============ -->
+  <section class="card" id="j-devine">
+    <span class="hr">14:00</span>
+    <h2 class="h2">Plus ou moins</h2>
+    <p class="sub">Devine combien de fois j'ai pensé à toi depuis hier. Entre 1 et 500.</p>
+    <form class="guess" id="guess">
+      <input type="number" id="g-in" min="1" max="500" placeholder="ton chiffre" inputmode="numeric">
+      <button class="btn small" type="submit">Tenter</button>
+    </form>
+    <p class="hint" id="g-msg">Vas-y au feeling.</p>
+    <p class="tries" id="g-try"></p>
+  </section>
+
+  <!-- ============ 5 · LE MORPION ============ -->
+  <section class="card" id="j-morpion">
+    <span class="hr">16:00</span>
+    <h2 class="h2">Le morpion</h2>
+    <p class="sub">Toi les ❤️, moi les 🐾. Je te préviens, je suis très mauvais — et c'est volontaire.</p>
+    <div class="ttt" id="ttt"></div>
+    <p class="hint" id="ttt-msg">À toi de commencer.</p>
+  </section>
+
+  <!-- ============ 6 · LE MESSAGE CODÉ ============ -->
+  <section class="card" id="j-code">
+    <span class="hr">19:00</span>
+    <h2 class="h2">Le message codé</h2>
+    <p class="sub">J'ai décalé toutes les lettres de l'alphabet. Bouge le curseur jusqu'à ce que ça veuille dire quelque chose.</p>
+    <p class="crypt" id="crypt">…</p>
+    <input type="range" id="shift" min="0" max="25" value="0" class="slider">
+    <p class="hint" id="code-msg">Décalage&nbsp;: 0</p>
+  </section>
+
+  <!-- ============ LA BOÎTE À QUESTIONS ============ -->
+  <section class="card box-card">
+    <h2 class="h2 c">La boîte à questions</h2>
+    <p class="sub c">Tire une question. Réponds-moi quand tu veux, ou jamais — c'est toi qui vois.</p>
+    <div class="qbox" id="qbox">Appuie sur le bouton 👇</div>
+    <div class="row c">
+      <button class="btn small" id="q-draw">Tirer une question</button>
+      <button class="btn small ghost" id="q-copy">Copier</button>
+    </div>
+  </section>
+
+  <!-- ============ 7 · LA CONSTELLATION ============ -->
+  <section class="card night" id="j-ciel">
+    <span class="hr dark">23:00</span>
+    <h2 class="h2">La constellation</h2>
+    <p class="sub">Relie les étoiles dans l'ordre, de 1 à 12. Il y a un dessin caché dedans.</p>
+    <div class="const" id="const"></div>
+    <p class="hint" id="const-msg">Commence par la première.</p>
+  </section>
+
+  <!-- ============ MOT DU SOIR ============ -->
+  <section class="card fin locked" id="fin">
+    <div class="lock" id="lock">
+      <span class="lock-e">🌙</span>
+      <p>Le mot du soir s'ouvre quand le soleil a fait toute sa course.</p>
+      <p class="lock-l" id="lock-l">Encore 7 étapes.</p>
+    </div>
+    <div class="fin-in" id="fin-in">
+      <h2 class="h2 c">Le mot du soir 🌙</h2>
+      <p>
+        Voilà, ta journée est finie. Tu l'as menée du réveil jusqu'aux étoiles,
+        et honnêtement tu as été bien plus patiente que je ne l'aurais été.
+      </p>
+      <p>
+        Je voulais qu'il existe un endroit qui soit à toi. Pas un cadeau pour
+        une occasion, pas un truc de circonstance — juste une preuve, quelque
+        part, que même sans raison particulière tu comptes énormément.
+      </p>
+      <p>
+        Garde le lien. Reviens quand tu veux, la journée recommence à chaque
+        fois. Et si un soir ça ne va pas, ouvre-le et rappelle-toi qu'à l'autre
+        bout de la France il y a quelqu'un qui a passé des heures à te
+        fabriquer un coin de bonne humeur.
+      </p>
+      <img class="fin-ours" src="nounours.webp" alt="" loading="lazy">
+      <p class="fin-cap">Lui aussi il veille. On se relaie.</p>
+      <p class="sign">Bonne nuit, ma Stacy. Je t'aime.<br>— Enzo</p>
+      <div class="row c">
+        <a class="btn small ghost" href="../nous/">Le compte à rebours →</a>
+        <button class="btn small" id="boom">Encore 🎊</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">Une journée fabriquée à la main, à 873 km · Enzo &amp; Stacy (et Milo 🐾)</footer>
+</main>
+
+<!-- easter egg : Milo qui traverse -->
+<button class="milo-run" id="milo-run" aria-label="Milo"><img src="dog/milo1.jpg" alt="" loading="lazy"></button>
+
+<!-- fenêtre -->
+<div class="pop" id="pop" hidden>
+  <div class="pop-c">
+    <button class="pop-x" id="pop-x" aria-label="Fermer">✕</button>
+    <img class="pop-img" id="pop-img" alt="" hidden>
+    <div class="pop-e" id="pop-e">🌞</div>
+    <h3 class="pop-t" id="pop-t"></h3>
+    <p class="pop-p" id="pop-p"></p>
+    <button class="btn small" id="pop-ok">Merci 🤍</button>
+  </div>
+</div>
+
+<script src="script.js?v=13"></script>
 </body>
 </html>

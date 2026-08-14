@@ -1,30 +1,125 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
-<title>&nbsp;</title>
-<link rel="icon" href="data:,">
-<style>
-  html, body { height: 100%; margin: 0; background: #000; }
-  body {
-    display: flex; align-items: center; justify-content: center;
-    font-family: Georgia, 'Times New Roman', serif;
-  }
-  /* Le texte est visible par defaut. L'animation ne fait que l'amener :
-     si elle ne part pas, la page reste lisible au lieu de rester noire. */
-  p {
-    margin: 0; padding: 0 24px; color: #6a6a6a;
-    font-size: clamp(1.5rem, 6vw, 2.6rem);
-    letter-spacing: .04em; text-align: center;
-    animation: venir 2.6s ease;
-  }
-  @keyframes venir { from { opacity: 0; } to { opacity: 1; } }
-  @media (prefers-reduced-motion: reduce) { p { animation: none; } }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>En Garde ⚔</title>
+  <meta name="description" content="Duel d'escrime à choix simultanés.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0e1418">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=1">
 </head>
 <body>
-  <p>c'est fini</p>
+
+<canvas id="cv"></canvas>
+
+<!-- ============ SALLE D'ARMES ============ -->
+<section class="ec on" id="e-entree">
+  <div class="carte">
+    <p class="sur">Salle d'armes</p>
+    <h1 class="titre">En<span>Garde</span></h1>
+    <p class="chapo">Vous choisissez en secret. Vous découvrez en même temps.<br>Premier à <b>5 touches</b>.</p>
+
+    <label class="lab" for="nom">Ton nom</label>
+    <input class="in" id="nom" maxlength="14" placeholder="Enzo" autocomplete="off">
+
+    <div class="deux">
+      <button class="btn" id="b-ouvrir">Ouvrir la salle</button>
+      <button class="btn creux" id="b-rejoindre">Rejoindre</button>
+    </div>
+
+    <div class="join" id="joinbox" hidden>
+      <label class="lab" for="code">Code de la salle</label>
+      <input class="in code" id="code" maxlength="4" placeholder="ABCD" autocomplete="off">
+      <button class="btn" id="b-entrer">Entrer sur la piste</button>
+    </div>
+
+    <button class="btn creux large" id="b-seul">⚔ S'entraîner contre le maître d'armes</button>
+    <button class="btn lien" id="b-regles">Voir les règles</button>
+    <p class="err" id="err"></p>
+  </div>
+</section>
+
+<!-- ============ RÈGLES ============ -->
+<section class="ec" id="e-regles">
+  <div class="carte large-carte">
+    <p class="sur">Le règlement</p>
+    <h2 class="titre petit">Six actions</h2>
+    <p class="chapo">Chaque tour, vous choisissez <b>en secret</b>. Les deux actions se résolvent ensemble : d'abord les déplacements, puis les lames.</p>
+
+    <table class="regles">
+      <tr><th>Action</th><th>Effet</th><th>Endurance</th></tr>
+      <tr><td><b class="a-mv">Avancer</b></td><td>d'un pas vers l'autre</td><td class="plus">+1</td></tr>
+      <tr><td><b class="a-mv">Rompre</b></td><td>d'un pas en arrière</td><td class="plus">+1</td></tr>
+      <tr><td><b class="a-mv">Bond</b></td><td>de deux pas vers l'autre</td><td class="moins">−2</td></tr>
+      <tr><td><b class="a-at">Fente</b></td><td>touche à deux pas ou moins</td><td class="moins">−3</td></tr>
+      <tr><td><b class="a-df">Parade</b></td><td>arrête une fente et riposte</td><td class="moins">−1</td></tr>
+      <tr><td><b class="a-fi">Feinte</b></td><td>traverse une parade</td><td class="moins">−1</td></tr>
+    </table>
+
+    <p class="cycle"><b>Fente</b> bat <b>Feinte</b> · <b>Feinte</b> bat <b>Parade</b> · <b>Parade</b> bat <b>Fente</b></p>
+    <p class="note-r">Les lames ne portent qu'à <b>deux pas ou moins</b>. Deux fentes qui se croisent : coup double, un point chacun. Reculer alors qu'on est déjà au bout de la piste, c'est une sortie : un point pour l'autre.</p>
+
+    <button class="btn large" id="b-fermer-regles">Compris</button>
+  </div>
+</section>
+
+<!-- ============ VESTIAIRE ============ -->
+<section class="ec" id="e-attente">
+  <div class="carte">
+    <p class="sur">Salle ouverte</p>
+    <div class="code-geant" id="code-geant">····</div>
+    <button class="btn creux mini" id="b-copier">Copier le code</button>
+    <p class="chapo" id="attente-txt">On attend l'adversaire…</p>
+    <div class="duo">
+      <div class="tir t1"><span></span><b id="nm1">—</b></div>
+      <div class="vs">contre</div>
+      <div class="tir t2"><span></span><b id="nm2">—</b></div>
+    </div>
+    <button class="btn" id="b-commencer" hidden>En garde !</button>
+  </div>
+</section>
+
+<!-- ============ LA PISTE ============ -->
+<section class="ec" id="e-piste">
+  <div class="tableau-scores">
+    <span class="lampe l1"><b id="s1">0</b><i id="n1">—</i></span>
+    <span class="milieu"><b id="phase">Choisissez</b><i id="chrono">20</i></span>
+    <span class="lampe l2"><i id="n2">—</i><b id="s2">0</b></span>
+  </div>
+
+  <p class="etat" id="etat">—</p>
+
+  <div class="actions" id="actions"></div>
+
+  <div class="verdict" id="verdict" hidden>
+    <p class="v-titre" id="v-titre"></p>
+    <p class="v-sous" id="v-sous"></p>
+  </div>
+
+  <div class="bandeau" id="bandeau" hidden>
+    <span class="note" id="note-solo">Le maître d'armes répond tout seul</span>
+  </div>
+</section>
+
+<!-- ============ FIN ============ -->
+<section class="ec" id="e-fin">
+  <div class="carte">
+    <p class="sur" id="fin-sur">Assaut terminé</p>
+    <h2 class="titre petit" id="fin-t">—</h2>
+    <div class="bilan" id="fin-sc"></div>
+    <p class="chapo" id="fin-p"></p>
+    <button class="btn" id="b-rejouer">Reprendre l'assaut</button>
+  </div>
+</section>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="jeu.js?v=1"></script>
 </body>
 </html>

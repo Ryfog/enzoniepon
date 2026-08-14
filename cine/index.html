@@ -1,30 +1,159 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
-<title>&nbsp;</title>
-<link rel="icon" href="data:,">
-<style>
-  html, body { height: 100%; margin: 0; background: #000; }
-  body {
-    display: flex; align-items: center; justify-content: center;
-    font-family: Georgia, 'Times New Roman', serif;
-  }
-  /* Le texte est visible par defaut. L'animation ne fait que l'amener :
-     si elle ne part pas, la page reste lisible au lieu de rester noire. */
-  p {
-    margin: 0; padding: 0 24px; color: #6a6a6a;
-    font-size: clamp(1.5rem, 6vw, 2.6rem);
-    letter-spacing: .04em; text-align: center;
-    animation: venir 2.6s ease;
-  }
-  @keyframes venir { from { opacity: 0; } to { opacity: 1; } }
-  @media (prefers-reduced-motion: reduce) { p { animation: none; } }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinéma Enzo &amp; Stacy — Séance privée 🍿</title>
+  <meta name="description" content="Notre salle de cinéma rien qu'à nous.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#120a0d">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍿</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Sacramento&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
-  <p>c'est fini</p>
+
+<div class="grain" aria-hidden="true"></div>
+
+<!-- ================= RIDEAU ================= -->
+<div class="curtain" id="curtain">
+  <div class="cu cu-l" aria-hidden="true"></div>
+  <div class="cu cu-r" aria-hidden="true"></div>
+  <div class="marquee">
+    <p class="mq-top">◆ Séance privée ◆</p>
+    <h1 class="mq-title">Cinéma<br><span>Enzo &amp; Stacy</span></h1>
+    <p class="mq-film">À l'affiche&nbsp;: <b>Frère des Ours 2</b></p>
+    <button class="btn gold" id="enter">Entrer dans la salle</button>
+    <p class="mq-alt"><button class="linkish" id="salle-btn-2">🎦 Mode salle — pour ton partage d'écran</button></p>
+    <p class="mq-note">Salle 1 · Rangée A · Sièges 1 &amp; 2</p>
+  </div>
+</div>
+
+<main class="hall" id="hall">
+
+  <!-- ================= ÉCRAN ================= -->
+  <section class="screen-wrap">
+    <div class="screen" id="screen">
+
+      <!-- A. avant le film -->
+      <div class="pane" id="pane-set">
+        <p class="pane-kicker">Bienvenue en salle 1</p>
+        <h2 class="pane-title">Garde-moi<br>sur ton téléphone</h2>
+        <p class="pane-sub">
+          On regarde sur son écran à lui. Toi, tu poses ça à côté&nbsp;:
+          j'ai laissé des petits mots un peu partout dans le film,
+          ils arriveront tout seuls.
+        </p>
+        <button class="btn gold" id="start">Il a lancé le film ▶</button>
+        <p class="pane-tiny">(Appuie pile quand l'image démarre.)</p>
+      </div>
+
+      <!-- B. film en cours -->
+      <div class="pane" id="pane-play" hidden>
+        <p class="pane-kicker" id="play-kick">Séance en cours</p>
+        <div class="tc" id="tc">00:00:00</div>
+        <div class="bar"><span class="bar-fill" id="bar-fill"></span></div>
+        <p class="pane-sub" id="play-sub">Bon film. Je suis juste là. 🤍</p>
+        <div class="row">
+          <button class="btn ghost small" id="pause">Pause</button>
+          <button class="btn ghost small" id="stop">Arrêter</button>
+        </div>
+      </div>
+
+      <!-- C. fin -->
+      <div class="pane" id="pane-end" hidden>
+        <div class="end-emoji">🍿</div>
+        <h2 class="pane-title">Générique de fin</h2>
+        <p class="pane-sub" id="end-txt"></p>
+        <button class="btn ghost small" id="again">Refaire une séance</button>
+      </div>
+
+    </div>
+    <div class="screen-glow" aria-hidden="true"></div>
+  </section>
+
+  <p class="hint-open">
+    <a id="dplus" href="https://www.disneyplus.com/fr-fr/play/877827e9-2ac6-44b0-8444-155a2da3c505" target="_blank" rel="noopener">Ouvrir le film sur Disney+ →</a>
+  </p>
+
+  <p class="mode-line">
+    <button class="btn ghost small" id="salle-btn">🎦 Mode salle (pour ton partage d'écran)</button>
+  </p>
+
+  <!-- ================= LES FAUTEUILS ================= -->
+  <section class="seats">
+    <div class="seat">
+      <span class="seat-back"></span>
+      <span class="seat-name">Enzo</span>
+      <span class="seat-num">A1</span>
+    </div>
+    <div class="seat-heart" aria-hidden="true">♥</div>
+    <div class="seat">
+      <span class="seat-back"></span>
+      <span class="seat-name">Stacy</span>
+      <span class="seat-num">A2</span>
+    </div>
+  </section>
+
+  <!-- ================= LES BILLETS ================= -->
+  <section class="tickets">
+    <article class="tk">
+      <p class="tk-h">Cinéma Enzo &amp; Stacy</p>
+      <p class="tk-f">Frère des Ours 2</p>
+      <p class="tk-d"><span>Salle</span> 1</p>
+      <p class="tk-d"><span>Place</span> A1 — Enzo</p>
+      <p class="tk-b">▌▎▌▌▎▌▎▎▌▎▌▌▎▌▎▌▎▎▌▎▌</p>
+    </article>
+    <article class="tk">
+      <p class="tk-h">Cinéma Enzo &amp; Stacy</p>
+      <p class="tk-f">Frère des Ours 2</p>
+      <p class="tk-d"><span>Salle</span> 1</p>
+      <p class="tk-d"><span>Place</span> A2 — Stacy</p>
+      <p class="tk-b">▌▎▌▌▎▌▎▎▌▎▌▌▎▌▎▌▎▎▌▎▌</p>
+    </article>
+  </section>
+
+  <footer class="foot">
+    <p class="foot-script">Une salle rien qu'à nous, à 873 km d'écart.</p>
+    <p class="foot-links">
+      <a href="../nous/">Le compte à rebours</a> ·
+      <a href="../copine/">Ta journée</a>
+    </p>
+  </footer>
+</main>
+
+<!-- ================= MODE SALLE ================= -->
+<div class="theatre" id="theatre" hidden>
+  <div class="th-drape l" aria-hidden="true"></div>
+  <div class="th-drape r" aria-hidden="true"></div>
+
+  <div class="th-stage">
+    <div class="th-frame">
+      <p class="th-hint" id="th-hint">
+        Pose la fenêtre du film dans ce cadre.<br>
+        <small>Puis partage ton écran entier. Ce texte disparaît tout seul.</small>
+      </p>
+    </div>
+    <p class="th-film">Frère des Ours 2 · <span>Cinéma Enzo &amp; Stacy</span></p>
+  </div>
+
+  <div class="th-bottom">
+    <div class="th-seat"><span></span><b>Enzo</b></div>
+    <p class="th-tc" id="th-tc">00:00:00</p>
+    <div class="th-seat"><span></span><b>Stacy</b></div>
+  </div>
+
+  <button class="th-x" id="th-x">Quitter le mode salle ✕</button>
+</div>
+
+<!-- petit mot qui apparaît pendant le film -->
+<div class="note" id="note" hidden>
+  <button class="note-x" id="note-x" aria-label="Fermer">✕</button>
+  <p class="note-txt" id="note-txt"></p>
+</div>
+
+<script src="script.js?v=3"></script>
 </body>
 </html>

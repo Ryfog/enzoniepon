@@ -1,0 +1,95 @@
+@charset "UTF-8";
+/* =========================================================
+   POUR TOI — un paquet, puis des roses
+   Tout le décor est dessiné dans le canvas. Ici, seulement
+   le peu de texte qui se pose par-dessus.
+   ========================================================= */
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+
+html, body{height:100%}
+body{
+  margin:0;overflow:hidden;
+  background:#2b1620;
+  color:#f6e7ec;
+  font-family:'Jost',system-ui,sans-serif;
+  -webkit-user-select:none;user-select:none;
+  touch-action:none;
+}
+
+#scene{display:block;width:100%;height:100%;cursor:grab}
+#scene.tire{cursor:grabbing}
+
+/* ---------- la consigne du début ---------- */
+.consigne{
+  position:fixed;left:50%;bottom:9%;transform:translateX(-50%);
+  margin:0;font-size:.78rem;letter-spacing:.34em;text-transform:uppercase;
+  color:rgba(246,231,236,.5);font-weight:300;white-space:nowrap;
+  animation:respire 3s ease-in-out infinite;
+  transition:opacity .8s;pointer-events:none;
+}
+.consigne.parti{opacity:0}
+@keyframes respire{0%,100%{opacity:.35}50%{opacity:.8}}
+
+/* ---------- le mot que porte une rose ---------- */
+.mot{
+  position:fixed;left:50%;bottom:12%;transform:translateX(-50%);
+  width:min(440px,84vw);text-align:center;pointer-events:none;
+  animation:monte .8s cubic-bezier(.16,1,.3,1) both;
+}
+.mot[hidden]{display:none}
+@keyframes monte{
+  from{opacity:0;transform:translateX(-50%) translateY(14px)}
+  to{opacity:1;transform:translateX(-50%) translateY(0)}
+}
+.mot-num{
+  display:block;font-size:.66rem;letter-spacing:.4em;
+  color:rgba(246,231,236,.4);margin-bottom:10px;
+}
+.mot-txt{
+  margin:0;font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(1.25rem,4.4vw,1.9rem);line-height:1.45;
+  color:#fbe4ec;text-shadow:0 2px 20px rgba(0,0,0,.5);
+}
+
+/* ---------- le mot de la fin ---------- */
+.final{
+  position:fixed;inset:0;display:grid;place-items:center;padding:26px;
+  background:radial-gradient(70% 60% at 50% 45%,rgba(43,22,32,.55),rgba(24,12,18,.94));
+  backdrop-filter:blur(3px);
+  animation:fondu 2.4s ease both;
+}
+.final[hidden]{display:none}
+@keyframes fondu{from{opacity:0}to{opacity:1}}
+.final-in{text-align:center;max-width:520px}
+
+.final-sur{
+  font-size:.7rem;letter-spacing:.36em;text-transform:uppercase;
+  color:rgba(246,231,236,.45);margin:0 0 18px;
+}
+.final-titre{
+  font-family:'Cormorant Garamond',serif;font-weight:400;
+  font-size:clamp(2.4rem,10vw,4rem);line-height:1.08;margin:0 0 22px;
+  color:#fbe4ec;
+}
+.final-titre em{
+  font-style:italic;font-weight:600;
+  background:linear-gradient(100deg,#f7b8ce,#e88baa 60%,#f7d9c8);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.final-txt{
+  font-family:'Cormorant Garamond',serif;font-size:1.15rem;line-height:1.7;
+  color:rgba(246,231,236,.72);margin:0 0 32px;
+}
+.final-btn{
+  background:none;border:1px solid rgba(246,231,236,.28);border-radius:999px;
+  color:rgba(246,231,236,.72);padding:12px 30px;cursor:pointer;
+  font-family:'Jost',sans-serif;font-size:.8rem;letter-spacing:.2em;
+  text-transform:uppercase;transition:.3s;
+}
+.final-btn:hover{border-color:#f7b8ce;color:#fbe4ec}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+
