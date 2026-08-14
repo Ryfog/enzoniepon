@@ -98,6 +98,8 @@ body.ouvert .enveloppe{animation:none}
   margin:34px 0 0;font-family:'Cormorant Garamond',Georgia,serif;
   font-style:italic;font-size:1.4rem;color:var(--or);
 }
+/* [hidden] doit gagner sur le display explicite */
+.suite[hidden]{display:none}
 .suite{
   display:block;margin:56px auto 0;padding:15px 30px;cursor:pointer;
   background:none;border:1px solid rgba(201,162,39,.45);border-radius:40px;

@@ -83,6 +83,9 @@ h1{
 }
 
 /* ---------- la carte qui s'ouvre ---------- */
+/* [hidden] pose display:none, mais un display explicite le bat :
+   sans cette ligne le voile reste au-dessus de tout et avale les clics. */
+.voile[hidden]{display:none}
 .voile{
   position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;
   padding:6vw;background:rgba(93,58,73,.45);backdrop-filter:blur(4px);
