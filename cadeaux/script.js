@@ -11,7 +11,7 @@ const CADEAUX = [
   { e: '🐶', t: 'Milo',             m: 'Il dort. Il ronfle. Il prend toute la place. Il te ressemble un peu quand tu fais la sieste.' },
   { e: '🐱', t: 'Tigrou',           m: 'Lui il s\'en fout de tout, sauf de manger. On dirait moi devant un frigo à deux heures du matin.' },
   { e: '🧸', t: 'Un nounours',      m: 'Pour les nuits où je peux pas être là. Serre-le fort, fais comme si.' },
-  { e: '☕', t: 'Un café au lit',   m: 'Avec beaucoup trop de sucre, comme tu l\'aimes. Et je fais pas de commentaire cette fois.' },
+  { e: '🧥', t: 'Un pull à moi',    m: 'Celui que tu me piques toujours. Garde-le, il te va mieux qu\'à moi de toute façon.' },
   { e: '🍓', t: 'Des fraises',      m: 'Les grosses. Celles qu\'on mange debout dans la cuisine sans même les couper.' },
   { e: '🌙', t: 'Une bonne nuit',   m: 'Dors bien, fais de beaux rêves. Je te l\'ai déjà dit 177 fois. Ça en fait 178.' },
   { e: '🎵', t: 'Une chanson',      m: 'La nôtre. Celle qui te fait tourner la tête vers moi dès les premières notes.' },
