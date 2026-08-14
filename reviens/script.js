@@ -7,17 +7,17 @@
 'use strict';
 
 /* ---------------------------------------------------------
-   ▼▼▼  C'EST ICI QUE TU ÉCRIS.  ▼▼▼
-   Une ligne = un paragraphe. Les mots apparaissent un par un.
-   Garde-le court : court touche plus que long.
+   LA LETTRE — une ligne = un paragraphe.
+   Change ce que tu veux : c'est toi qu'elle doit entendre.
    --------------------------------------------------------- */
 const LETTRE = [
   "Stacy,",
-  "Je sais pas par où commencer, alors je commence par le plus vrai : tu me manques.",
-  "Je t'écris pas pour te faire changer d'avis. Je t'écris parce que je voulais que tu saches ce que j'ai compris.",
-  "REMPLACE CES LIGNES PAR LES TIENNES.",
-  "Dis ce que tu regrettes vraiment. Dis ce que tu as compris. Dis ce que tu changes — pas ce que tu promets.",
-  "Et si tu veux pas revenir, je le comprendrai. Mais il fallait que je te le dise une fois, en entier."
+  "Je vais pas tourner autour. Je t'écris pas pour te faire changer d'avis, et je vais pas te sortir des excuses — t'en as assez entendu, et de toute façon elles servent surtout à me protéger moi.",
+  "Je t'écris parce qu'il y a des choses que je t'ai jamais dites correctement, et que je veux pas les garder pour moi.",
+  "Ce que j'ai compris, c'est que j'ai passé beaucoup trop de temps à me défendre et pas assez à t'écouter. Quand tu me disais que quelque chose te faisait mal, je répondais au lieu d'entendre. Je me suis occupé d'avoir raison pendant que toi t'allais mal.",
+  "Je te promets rien, parce que les promesses je t'en ai déjà fait. Ce que je peux dire, c'est que j'ai commencé à changer ça, et je préfère que tu le voies avec le temps plutôt que je te l'écrive ici.",
+  "Je te demande rien. Ni une réponse, ni un délai, ni une seconde chance. Si c'est non, c'est non, et je te laisserai tranquille.",
+  "Je voulais juste que tu l'entendes une fois, en entier."
 ];
 
 /* la chanson (identifiant YouTube) */
