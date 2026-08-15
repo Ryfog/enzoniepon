@@ -1,0 +1,398 @@
+:root{
+  --nuit:#0d0a24;
+  --nuit2:#1c1246;
+  --violet:#4a2f8f;
+  --rose:#f6a8cf;
+  --or:#ffd98a;
+  --blanc:#fdf6ef;
+  --magie:0;            /* 0 = vallée éteinte, 1 = château rallumé */
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
+html,body{height:100%}
+body{
+  background:
+    radial-gradient(120% 80% at 50% 100%, rgba(74,47,143,.55), transparent 60%),
+    linear-gradient(180deg,#07061a 0%, var(--nuit) 45%, var(--nuit2) 100%);
+  color:var(--blanc);
+  font-family:'Quicksand',system-ui,sans-serif;
+  font-weight:300;
+  overflow-x:hidden;
+  min-height:100svh;
+}
+
+/* ---------- décor ---------- */
+#ciel{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+
+.chateau{
+  position:fixed;
+  left:50%;bottom:0;
+  width:min(880px,124vw);
+  transform:translateX(-50%);
+  z-index:1;pointer-events:none;
+  opacity:calc(.5 + var(--magie)*.5);
+  transition:opacity 1.2s ease;
+}
+.chateau .pierre{fill:#15102f;transition:fill 1.4s ease}
+.chateau .drapeaux{fill:#2a1f57;transition:fill 1.4s ease}
+.chateau .fenetres .f{
+  fill:#241a4d;
+  transition:fill .9s ease, filter .9s ease;
+}
+.chateau .fenetres .f.on{
+  fill:var(--or);
+  filter:drop-shadow(0 0 10px rgba(255,217,138,.9)) drop-shadow(0 0 26px rgba(255,190,110,.55));
+}
+
+/* voile d'Oubli qui s'estompe */
+.voile{
+  position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(120% 90% at 50% 90%, rgba(6,4,20,.2), rgba(4,2,14,.86) 75%);
+  opacity:calc(1 - var(--magie));
+  transition:opacity 1.4s ease;
+}
+
+/* ---------- structure ---------- */
+main{position:relative;z-index:3}
+
+.ecran{
+  position:relative;
+  min-height:100svh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:14px;
+  padding:34px 20px 46px;
+  text-align:center;
+}
+.ecran[hidden]{display:none}
+.ecran.actif{animation:entre .9s ease both}
+@keyframes entre{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+.sur{
+  font-family:'Cinzel',serif;letter-spacing:.34em;text-transform:uppercase;
+  font-size:.72rem;color:rgba(253,246,239,.55);
+}
+.acte{
+  font-family:'Cinzel',serif;letter-spacing:.28em;text-transform:uppercase;
+  font-size:.66rem;color:var(--rose);opacity:.75;
+}
+
+.titre{display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1}
+.titre .script{
+  font-family:'Grand Hotel',cursive;font-weight:400;
+  font-size:clamp(3rem,13vw,5.6rem);
+  color:var(--blanc);
+  text-shadow:0 0 26px rgba(246,168,207,.45), 0 0 60px rgba(255,217,138,.25);
+}
+.titre .caps{
+  font-family:'Cinzel',serif;font-weight:600;
+  font-size:clamp(.72rem,3.1vw,1.15rem);
+  letter-spacing:.4em;text-transform:uppercase;
+  color:var(--or);opacity:.85;padding-left:.4em;
+}
+
+h2{
+  font-family:'Grand Hotel',cursive;font-weight:400;
+  font-size:clamp(2rem,7.5vw,3.1rem);
+  color:var(--blanc);line-height:1.1;
+}
+h2.allume{text-shadow:0 0 28px rgba(255,217,138,.6)}
+
+.texte{font-size:clamp(1rem,4vw,1.12rem);line-height:1.75;max-width:33ch;color:rgba(253,246,239,.9)}
+.texte.doux{color:var(--rose);font-size:1rem;opacity:.9}
+.consigne{font-size:.94rem;color:rgba(253,246,239,.62);max-width:34ch;line-height:1.6}
+.consigne b{font-weight:600;color:var(--or)}
+.compteur{font-family:'Cinzel',serif;font-size:1.1rem;color:var(--or);letter-spacing:.1em}
+
+.bouton{
+  margin-top:8px;
+  font-family:'Quicksand',sans-serif;font-size:1rem;font-weight:600;
+  color:#20143f;
+  background:linear-gradient(180deg,#ffe6ae,#f6c977);
+  border:0;border-radius:999px;
+  padding:15px 30px;cursor:pointer;
+  box-shadow:0 10px 30px rgba(255,200,120,.28), inset 0 -2px 0 rgba(0,0,0,.12);
+  transition:transform .2s ease, box-shadow .2s ease;
+  animation:apparait .8s ease both;
+}
+.bouton:hover{transform:translateY(-2px);box-shadow:0 14px 38px rgba(255,200,120,.4)}
+.bouton:active{transform:translateY(1px)}
+@keyframes apparait{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ---------- jauge de Rêvelumière ---------- */
+.jauge{
+  position:relative;width:min(340px,84vw);height:12px;
+  background:rgba(253,246,239,.1);border-radius:999px;overflow:visible;
+}
+.jauge i{
+  display:block;height:100%;width:0%;border-radius:999px;
+  background:linear-gradient(90deg,var(--rose),var(--or));
+  box-shadow:0 0 16px rgba(255,217,138,.6);
+  transition:width .6s cubic-bezier(.2,.8,.2,1);
+}
+.jauge span{
+  position:absolute;top:18px;left:50%;transform:translateX(-50%);
+  font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.18em;
+  color:rgba(253,246,239,.6);white-space:nowrap;
+}
+
+/* ---------- zone de jeu ---------- */
+.zone{
+  position:relative;
+  width:min(660px,94vw);
+  height:min(40vh,290px);
+  margin-top:14px;
+}
+
+/* ronces */
+.ronce{
+  position:absolute;
+  width:clamp(56px,15vw,74px);height:clamp(56px,15vw,74px);
+  transform:translate(-50%,-50%);
+  border:0;background:none;padding:0;cursor:pointer;
+  touch-action:none;
+}
+.ronce svg{width:100%;height:100%;display:block;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5))}
+.ronce .corps{fill:#241539;stroke:#3b2263;stroke-width:3}
+.ronce .epine{fill:#4b2b73}
+.ronce::after{
+  content:"";position:absolute;inset:-6px;border-radius:50%;
+  background:conic-gradient(var(--or) calc(var(--p,0)*1%), transparent 0);
+  -webkit-mask:radial-gradient(circle, transparent 60%, #000 62%);
+  mask:radial-gradient(circle, transparent 60%, #000 62%);
+  opacity:var(--o,0);transition:opacity .2s;
+  pointer-events:none;
+}
+.ronce.pousse{animation:secoue .5s linear infinite}
+@keyframes secoue{0%,100%{transform:translate(-50%,-50%) rotate(-2deg)}50%{transform:translate(-50%,-50%) rotate(2deg)}}
+.ronce.partie{animation:poof .45s ease forwards;pointer-events:none}
+@keyframes poof{to{opacity:0;transform:translate(-50%,-50%) scale(1.6)}}
+
+/* lucioles libérées */
+.luciole{
+  position:absolute;width:8px;height:8px;border-radius:50%;
+  background:var(--or);box-shadow:0 0 12px 4px rgba(255,217,138,.7);
+  pointer-events:none;animation:monte 1.6s ease-out forwards;
+}
+@keyframes monte{
+  from{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  to{opacity:0;transform:translate(calc(-50% + var(--dx)), calc(-50% - 90px)) scale(.2)}
+}
+
+/* phrase révélée */
+.dit{
+  min-height:70px;max-width:32ch;
+  font-size:clamp(1.05rem,4.4vw,1.28rem);line-height:1.6;
+  color:var(--blanc);
+  text-shadow:0 0 24px rgba(246,168,207,.35);
+  animation:apparait .7s ease both;
+  margin-top:26px;
+}
+
+/* ---------- portes ---------- */
+.portes{
+  display:flex;gap:clamp(10px,3vw,22px);flex-wrap:wrap;justify-content:center;
+  margin-top:20px;perspective:900px;
+}
+.porte-c{
+  position:relative;
+  width:clamp(96px,27vw,150px);height:clamp(150px,42vw,225px);
+  border:0;background:none;padding:0;cursor:pointer;
+}
+.porte-c .battant,.porte-c .dedans{
+  position:absolute;inset:0;border-radius:64px 64px 10px 10px;
+  display:flex;align-items:center;justify-content:center;
+}
+.porte-c .battant{
+  background:linear-gradient(160deg,#3a2568,#221541);
+  border:2px solid rgba(255,217,138,.35);
+  box-shadow:inset 0 0 30px rgba(0,0,0,.5), 0 12px 30px rgba(0,0,0,.4);
+  transform-origin:left center;
+  transition:transform .9s cubic-bezier(.3,.9,.3,1), box-shadow .9s;
+  z-index:2;
+}
+.porte-c .battant em{
+  font-family:'Cinzel',serif;font-style:normal;font-size:.78rem;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--or);opacity:.9;
+}
+.porte-c .battant::after{
+  content:"";position:absolute;right:10px;top:50%;width:8px;height:8px;border-radius:50%;
+  background:var(--rose);box-shadow:0 0 10px var(--rose);
+}
+.porte-c .dedans{
+  background:radial-gradient(circle at 50% 40%, rgba(255,217,138,.35), rgba(24,14,52,.95));
+  border:2px solid rgba(255,217,138,.2);
+  font-size:clamp(1.8rem,7vw,2.6rem);
+  z-index:1;
+}
+.porte-c.ouverte .battant{
+  transform:rotateY(-105deg);box-shadow:none;opacity:0;
+  transition:transform .9s cubic-bezier(.3,.9,.3,1), opacity .5s .5s;
+}
+.porte-c.ouverte .dedans{animation:luit 1.4s ease}
+@keyframes luit{50%{box-shadow:0 0 40px rgba(255,217,138,.6)}}
+.porte-c.ouverte{animation:brille 1.2s ease}
+@keyframes brille{50%{filter:drop-shadow(0 0 26px rgba(255,217,138,.75))}}
+
+/* ---------- étoiles filantes ---------- */
+.ciel-jeu{overflow:hidden;border-radius:22px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06)}
+.filante{
+  position:absolute;width:46px;height:46px;cursor:pointer;
+  transform:translate(-50%,-50%);
+  color:var(--or);
+  touch-action:none;
+}
+.filante svg{width:100%;height:100%;filter:drop-shadow(0 0 12px rgba(255,217,138,.9))}
+.filante::before{
+  content:"";position:absolute;right:60%;top:50%;width:70px;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(255,217,138,.75));
+  transform:rotate(20deg);transform-origin:right center;
+}
+.filante.prise{animation:prise .5s ease forwards;pointer-events:none}
+@keyframes prise{to{opacity:0;transform:translate(-50%,-50%) scale(2.4) rotate(90deg)}}
+
+/* ---------- lettre ---------- */
+.papier{
+  max-width:min(560px,92vw);
+  background:linear-gradient(180deg,rgba(253,246,239,.07),rgba(253,246,239,.03));
+  border:1px solid rgba(255,217,138,.25);
+  border-radius:18px;
+  padding:clamp(22px,6vw,38px);
+  text-align:left;
+  box-shadow:0 20px 60px rgba(0,0,0,.45);
+}
+.papier p{font-size:clamp(1rem,3.9vw,1.06rem);line-height:1.85;margin-bottom:16px;color:rgba(253,246,239,.92)}
+.papier .signe{
+  font-family:'Grand Hotel',cursive;font-size:1.9rem;color:var(--or);
+  text-align:right;margin:6px 0 0;
+}
+
+/* ---------- cadeau ---------- */
+.boite{
+  position:relative;width:170px;height:150px;border:0;background:none;cursor:pointer;
+  margin-top:10px;animation:flotte 3s ease-in-out infinite;
+}
+@keyframes flotte{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.boite .corps{
+  position:absolute;left:14px;right:14px;bottom:0;height:104px;border-radius:8px;
+  background:linear-gradient(160deg,#6d3fb8,#3b1f74);
+  box-shadow:inset 0 -10px 24px rgba(0,0,0,.35), 0 18px 40px rgba(0,0,0,.5);
+}
+.boite .couvercle{
+  position:absolute;left:0;right:0;top:22px;height:34px;border-radius:8px;
+  background:linear-gradient(160deg,#8352d6,#4b2790);
+  box-shadow:0 8px 20px rgba(0,0,0,.45);
+  transform-origin:center bottom;
+  transition:transform .8s cubic-bezier(.3,1.4,.5,1), opacity .8s;
+  z-index:3;
+}
+.boite .ruban{
+  position:absolute;left:calc(50% - 11px);top:22px;bottom:0;width:22px;
+  background:linear-gradient(180deg,var(--or),#f2b45c);z-index:2;
+}
+.boite .noeud{
+  position:absolute;left:50%;top:6px;transform:translateX(-50%);
+  font-size:1.7rem;color:var(--or);z-index:4;
+  filter:drop-shadow(0 0 12px rgba(255,217,138,.8));
+  transition:transform .6s, opacity .6s;
+}
+.boite.ouverte .couvercle{transform:translateY(-90px) rotate(-16deg);opacity:0}
+.boite.ouverte .noeud{transform:translate(-50%,-120px) scale(.4);opacity:0}
+.boite.ouverte{animation:none;opacity:.25;transition:opacity .8s}
+
+.revele{animation:apparait 1s ease both;display:flex;flex-direction:column;align-items:center;gap:20px}
+.shot{
+  width:min(880px,94vw);
+  border-radius:16px;overflow:hidden;
+  border:1px solid rgba(255,217,138,.3);
+  box-shadow:0 30px 90px rgba(0,0,0,.6), 0 0 60px rgba(255,217,138,.15);
+  background:linear-gradient(150deg,#2a1148,#4a1c63 55%,#1d1038);
+}
+.shot img{width:100%;display:block}
+.secours{padding:44px 26px;text-align:center}
+.s-marque{font-family:'Cinzel',serif;letter-spacing:.3em;text-transform:uppercase;font-size:.68rem;color:rgba(253,246,239,.6)}
+.s-titre{font-family:'Grand Hotel',cursive;font-size:clamp(2.2rem,8vw,3.4rem);color:var(--blanc);margin:10px 0;text-shadow:0 0 30px rgba(246,168,207,.5)}
+.s-sous{font-size:1rem;color:var(--or)}
+
+.final{font-size:clamp(1rem,4vw,1.16rem);line-height:1.8;max-width:36ch;color:rgba(253,246,239,.92)}
+.final b{font-weight:600;color:var(--or)}
+.final.petit{font-family:'Grand Hotel',cursive;font-size:2rem;color:var(--rose)}
+
+/* ---------- fond de lanternes (finale) ---------- */
+.fond-lanternes{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:url("img/lanternes.jpg") center/cover no-repeat;
+  opacity:0;transform:scale(1.06);
+  transition:opacity 2.4s ease, transform 6s ease;
+}
+body.finale .fond-lanternes{opacity:.62;transform:scale(1)}
+body.finale .fond-lanternes::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(8,5,26,.35),rgba(8,5,26,.72));
+}
+body.finale .chateau{opacity:0;transition:opacity 1.6s ease}
+
+/* ---------- compagnons ---------- */
+.compagnon{
+  position:fixed;bottom:0;z-index:4;
+  width:clamp(96px,23vw,215px);
+  margin:0;pointer-events:none;
+  animation:arrive 1.2s .35s ease both;
+}
+.compagnon.gauche{left:clamp(4px,2vw,40px)}
+.compagnon.droite{right:clamp(4px,2vw,40px)}
+.compagnon img{
+  width:100%;height:auto;display:block;
+  filter:drop-shadow(0 12px 26px rgba(0,0,0,.55));
+  animation:respire 5.5s ease-in-out infinite;
+}
+@keyframes arrive{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}
+@keyframes respire{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+.compagnon.fee{width:clamp(84px,19vw,165px)}
+.compagnon.fee img{animation:vole 6s ease-in-out infinite}
+.compagnon.fee::before{
+  content:"";position:absolute;inset:-18% -22% 6% -22%;
+  background:radial-gradient(circle at 50% 45%, rgba(255,240,170,.5), rgba(255,220,140,.12) 45%, transparent 70%);
+  filter:blur(2px);animation:pulse 3.4s ease-in-out infinite;
+}
+@keyframes vole{0%,100%{transform:translate(0,0) rotate(-1deg)}50%{transform:translate(-10px,-18px) rotate(2deg)}}
+@keyframes pulse{0%,100%{opacity:.65}50%{opacity:1}}
+
+.compagnon.vole img{animation:planne 5s ease-in-out infinite}
+@keyframes planne{0%,100%{transform:translate(0,0) rotate(-2deg)}50%{transform:translate(12px,-22px) rotate(3deg)}}
+
+.compagnon.genie{width:clamp(96px,22vw,190px)}
+.compagnon.genie img{animation:sort 1s ease both, respire 5s 1s ease-in-out infinite}
+@keyframes sort{from{opacity:0;transform:translateY(60px) scale(.5)}to{opacity:1;transform:none}}
+
+.bulle{
+  position:absolute;bottom:calc(100% - 6px);
+  width:max-content;max-width:min(22ch,44vw);
+  background:rgba(253,246,239,.94);color:#2a1a4d;
+  font-size:clamp(.66rem,2.4vw,.82rem);line-height:1.45;font-weight:400;
+  padding:9px 13px;border-radius:14px;
+  box-shadow:0 10px 26px rgba(0,0,0,.4);
+  animation:apparait 1s .9s ease both, seTait 1s 8.5s ease forwards;
+}
+@keyframes seTait{to{opacity:0;transform:translateY(8px)}}
+.compagnon.gauche .bulle{left:8%}
+.compagnon.droite .bulle{right:8%}
+.bulle::after{
+  content:"";position:absolute;top:100%;
+  border:8px solid transparent;border-top-color:rgba(253,246,239,.94);
+}
+.compagnon.gauche .bulle::after{left:22px}
+.compagnon.droite .bulle::after{right:22px}
+
+@media (max-width:600px){
+  .compagnon{width:clamp(74px,21vw,120px);bottom:-18px;opacity:.94}
+  .compagnon.fee{width:clamp(66px,18vw,110px)}
+  .bulle{max-width:15ch;font-size:.64rem;padding:7px 10px}
+  .zone{height:min(38vh,270px)}
+  .dit{max-width:27ch;font-size:1rem}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}

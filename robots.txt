@@ -23,5 +23,6 @@ Disallow: /montage/
 Disallow: /cadeaux/
 Disallow: /reviens/
 Disallow: /code/
+Disallow: /vallee/
 
 Sitemap: https://enzoniepon.fr/sitemap.xml

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>La vallée</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏰</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Grand+Hotel&family=Quicksand:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+
+<canvas id="ciel"></canvas>
+<div class="fond-lanternes" id="fondLanternes"></div>
+
+<!-- château en fond, ses fenêtres s'allument avec la magie -->
+<svg class="chateau" id="chateau" viewBox="0 0 400 300" aria-hidden="true">
+  <g class="pierre">
+    <rect x="118" y="182" width="164" height="118"/>
+    <rect x="86"  y="140" width="44"  height="160"/>
+    <rect x="270" y="140" width="44"  height="160"/>
+    <rect x="168" y="86"  width="64"  height="214"/>
+    <rect x="140" y="196" width="26"  height="104"/>
+    <rect x="234" y="196" width="26"  height="104"/>
+    <polygon points="82,142 108,88 134,142"/>
+    <polygon points="266,142 292,88 318,142"/>
+    <polygon points="162,88 200,14 238,88"/>
+    <polygon points="136,198 153,166 170,198"/>
+    <polygon points="230,198 247,166 264,198"/>
+    <polygon points="118,184 200,146 282,184"/>
+    <rect x="60" y="286" width="280" height="14" rx="6"/>
+  </g>
+  <g class="drapeaux">
+    <path d="M200,14 L200,0 L224,7 L200,13Z"/>
+    <path d="M108,88 L108,76 L127,82 L108,87Z"/>
+    <path d="M292,88 L292,76 L311,82 L292,87Z"/>
+  </g>
+  <g class="fenetres">
+    <rect class="f" x="192" y="104" width="16" height="26" rx="8"/>
+    <rect class="f" x="192" y="146" width="16" height="24" rx="8"/>
+    <rect class="f" x="100" y="164" width="16" height="26" rx="8"/>
+    <rect class="f" x="284" y="164" width="16" height="26" rx="8"/>
+    <rect class="f" x="146" y="214" width="14" height="22" rx="7"/>
+    <rect class="f" x="240" y="214" width="14" height="22" rx="7"/>
+    <rect class="f" x="136" y="206" width="14" height="22" rx="7"/>
+    <rect class="f" x="250" y="206" width="14" height="22" rx="7"/>
+    <path class="f porte" d="M186,300 v-46 a14,14 0 0 1 28,0 v46 Z"/>
+  </g>
+</svg>
+
+<div class="voile" id="voile"></div>
+
+<main>
+
+<!-- ============ 1. INTRO ============ -->
+<section class="ecran actif" id="intro">
+  <p class="sur">Pour Stacy</p>
+  <h1 class="titre"><span class="script">La vallée</span><span class="caps">des rêves oubliés</span></h1>
+  <p class="texte">
+    Il y a un endroit, quelque part, où tout ce qu'on a construit tient debout.<br>
+    En ce moment il fait nuit dessus. C'est ma faute.
+  </p>
+  <p class="texte doux">Les ronces ont tout recouvert. Mais elles s'enlèvent.</p>
+  <button class="bouton" data-go="ronces">Entrer dans la vallée</button>
+
+  <figure class="compagnon droite fee">
+    <img src="img/clochette.png" alt="" width="246" height="394">
+    <figcaption class="bulle">Suis-moi. On va rallumer tout ça.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 2. LES RONCES DE NUIT ============ -->
+<section class="ecran" id="ronces" hidden>
+  <p class="acte">Premier acte</p>
+  <h2>Les ronces de nuit</h2>
+  <p class="consigne">Appuie sur une ronce et <b>garde le doigt appuyé</b> jusqu'à ce qu'elle disparaisse.</p>
+
+  <div class="jauge"><i id="jaugeFill"></i><span id="jaugeTxt">0 / 7</span></div>
+
+  <div class="zone" id="zoneRonces"></div>
+
+  <div class="dit" id="ditRonce" hidden></div>
+  <button class="bouton" id="suiteRonces" data-go="portes" hidden>La vallée respire ↓</button>
+
+  <figure class="compagnon gauche">
+    <img src="img/ariel.png" alt="" width="381" height="643" loading="lazy">
+    <figcaption class="bulle">Il en a poussé beaucoup… mais aucune n'est éternelle.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 3. LES PORTES ============ -->
+<section class="ecran" id="portes" hidden>
+  <p class="acte">Deuxième acte</p>
+  <h2>Les trois portes</h2>
+  <p class="consigne">Dans le château, trois portes. Ouvre-les.</p>
+
+  <div class="portes">
+    <button class="porte-c" data-p="0">
+      <span class="battant"><em>Hier</em></span>
+      <span class="dedans"></span>
+    </button>
+    <button class="porte-c" data-p="1">
+      <span class="battant"><em>Aujourd'hui</em></span>
+      <span class="dedans"></span>
+    </button>
+    <button class="porte-c" data-p="2">
+      <span class="battant"><em>Demain</em></span>
+      <span class="dedans"></span>
+    </button>
+  </div>
+
+  <div class="dit" id="ditPorte" hidden></div>
+  <button class="bouton" id="suitePortes" data-go="etoiles" hidden>Il manque encore de la lumière ↓</button>
+
+  <figure class="compagnon droite">
+    <img src="img/tiana.png" alt="" width="495" height="711" loading="lazy">
+    <figcaption class="bulle">Un rêve, ça ne suffit pas. Il faut le travailler.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 4. LES ÉTOILES ============ -->
+<section class="ecran" id="etoiles" hidden>
+  <p class="acte">Troisième acte</p>
+  <h2>Les étoiles filantes</h2>
+  <p class="consigne">Attrape-en <b>six</b>. Une étoile filante, ça se garde.</p>
+  <p class="compteur"><span id="scoreEt">0</span> / 6</p>
+
+  <div class="zone ciel-jeu" id="zoneEtoiles"></div>
+
+  <div class="dit" id="ditEtoile" hidden></div>
+  <button class="bouton" id="suiteEtoiles" data-go="lettre" hidden>Rallumer le château ↓</button>
+
+  <figure class="compagnon gauche vole">
+    <img src="img/dumbo.png" alt="" width="567" height="459" loading="lazy">
+    <figcaption class="bulle">Si moi j'arrive à voler, alors tout est possible.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 5. LA LETTRE ============ -->
+<section class="ecran" id="lettre" hidden>
+  <h2 class="allume">La vallée est rallumée.</h2>
+  <div class="papier">
+    <p>Je ne vais pas faire semblant que ça n'a pas existé.</p>
+    <p>J'ai fait le noir sur quelque chose de beau, et c'est moi qui suis allé chercher les ronces. Je ne te demande pas de faire comme si de rien n'était.</p>
+    <p>Je te demande juste de regarder ce qui reste debout derrière : c'est encore là, c'est encore nous, et je suis prêt à tout enlever à la main s'il le faut.</p>
+    <p>Pardon, mon cœur.</p>
+    <p class="signe">Enzo</p>
+  </div>
+  <button class="bouton" data-go="cadeau">Il y a autre chose ↓</button>
+</section>
+
+<!-- ============ 6. LE CADEAU ============ -->
+<section class="ecran" id="cadeau" hidden>
+  <h2>Et puisqu'il te faut une vraie vallée…</h2>
+  <p class="consigne">Ouvre.</p>
+
+  <button class="boite" id="boite" aria-label="Ouvrir le cadeau">
+    <span class="couvercle"></span>
+    <span class="corps"></span>
+    <span class="ruban"></span>
+    <span class="noeud">✦</span>
+  </button>
+
+  <div class="revele" id="revele" hidden>
+    <figure class="shot">
+      <img id="shot" src="cadeau.png" alt="Disney Dreamlight Valley">
+      <div class="secours" id="secours" hidden>
+        <p class="s-marque">Un cadeau t'attend</p>
+        <p class="s-titre">Disney Dreamlight Valley</p>
+        <p class="s-sous">C'est déjà payé. Tu n'as plus qu'à jouer.</p>
+      </div>
+    </figure>
+    <p class="final">
+      Une vallée à construire, une maison à décorer, des personnages à retrouver un par un.<br>
+      <b>Et cette fois, les ronces, c'est moi qui les enlève.</b>
+    </p>
+    <p class="final petit">Je t'aime.</p>
+  </div>
+
+  <figure class="compagnon droite genie" id="genieFig" hidden>
+    <img src="img/genie.png" alt="" width="183" height="194">
+    <figcaption class="bulle">Un vœu exaucé. Les deux autres, c'est lui qui s'en charge.</figcaption>
+  </figure>
+</section>
+
+</main>
+
+<script src="jeu.js?v=2"></script>
+</body>
+</html>
