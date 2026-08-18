@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>À deux</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+
+<!-- ============ ACCUEIL ============ -->
+<section class="vue on" id="v-accueil">
+  <div class="dedans">
+    <h1>À deux</h1>
+    <p class="chapeau">Un seul écran. Une question à la fois.<br>Vous répondez tous les deux, à voix haute.</p>
+
+    <div class="noms">
+      <label>Toi <input id="n1" maxlength="14" value="Enzo" autocomplete="off"></label>
+      <label>Elle <input id="n2" maxlength="14" value="Stacy" autocomplete="off"></label>
+    </div>
+
+    <p class="titre-cat">Choisis tes thèmes</p>
+    <div class="cats" id="cats"></div>
+
+    <button class="gros" id="demarrer">Commencer</button>
+    <p class="compte" id="compte">—</p>
+  </div>
+</section>
+
+<!-- ============ JEU ============ -->
+<section class="vue" id="v-jeu">
+  <header class="barre">
+    <button class="rond" id="quitter" aria-label="Retour">←</button>
+    <span class="pastille" id="pastille">—</span>
+    <span class="avance" id="avance">1</span>
+  </header>
+
+  <div class="carte-zone">
+    <article class="carte" id="carte">
+      <p class="cat-nom" id="cat-nom">—</p>
+      <p class="question" id="question">—</p>
+
+      <div class="qui" id="qui" hidden>
+        <button class="choix" id="q1">—</button>
+        <button class="choix" id="q2">—</button>
+      </div>
+
+      <p class="tour" id="tour">—</p>
+    </article>
+  </div>
+
+  <div class="pieds">
+    <button class="gros" id="suivante">Question suivante</button>
+    <button class="lien" id="defi">🎲 Un petit défi</button>
+  </div>
+</section>
+
+<script src="contenu.js?v=1"></script>
+<script src="script.js?v=1"></script>
+</body>
+</html>
