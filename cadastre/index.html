@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<style>*{box-sizing:border-box}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Cadastre MLO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+:root {
+  --fond:        #F1F3F6;
+  --carte:       #FFFFFF;
+  --carte-creux: #E8EBEF;
+  --encre:       #161A20;
+  --encre-2:     #4E5762;
+  --encre-3:     #7C8590;
+  --trait:       #D9DEE4;
+  --trait-fort:  #B9C1CA;
+  --pastille-l:  42%;
+  color-scheme: light;
+  --ombre:       0 1px 2px rgba(20, 26, 33, .06);
+  --vert:        #2F7D4E;
+  --ambre:       #9A6410;
+  --rayon:       5px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fond:        #0E1216;
+    --carte:       #161B21;
+    --carte-creux: #1C232A;
+    --encre:       #E7EBEF;
+    --encre-2:     #A3ADB8;
+    --encre-3:     #78828D;
+    --trait:       #262E36;
+    --trait-fort:  #384250;
+    --pastille-l:  64%;
+    --ombre:       0 1px 2px rgba(0, 0, 0, .4);
+    --vert:        #64C08C;
+    --ambre:       #D9A445;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --fond:        #0E1216;
+  --carte:       #161B21;
+  --carte-creux: #1C232A;
+  --encre:       #E7EBEF;
+  --encre-2:     #A3ADB8;
+  --encre-3:     #78828D;
+  --trait:       #262E36;
+  --trait-fort:  #384250;
+  --pastille-l:  64%;
+  --ombre:       0 1px 2px rgba(0, 0, 0, .4);
+  --vert:        #64C08C;
+  --ambre:       #D9A445;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--fond);
+  color: var(--encre);
+  font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; }
+
+/* ---------- en-tete ---------- */
+.bandeau {
+  border-bottom: 1px solid var(--trait);
+  background: var(--carte);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.bandeau-inner {
+  max-width: 1560px;
+  margin: 0 auto;
+  padding: 18px 24px 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 18px 28px;
+}
+.marque { display: flex; flex-direction: column; gap: 2px; }
+.marque h1 {
+  font-family: "Bricolage Grotesque", "IBM Plex Sans", sans-serif;
+  font-weight: 800;
+  font-size: 27px;
+  letter-spacing: -.022em;
+  margin: 0;
+  line-height: 1;
+}
+.marque p {
+  margin: 0;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11.5px;
+  letter-spacing: .02em;
+  color: var(--encre-3);
+}
+.outils { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-left: auto; }
+
+.champ {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--fond);
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon);
+  padding: 0 10px;
+  height: 36px;
+  min-width: 310px;
+}
+.champ svg { flex: none; opacity: .5; }
+.champ input {
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  width: 100%;
+  outline: none;
+  padding: 0;
+}
+select.tri {
+  height: 36px;
+  border: 1px solid var(--trait);
+  background: var(--fond);
+  color: inherit;
+  border-radius: var(--rayon);
+  padding: 0 8px;
+  font: inherit;
+  font-size: 13.5px;
+}
+.bascules { display: flex; gap: 6px; }
+.bascule {
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--trait);
+  background: var(--fond);
+  color: var(--encre-2);
+  border-radius: var(--rayon);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.bascule[aria-pressed="true"] {
+  background: var(--encre);
+  border-color: var(--encre);
+  color: var(--fond);
+}
+.bascule:focus-visible, .champ:focus-within, select.tri:focus-visible, .legende button:focus-visible, .fiche:focus-visible {
+  outline: 2px solid var(--encre);
+  outline-offset: 2px;
+}
+
+/* ---------- corps ---------- */
+.page {
+  max-width: 1560px;
+  margin: 0 auto;
+  padding: 22px 24px 60px;
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+
+/* ---------- legende ---------- */
+.legende {
+  position: sticky;
+  top: 92px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.legende h2 {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--encre-3);
+  margin: 0 0 8px 2px;
+}
+.legende button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--encre-2);
+  font: inherit;
+  font-size: 13.5px;
+  text-align: left;
+  cursor: pointer;
+}
+.legende button:hover { background: var(--carte-creux); color: var(--encre); }
+.legende button[aria-pressed="true"] { background: var(--carte); color: var(--encre); font-weight: 500; box-shadow: var(--ombre); }
+.pastille {
+  --h: 215;
+  --s: 8;
+  width: 10px; height: 10px;
+  flex: none;
+  border-radius: 2px;
+  background: hsl(var(--h) calc(var(--s) * 1%) var(--pastille-l));
+}
+.pastille.vide { background: none; border: 1px solid var(--trait-fort); }
+.legende .n {
+  margin-left: auto;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--encre-3);
+}
+.note {
+  margin: 18px 2px 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--encre-3);
+  border-top: 1px solid var(--trait);
+  padding-top: 12px;
+}
+.note a { color: var(--encre-2); }
+
+/* ---------- grille ---------- */
+.compte {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11.5px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--encre-3);
+  margin: 0 0 12px 1px;
+}
+.grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 16px;
+}
+.fiche {
+  display: flex;
+  flex-direction: column;
+  background: var(--carte);
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon);
+  overflow: hidden;
+  text-decoration: none;
+  box-shadow: var(--ombre);
+  transition: border-color .12s ease, transform .12s ease;
+}
+.fiche:hover { border-color: var(--trait-fort); transform: translateY(-1px); }
+@media (prefers-reduced-motion: reduce) { .fiche { transition: none; } .fiche:hover { transform: none; } }
+
+.vue {
+  aspect-ratio: 16 / 9;
+  background: var(--carte-creux);
+  position: relative;
+  overflow: hidden;
+}
+.vue img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.vue .absente {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: .1em;
+  color: var(--encre-3);
+}
+.prix {
+  position: absolute;
+  top: 7px; left: 7px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: .07em;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(10, 14, 18, .78);
+  color: #fff;
+  backdrop-filter: blur(2px);
+}
+.prix.libre { background: rgba(29, 92, 58, .86); }
+.chez-moi {
+  position: absolute;
+  top: 7px; right: 7px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: #fff;
+  color: #12171D;
+}
+
+.corps { padding: 10px 11px 11px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
+.titre {
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.32;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.rubrique {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--encre-3);
+}
+.meta > span { white-space: nowrap; }
+.meta {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--encre-3);
+}
+.etiq {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  border: 1px solid var(--trait);
+  border-radius: 3px;
+  padding: 1px 5px;
+  color: var(--encre-2);
+}
+.etiq.esc { border-style: dashed; }
+
+.plus {
+  margin: 26px auto 0;
+  display: block;
+  padding: 10px 22px;
+  border: 1px solid var(--trait-fort);
+  background: var(--carte);
+  color: var(--encre);
+  border-radius: var(--rayon);
+  font: inherit;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+.plus:hover { background: var(--carte-creux); }
+.vide-msg {
+  padding: 60px 0;
+  text-align: center;
+  color: var(--encre-3);
+}
+
+@media (max-width: 900px) {
+  .page { grid-template-columns: 1fr; }
+  .legende { position: static; flex-direction: row; flex-wrap: wrap; gap: 6px; }
+  .legende h2 { width: 100%; margin-bottom: 2px; }
+  .legende button { width: auto; border: 1px solid var(--trait); }
+  .legende .n { margin-left: 4px; }
+  .note { width: 100%; }
+  .outils { margin-left: 0; width: 100%; }
+  .champ { flex: 1; min-width: 180px; }
+}
+</style>
+</head>
+<body>
+<header class="bandeau">
+  <div class="bandeau-inner">
+    <div class="marque">
+      <h1>Cadastre MLO</h1>
+      <p id="soustitre"></p>
+    </div>
+    <div class="outils">
+      <label class="champ">
+        <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"></circle><path d="M11 11l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg>
+        <input id="q" type="search" placeholder="Chercher : restaurant, garage, Vinewood…" autocomplete="off">
+      </label>
+      <div class="bascules">
+        <button class="bascule" id="f-gratuit" aria-pressed="false">Gratuit</button>
+        <button class="bascule" id="f-noesc" aria-pressed="false">Sans escrow</button>
+        <button class="bascule" id="f-oryxis" aria-pressed="false">Sur Oryxis</button>
+      </div>
+      <select class="tri" id="tri" aria-label="Trier">
+        <option value="date">Plus récents</option>
+        <option value="vues">Plus vus</option>
+        <option value="likes">Plus appréciés</option>
+        <option value="titre">A → Z</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+  <nav class="legende" aria-label="Types d'intérieur">
+    <h2>Légende</h2>
+    <div id="legende"></div>
+    <p class="note" id="note"></p>
+  </nav>
+  <section>
+    <p class="compte" id="compte"></p>
+    <div class="grille" id="grille"></div>
+    <button class="plus" id="plus" hidden>Afficher plus</button>
+    <p class="vide-msg" id="rien" hidden>Aucun intérieur ne correspond.</p>
+  </section>
+</main>
+
+<script src="donnees.js"></script>
+<script>
+
+const TEINTES = {
+  police:[218,55], medical:[356,60], auto:[38,62], crime:[276,45], resto:[14,68],
+  bar:[326,48], boutique:[176,55], loisirs:[128,45], transport:[200,60],
+  industrie:[28,25], bureau:[232,30], logement:[46,38], map:[158,40],
+  pack:[300,25], autre:[215,8]
+};
+
+const NOMS = Object.fromEntries(DATA.cats);
+const items = DATA.items;
+const RE_ACC = new RegExp('[' + String.fromCharCode(0x300) + '-' + String.fromCharCode(0x36f) + ']', 'g');
+const sansAccent = s => s.normalize('NFD').replace(RE_ACC, '').toLowerCase();
+items.forEach(i => { i._r = sansAccent(i.t + ' ' + (i.a || '')); });
+
+const etat = { cat: null, q: '', gratuit: false, noesc: false, oryxis: false, tri: 'date', montre: 0 };
+const PAS = 90;
+
+const elGrille = document.getElementById('grille');
+const elCompte = document.getElementById('compte');
+const elPlus = document.getElementById('plus');
+const elRien = document.getElementById('rien');
+
+document.getElementById('soustitre').textContent =
+  items.length + ' publications · tag « map » du forum Cfx.re · relevé du ' + DATA.releve;
+
+document.getElementById('note').innerHTML =
+  'Relevé automatique des sujets publiés sous le tag <a href="https://forum.cfx.re/tags/c/releases/7/map/151" target="_blank" rel="noopener">map</a> ' +
+  'de la catégorie Releases. Le type est déduit du titre : quand un titre ne dit pas ce qu\'il contient, la fiche tombe dans « Autre ». ' +
+  'Le badge Oryxis repère les titres qui correspondent à une map déjà installée sur ton serveur.';
+
+/* ---------- legende ---------- */
+const compteurs = {};
+items.forEach(i => { compteurs[i.c] = (compteurs[i.c] || 0) + 1; });
+const ordre = DATA.cats.map(c => c[0]).filter(c => compteurs[c]).sort((a, b) => compteurs[b] - compteurs[a]);
+if (compteurs.autre) { const k = ordre.indexOf('autre'); if (k > -1) { ordre.splice(k, 1); ordre.push('autre'); } }
+
+const elLeg = document.getElementById('legende');
+const boutonLeg = (cle, nom, n) => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.setAttribute('aria-pressed', 'false');
+  b.dataset.cat = cle || '';
+  const p = document.createElement('span');
+  p.className = 'pastille' + (cle ? '' : ' vide');
+  if (cle && TEINTES[cle]) { p.style.setProperty('--h', TEINTES[cle][0]); p.style.setProperty('--s', TEINTES[cle][1]); }
+  const t = document.createElement('span');
+  t.textContent = nom;
+  const c = document.createElement('span');
+  c.className = 'n';
+  c.textContent = n;
+  b.append(p, t, c);
+  b.addEventListener('click', () => {
+    etat.cat = (etat.cat === cle) ? null : cle;
+    [...elLeg.querySelectorAll('button')].forEach(x => x.setAttribute('aria-pressed', String(x.dataset.cat === (etat.cat || ''))));
+    rendre(true);
+  });
+  return b;
+};
+elLeg.append(boutonLeg(null, 'Tout', items.length));
+elLeg.firstChild.setAttribute('aria-pressed', 'true');
+ordre.forEach(c => elLeg.append(boutonLeg(c, NOMS[c] || c, compteurs[c])));
+
+/* ---------- filtres ---------- */
+const bascule = (id, cle) => {
+  const b = document.getElementById(id);
+  b.addEventListener('click', () => {
+    etat[cle] = !etat[cle];
+    b.setAttribute('aria-pressed', String(etat[cle]));
+    rendre(true);
+  });
+};
+bascule('f-gratuit', 'gratuit');
+bascule('f-noesc', 'noesc');
+bascule('f-oryxis', 'oryxis');
+
+document.getElementById('q').addEventListener('input', e => { etat.q = sansAccent(e.target.value.trim()); rendre(true); });
+document.getElementById('tri').addEventListener('change', e => { etat.tri = e.target.value; rendre(true); });
+elPlus.addEventListener('click', () => rendre(false));
+
+/* ---------- rendu ---------- */
+const nb = n => n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace('.', ',') + 'k' : String(n);
+const jour = d => { const [a, m, j] = d.split('-'); return j + '.' + m + '.' + a.slice(2); };
+
+let filtres = [];
+
+function calculer() {
+  const mots = etat.q ? etat.q.split(/\s+/) : [];
+  filtres = items.filter(i => {
+    if (etat.cat && i.c !== etat.cat) return false;
+    if (etat.gratuit && i.p !== 0) return false;
+    if (etat.noesc && i.esc) return false;
+    if (etat.oryxis && !i.o) return false;
+    for (const m of mots) if (!i._r.includes(m)) return false;
+    return true;
+  });
+  const t = etat.tri;
+  filtres.sort(
+    t === 'vues' ? (a, b) => b.v - a.v :
+    t === 'likes' ? (a, b) => b.l - a.l || b.v - a.v :
+    t === 'titre' ? (a, b) => a.t.localeCompare(b.t, 'fr') :
+    (a, b) => b.d.localeCompare(a.d)
+  );
+}
+
+function fiche(i) {
+  const a = document.createElement('a');
+  a.className = 'fiche';
+  a.href = i.u;
+  a.target = '_blank';
+  a.rel = 'noopener';
+
+  const vue = document.createElement('div');
+  vue.className = 'vue';
+  if (i.im) {
+    const im = document.createElement('img');
+    im.src = 'v/' + i.id + '.webp';
+    im.alt = '';
+    im.loading = 'lazy';
+    im.decoding = 'async';
+    vue.append(im);
+  } else {
+    const v = document.createElement('span');
+    v.className = 'absente';
+    v.textContent = 'SANS APERÇU';
+    vue.append(v);
+  }
+  const pr = document.createElement('span');
+  pr.className = 'prix' + (i.p === 0 ? ' libre' : '');
+  pr.textContent = i.p === 0 ? 'GRATUIT' : (i.p === 1 ? 'PAYANT' : 'PRIX N.C.');
+  vue.append(pr);
+  if (i.o) {
+    const o = document.createElement('span');
+    o.className = 'chez-moi';
+    o.textContent = 'ORYXIS';
+    vue.append(o);
+  }
+
+  const corps = document.createElement('div');
+  corps.className = 'corps';
+
+  const rub = document.createElement('div');
+  rub.className = 'rubrique';
+  const p = document.createElement('span');
+  p.className = 'pastille';
+  if (TEINTES[i.c]) { p.style.setProperty('--h', TEINTES[i.c][0]); p.style.setProperty('--s', TEINTES[i.c][1]); }
+  const rn = document.createElement('span');
+  rn.textContent = NOMS[i.c] || i.c;
+  rub.append(p, rn);
+
+  const h = document.createElement('h3');
+  h.className = 'titre';
+  h.textContent = i.t;
+
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+  const vues = document.createElement('span');
+  vues.textContent = nb(i.v) + ' vues';
+  const dt = document.createElement('span');
+  dt.textContent = jour(i.d);
+  meta.append(vues, dt);
+  (i.fw || []).slice(0, 2).forEach(f => {
+    const e = document.createElement('span');
+    e.className = 'etiq';
+    e.textContent = f;
+    meta.append(e);
+  });
+  if (i.esc) {
+    const e = document.createElement('span');
+    e.className = 'etiq esc';
+    e.textContent = 'escrow';
+    meta.append(e);
+  }
+
+  corps.append(rub, h, meta);
+  a.append(vue, corps);
+  return a;
+}
+
+function rendre(remise) {
+  if (remise) { calculer(); etat.montre = 0; elGrille.textContent = ''; }
+  const jusqua = Math.min(filtres.length, etat.montre + PAS);
+  const frag = document.createDocumentFragment();
+  for (let k = etat.montre; k < jusqua; k++) frag.append(fiche(filtres[k]));
+  elGrille.append(frag);
+  etat.montre = jusqua;
+  elPlus.hidden = etat.montre >= filtres.length;
+  elPlus.textContent = 'Afficher plus (' + (filtres.length - etat.montre) + ')';
+  elRien.hidden = filtres.length > 0;
+  const nomCat = etat.cat ? (NOMS[etat.cat] || etat.cat) : 'Tous les types';
+  elCompte.textContent = nomCat + ' — ' + filtres.length + ' publication' + (filtres.length > 1 ? 's' : '') +
+    (filtres.length ? ' · ' + Math.min(etat.montre, filtres.length) + ' affichées' : '');
+}
+
+rendre(true);
+</script>
+
+</body>
+</html>
