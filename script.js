@@ -124,18 +124,11 @@
       }, 800);
     }
   } else {
-    //  Les photos qui arrivent ensemble apparaissent en cascade, pas d'un bloc
     const io = new IntersectionObserver(entries => {
-      let rang = 0;
       entries.forEach(en => {
         if (!en.isIntersecting) return;
-        const el = en.target;
-        if (el.classList.contains('ph')) {
-          el.style.transitionDelay = (rang++ * 70) + 'ms';
-          setTimeout(() => { el.style.transitionDelay = ''; }, 1500);
-        }
-        el.classList.add('in');
-        io.unobserve(el);
+        en.target.classList.add('in');
+        io.unobserve(en.target);
       });
     }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
     $$('.reveal').forEach(el => io.observe(el));
@@ -143,7 +136,7 @@
 
   /* ---------- les photos se développent depuis leur aperçu flou ---------- */
   root.classList.add('js-fondu');
-  const aDevelopper = $$('.ph img, .recent img, .insta-strip img');
+  const aDevelopper = $$('.recent img, .insta-strip img');
   aDevelopper.forEach(im => {
     const net = () => im.classList.add('charge');
     if (im.complete && im.naturalWidth) net();
@@ -155,35 +148,8 @@
   //  Filet de sécurité : rien ne reste invisible si un navigateur ne prévient pas
   setTimeout(() => aDevelopper.forEach(im => { if (im.complete) im.classList.add('charge'); }), 6000);
 
-  /* ---------- filtres portfolio ---------- */
-  const photos = $$('.ph');
-  const filtrer = cat => photos.forEach(p => p.classList.toggle('hidden', !(cat === 'tous' || p.dataset.cat === cat)));
-  $$('.filter').forEach(f => f.addEventListener('click', () => {
-    if (f.classList.contains('active')) return;
-    $$('.filter').forEach(x => x.classList.toggle('active', x === f));
-    const cat = f.dataset.cat;
-    //  Les photos glissent jusqu'à leur nouvelle place au lieu de sauter
-    if (document.startViewTransition && !reduit) {
-      photos.forEach((p, i) => { p.style.viewTransitionName = 'ph' + i; });
-      root.classList.add('vt-filtre');
-      const vt = document.startViewTransition(() => filtrer(cat));
-      vt.finished.finally(() => {
-        photos.forEach(p => { p.style.viewTransitionName = ''; });
-        root.classList.remove('vt-filtre');
-        dispatchEvent(new Event('portfolio:filtre'));
-      });
-    } else {
-      filtrer(cat);
-      photos.forEach(p => {
-        if (p.classList.contains('hidden')) return;
-        p.style.opacity = 0;
-        requestAnimationFrame(() => requestAnimationFrame(() => { p.style.opacity = ''; }));
-      });
-      dispatchEvent(new Event('portfolio:filtre'));
-    }
-  }));
-
-  /* ---------- lightbox ---------- */
+  /* ---------- lightbox : les photos de la bague « Dans l'objectif » ---------- */
+  const photos = $$('.obj-carte');
   const lb = $('.lightbox');
   const lbImg = $('.lightbox img');
   const lbCap = $('.lb-caption');
@@ -228,7 +194,7 @@
   };
   const openLb = i => {
     if (!lb) return;
-    visible = photos.filter(p => !p.classList.contains('hidden'));
+    visible = photos;
     idx = Math.max(0, i);
     dernierFocus = document.activeElement;
     afficher(false);
@@ -241,38 +207,16 @@
     if (!lb?.classList.contains('open')) return;
     lb.classList.remove('open');
     document.body.style.overflow = '';
-    dispatchEvent(new Event('visionneuse:fermee'));
+    //  la bague tourne jusqu'à la dernière photo regardée
+    dispatchEvent(new CustomEvent('visionneuse:fermee', { detail: { index: idx } }));
     dernierFocus?.focus?.({ preventScroll: true });
   };
   const step = d => { if (!visible.length) return; idx = (idx + d + visible.length) % visible.length; afficher(true); };
 
-  photos.forEach(p => {
-    const im = $('img', p);
-    p.tabIndex = 0;
-    p.setAttribute('role', 'button');
-    if (im) p.setAttribute('aria-label', 'Agrandir : ' + im.alt);
-    const ouvrir = () => openLb(photos.filter(x => !x.classList.contains('hidden')).indexOf(p));
-    p.addEventListener('click', ouvrir);
-    p.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ouvrir(); } });
-  });
-  //  Les photos de la bague « Dans l'objectif » ouvrent la même visionneuse.
-  //  En 3D, seule celle du premier plan s'ouvre : les autres font tourner la bague.
-  $$('.obj-carte').forEach(c => c.addEventListener('click', () => {
+  //  En 3D, seule la photo du premier plan s'ouvre : les autres font tourner la bague (motion.js)
+  photos.forEach((c, i) => c.addEventListener('click', () => {
     if (c.closest('.en-3d') && !c.classList.contains('devant')) return;
-    const fin = '/' + c.dataset.photo + '.webp';
-    const cible = photos.find(p => ($('img', p)?.getAttribute('src') || '').endsWith(fin));
-    if (!cible) return;
-    const vues = photos.filter(x => !x.classList.contains('hidden'));
-    if (vues.includes(cible)) { openLb(vues.indexOf(cible)); return; }
-    //  la photo est masquée par un filtre : on parcourt tout le portfolio
-    visible = photos.slice();
-    idx = visible.indexOf(cible);
-    dernierFocus = c;
-    afficher(false);
-    lb.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    dispatchEvent(new Event('visionneuse:ouverte'));
-    $('.lb-close')?.focus({ preventScroll: true });
+    openLb(i);
   }));
   $('.lb-close')?.addEventListener('click', closeLb);
   $('.lb-prev')?.addEventListener('click', e => { e.stopPropagation(); step(-1); });

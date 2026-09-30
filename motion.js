@@ -1,7 +1,7 @@
 /* ============================================================
    Mouvement : défilement doux, titres qui montent de leur masque,
-   photos du portfolio qui se découvrent en rideau, et la bague
-   « Dans l'objectif » qui tourne avec le défilement.
+   et le portfolio « Dans l'objectif » : une bague de photos qui
+   tourne avec le défilement.
    Rien ne se lance si le visiteur préfère moins d'animations ou si
    GSAP n'a pas chargé : le site reste complet sans ce fichier.
    ============================================================ */
@@ -90,44 +90,24 @@
     });
   }
 
-  /* ---------- portfolio : les photos se découvrent en rideau ---------- */
-  const phs = $$('.ph');
-  if (phs.length) {
-    phs.forEach(p => { p.classList.remove('reveal'); p.classList.add('rideau'); });
-    gsap.set(phs, { clipPath: 'inset(100% 0% 0% 0%)' });
-    gsap.set(phs.map(p => $('img', p)), { scale: 1.25 });
-    ScrollTrigger.batch(phs, {
-      start: 'top 94%',
-      once: true,
-      onEnter: lot => {
-        gsap.to(lot, {
-          clipPath: 'inset(0% 0% 0% 0%)', duration: 1.1, ease: 'power3.inOut', stagger: 0.09,
-          clearProps: 'clipPath'
-        });
-        gsap.to(lot.map(p => $('img', p)), {
-          scale: 1, duration: 1.6, ease: 'power3.out', stagger: 0.09, clearProps: 'transform',
-          onComplete: () => lot.forEach(p => p.classList.remove('rideau'))
-        });
-      }
-    });
-    //  Après un filtre, les photos changent de place : on recalcule
-    addEventListener('portfolio:filtre', () => ScrollTrigger.refresh());
-  }
-
   /* ---------- Dans l'objectif : la bague ---------- */
-  const sec = $('#objectif');
+  const sec = $('.objectif');
   const bague = sec && $('.obj-bague', sec);
   const cartes = sec ? $$('.obj-carte', sec) : [];
   if (bague && cartes.length > 2 && CSS.supports('transform-style', 'preserve-3d')) {
     sec.classList.add('en-3d');
+    //  Écart fixe entre deux photos, comme sur une bague de 10 : avec plus de photos,
+    //  seules les voisines (±110°) sont visibles, la bague n'a jamais l'air bondée
     const N = cartes.length;
-    const pas = 360 / N;
+    const pas = 36;
     const etat = { angle: 0 };
     const num = $('.obj-num', sec);
     const titre = $('.obj-titre', sec);
     const cat = $('.obj-cat', sec);
     const mise = $('.v-mise', sec);
     const aide = $('.obj-aide', sec);
+    const total = $('.obj-total', sec);
+    if (total) total.textContent = String(N).padStart(2, '0');
     let R = 0, actuel = -1, decoupe = null, sortie = null, entree = null;
 
     //  Nouveau titre : l'ancien s'en va vers le haut, le nouveau monte lettre par lettre
@@ -178,12 +158,12 @@
     const peindre = () => {
       bague.style.transform = `translateZ(${-R}px) rotateY(${-etat.angle}deg)`;
       cartes.forEach((c, i) => {
-        const a = Math.abs(((i * pas - etat.angle) % 360 + 540) % 360 - 180);
+        const a = Math.abs(i * pas - etat.angle);
         const o = Math.max(0, 1 - Math.pow(a / 110, 1.4));
         c.style.opacity = o.toFixed(3);
         c.style.visibility = o < 0.02 ? 'hidden' : '';
       });
-      const i = ((Math.round(etat.angle / pas) % N) + N) % N;
+      const i = Math.min(N - 1, Math.max(0, Math.round(etat.angle / pas)));
       if (i !== actuel) changer(i);
       sec.style.setProperty('--p', (etat.angle / ((N - 1) * pas)).toFixed(4));
     };
@@ -191,7 +171,7 @@
     //  Rayon : les photos voisines se touchent presque, un peu d'air en plus
     const placer = () => {
       const cw = cartes[0].offsetWidth || bague.offsetWidth || 240;
-      R = Math.round(cw * 0.5 / Math.tan(Math.PI / N) * 1.25);
+      R = Math.round(cw * 0.5 / Math.tan(Math.PI * pas / 360) * 1.25);
       cartes.forEach((c, i) => { c.style.transform = `rotateY(${i * pas}deg) translateZ(${R}px)`; });
       peindre();
     };
@@ -203,7 +183,7 @@
       scrollTrigger: {
         trigger: sec,
         start: 'top top',
-        end: () => '+=' + Math.round((N - 1) * innerHeight * 0.5),
+        end: () => '+=' + Math.round((N - 1) * innerHeight * 0.32),
         pin: true,
         scrub: 0.8,
         anticipatePin: 1,
@@ -237,6 +217,11 @@
       if (lenis) lenis.scrollTo(y, { duration: 1.2 });
       else scrollTo({ top: y, behavior: 'smooth' });
     };
+    //  En fermant la visionneuse, la bague se place sur la dernière photo regardée
+    addEventListener('visionneuse:fermee', e => {
+      const i = e.detail?.index;
+      if (Number.isInteger(i) && i !== actuel) aller(i);
+    });
     cartes.forEach((c, i) => {
       c.addEventListener('click', () => { if (!c.classList.contains('devant')) aller(i); });
       c.addEventListener('focus', () => {

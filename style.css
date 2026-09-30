@@ -198,39 +198,6 @@ h1, h2, h3, .serif {
 .reveal[data-delay="2"] { transition-delay: .24s; }
 .reveal[data-delay="3"] { transition-delay: .36s; }
 
-/* ---------- portfolio ---------- */
-.filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 42px; }
-.filter {
-  padding: 10px 22px; border-radius: 100px; border: 1px solid var(--line);
-  font-size: .84rem; font-weight: 600; letter-spacing: .05em; color: var(--text-soft);
-  transition: background .3s var(--ease), border-color .3s var(--ease), color .3s var(--ease);
-}
-.filter:hover { border-color: var(--taupe); color: var(--text); }
-.filter.active { background: var(--ink); border-color: var(--ink); color: #fdfbf7; }
-[data-theme="dark"] .filter.active { background: var(--beige); border-color: var(--beige); color: var(--ink); }
-
-.masonry { columns: 3 300px; column-gap: 22px; }
-.ph {
-  position: relative; margin-bottom: 22px; border-radius: var(--radius);
-  overflow: hidden; break-inside: avoid; cursor: zoom-in;
-  box-shadow: var(--shadow-sm);
-  transition: opacity .5s var(--ease), transform .5s var(--ease), box-shadow .5s var(--ease);
-}
-.ph img { width: 100%; height: auto; transition: transform 1.2s var(--ease), opacity .8s ease; }
-.ph:hover img { transform: scale(1.06); }
-.ph:hover { box-shadow: var(--shadow-md); }
-.ph figcaption {
-  position: absolute; inset: auto 0 0 0; padding: 46px 20px 16px;
-  background: linear-gradient(transparent, rgba(20,16,12,.72));
-  color: #fdfbf7; font-size: .9rem; letter-spacing: .04em;
-  opacity: 0; transform: translateY(12px);
-  transition: opacity .45s var(--ease), transform .45s var(--ease);
-  display: flex; justify-content: space-between; align-items: baseline;
-}
-.ph figcaption small { color: #d8c9a8; text-transform: uppercase; font-size: .68rem; letter-spacing: .22em; }
-.ph:hover figcaption { opacity: 1; transform: none; }
-.ph.hidden { display: none; }
-
 /* ---------- lightbox ---------- */
 .lightbox {
   position: fixed; inset: 0; z-index: 200; display: grid; place-items: center;
@@ -573,14 +540,13 @@ h1, h2, h3, .serif {
 
 /* Les photos se développent : un aperçu flou de quelques centaines
    d'octets occupe le cadre, puis la vraie photo apparaît en fondu. */
-.ph, .recent, .insta-strip a {
+.recent, .insta-strip a {
   background: var(--lqip, none) center / cover no-repeat, var(--bg-alt);
 }
-.js-fondu .ph img:not(.charge),
 .js-fondu .recent img:not(.charge),
 .js-fondu .insta-strip img:not(.charge) { opacity: 0; }
 
-.ph:focus-visible, .recent:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.recent:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 
 /* La section qu'on lit est signalée dans le menu */
 .nav-links a.actif { color: var(--gold); }
@@ -618,11 +584,6 @@ h1, h2, h3, .serif {
 .vt-theme::view-transition-old(root),
 .vt-theme::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 .vt-theme *, .vt-theme *::before, .vt-theme *::after { transition: none !important; }
-/* Filtres : chaque photo glisse jusqu'à sa nouvelle place */
-.vt-filtre::view-transition-group(*) {
-  animation-duration: .55s;
-  animation-timing-function: cubic-bezier(.22, .8, .28, 1);
-}
 
 /* Carte : un aperçu léger, la vraie carte au clic */
 .map-facade {
@@ -651,9 +612,7 @@ h1, h2, h3, .serif {
 /* Sur écran tactile : pas d'effets de survol qui restent collés au doigt,
    et le titre des photos est lisible sans survol */
 @media (hover: none) {
-  .ph figcaption { opacity: 1; transform: none; padding: 34px 14px 10px; font-size: .8rem; }
-  .ph figcaption small { display: none; }
-  .ph:hover img, .recent:hover img, .insta-strip a:hover img { transform: none; }
+  .recent:hover img, .insta-strip a:hover img { transform: none; }
   .insta-strip a:hover::after { opacity: 0; }
   .why-card:hover, .presta:hover, .btn:hover, .socials a:hover, .map-ouvrir:hover { transform: none; }
 }
@@ -672,6 +631,7 @@ h1, h2, h3, .serif {
   padding: clamp(64px, 9vw, 110px) 0;
   overflow: hidden;
 }
+.objectif.en-3d { scroll-margin-top: calc(-1 * (var(--nav-h) + 12px)); }
 .obj-entete { max-width: 1220px; margin: 0 auto 34px; padding-inline: clamp(20px, 6vw, 80px); }
 .objectif .kicker { color: #e9d9b8; }
 .objectif .kicker::before { background: #e9d9b8; }
@@ -698,8 +658,16 @@ h1, h2, h3, .serif {
   background: var(--lqip, none) center / cover no-repeat, #221c16;
   box-shadow: 0 20px 40px rgba(0, 0, 0, .35);
 }
-/* certaines photos ont un cadre blanc de tirage : un léger recadrage le fait disparaître */
-.obj-carte img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.1); }
+.obj-carte img { width: 100%; height: 100%; object-fit: cover; }
+/* deux photos ont un cadre blanc de tirage : un léger recadrage le fait disparaître */
+.obj-carte.cadre img { transform: scale(1.1); }
+/* les photos en paysage restent entières, posées sur un passe-partout sombre
+   à peine teinté par la photo, comme un tirage encadré */
+.obj-carte.paysage {
+  background: linear-gradient(rgba(16, 13, 10, .82), rgba(16, 13, 10, .82)), var(--lqip, none) center / cover no-repeat, #16120e;
+}
+.obj-carte.paysage img { object-fit: contain; padding: 0 7%; filter: drop-shadow(0 12px 22px rgba(0, 0, 0, .5)); }
+.en-3d .obj-carte.paysage:not(.devant) img { filter: brightness(.5) saturate(.75); }
 .obj-carte:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
 .viseur, .obj-legende { display: none; }
 
@@ -848,9 +816,6 @@ html.lenis { scroll-behavior: auto !important; }
 .lenis.lenis-smooth iframe { pointer-events: none; }
 /* les lignes et les mots sortent d'un masque : un peu de marge pour les jambages */
 .ligne-mask, .mot-mask { padding-bottom: .12em; margin-bottom: -.12em; }
-/* pendant le rideau, c'est GSAP qui zoome la photo : pas de transition CSS par-dessus */
-.ph.rideau img { transition: opacity .8s ease; }
-.ph.rideau { transition: box-shadow .5s var(--ease); }
 
 /* ---------- responsive ---------- */
 @media (max-width: 960px) {
@@ -876,8 +841,6 @@ html.lenis { scroll-behavior: auto !important; }
   .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
   .nav .btn-nav { display: none; }
   .form { grid-template-columns: 1fr; }
-  .masonry { columns: 2 160px; column-gap: 14px; }
-  .ph { margin-bottom: 14px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
