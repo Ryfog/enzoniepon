@@ -97,7 +97,10 @@
   }, { passive: true });
   addEventListener('resize', () => { hautHero = hero ? hero.offsetHeight : 0; }, { passive: true });
   auDefilement();
-  toTop?.addEventListener('click', () => scrollTo({ top: 0, behavior: reduit ? 'auto' : 'smooth' }));
+  toTop?.addEventListener('click', () => {
+    if (window.lenis) window.lenis.scrollTo(0, { duration: 1.4 });
+    else scrollTo({ top: 0, behavior: reduit ? 'auto' : 'smooth' });
+  });
 
   /* ---------- révélation au scroll ---------- */
   if (flat || !('IntersectionObserver' in window)) {
@@ -167,6 +170,7 @@
       vt.finished.finally(() => {
         photos.forEach(p => { p.style.viewTransitionName = ''; });
         root.classList.remove('vt-filtre');
+        dispatchEvent(new Event('portfolio:filtre'));
       });
     } else {
       filtrer(cat);
@@ -175,6 +179,7 @@
         p.style.opacity = 0;
         requestAnimationFrame(() => requestAnimationFrame(() => { p.style.opacity = ''; }));
       });
+      dispatchEvent(new Event('portfolio:filtre'));
     }
   }));
 
@@ -229,12 +234,14 @@
     afficher(false);
     lb.classList.add('open');
     document.body.style.overflow = 'hidden';
+    dispatchEvent(new Event('visionneuse:ouverte'));
     $('.lb-close')?.focus({ preventScroll: true });
   };
   const closeLb = () => {
     if (!lb?.classList.contains('open')) return;
     lb.classList.remove('open');
     document.body.style.overflow = '';
+    dispatchEvent(new Event('visionneuse:fermee'));
     dernierFocus?.focus?.({ preventScroll: true });
   };
   const step = d => { if (!visible.length) return; idx = (idx + d + visible.length) % visible.length; afficher(true); };
@@ -248,6 +255,25 @@
     p.addEventListener('click', ouvrir);
     p.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ouvrir(); } });
   });
+  //  Les photos de la bague « Dans l'objectif » ouvrent la même visionneuse.
+  //  En 3D, seule celle du premier plan s'ouvre : les autres font tourner la bague.
+  $$('.obj-carte').forEach(c => c.addEventListener('click', () => {
+    if (c.closest('.en-3d') && !c.classList.contains('devant')) return;
+    const fin = '/' + c.dataset.photo + '.webp';
+    const cible = photos.find(p => ($('img', p)?.getAttribute('src') || '').endsWith(fin));
+    if (!cible) return;
+    const vues = photos.filter(x => !x.classList.contains('hidden'));
+    if (vues.includes(cible)) { openLb(vues.indexOf(cible)); return; }
+    //  la photo est masquée par un filtre : on parcourt tout le portfolio
+    visible = photos.slice();
+    idx = visible.indexOf(cible);
+    dernierFocus = c;
+    afficher(false);
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    dispatchEvent(new Event('visionneuse:ouverte'));
+    $('.lb-close')?.focus({ preventScroll: true });
+  }));
   $('.lb-close')?.addEventListener('click', closeLb);
   $('.lb-prev')?.addEventListener('click', e => { e.stopPropagation(); step(-1); });
   $('.lb-next')?.addEventListener('click', e => { e.stopPropagation(); step(1); });

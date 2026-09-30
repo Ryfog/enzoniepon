@@ -658,6 +658,200 @@ h1, h2, h3, .serif {
   .why-card:hover, .presta:hover, .btn:hover, .socials a:hover, .map-ouvrir:hover { transform: none; }
 }
 
+/* ============================================================
+   Dans l'objectif — dix photos sur une bague qu'on tourne en défilant
+   Sans animation (ou si le script ne charge pas) : une bande de photos
+   qu'on fait glisser. Avec : une scène sombre, la bague en 3D et un viseur.
+   ============================================================ */
+@property --teinte { syntax: "<color>"; inherits: true; initial-value: #6F6048; }
+
+.objectif {
+  --cw: max(150px, min(300px, 25vw, calc((100svh - 300px) / 1.5)));
+  background: #100d0a;
+  color: #f3ede2;
+  padding: clamp(64px, 9vw, 110px) 0;
+  overflow: hidden;
+}
+.obj-entete { max-width: 1220px; margin: 0 auto 34px; padding-inline: clamp(20px, 6vw, 80px); }
+.objectif .kicker { color: #e9d9b8; }
+.objectif .kicker::before { background: #e9d9b8; }
+.objectif .section-title { color: #f6f0e6; }
+.obj-bague {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 4px clamp(20px, 6vw, 80px) 18px;
+  padding-left: max(clamp(20px, 6vw, 80px), calc((100% - 1220px) / 2 + clamp(20px, 6vw, 80px)));
+  scroll-padding-inline: clamp(20px, 6vw, 80px);
+  scrollbar-width: thin;
+}
+.obj-carte {
+  flex: 0 0 auto;
+  width: clamp(170px, 22vw, 260px);
+  aspect-ratio: 2 / 3;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  scroll-snap-align: center;
+  cursor: zoom-in;
+  background: var(--lqip, none) center / cover no-repeat, #221c16;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, .35);
+}
+/* certaines photos ont un cadre blanc de tirage : un léger recadrage le fait disparaître */
+.obj-carte img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.1); }
+.obj-carte:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+.viseur, .obj-legende { display: none; }
+
+/* ---------- la scène en 3D ---------- */
+.objectif.en-3d { padding: 0; }
+.en-3d .obj-scene {
+  position: relative;
+  height: 100svh;
+  overflow: hidden;
+  perspective: 1200px;
+  background:
+    radial-gradient(ellipse 58% 52% at 50% 44%, color-mix(in srgb, var(--teinte) 88%, transparent), transparent 72%),
+    radial-gradient(ellipse 120% 80% at 50% 110%, rgba(0, 0, 0, .55), transparent 60%),
+    #0d0a08;
+}
+.en-3d .obj-entete {
+  position: absolute;
+  top: calc(var(--nav-h) + 10px);
+  left: 0; right: 0;
+  z-index: 5;
+  max-width: none;
+  margin: 0;
+  text-align: center;
+  pointer-events: none;
+}
+.en-3d .obj-entete .kicker { justify-content: center; margin: 0; }
+.en-3d .obj-entete .kicker::after { content: ""; width: 34px; height: 1px; background: #e9d9b8; }
+.en-3d .obj-entete .section-title {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+.en-3d .obj-bague {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  display: block;
+  width: var(--cw);
+  height: calc(var(--cw) * 1.5);
+  margin: calc(var(--cw) * -.75) 0 0 calc(var(--cw) * -.5);
+  padding: 0;
+  overflow: visible;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.en-3d .obj-carte {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform, opacity;
+  transition: box-shadow .5s var(--ease);
+}
+.en-3d .obj-carte img { transition: filter .6s var(--ease); }
+.en-3d .obj-carte:not(.devant) { cursor: pointer; }
+.en-3d .obj-carte:not(.devant) img { filter: brightness(.5) saturate(.75); }
+.en-3d .obj-carte.devant { box-shadow: 0 34px 90px rgba(0, 0, 0, .65), 0 0 0 1px rgba(255, 255, 255, .12); }
+
+/* le viseur : coins, informations, mise au point, cellule */
+.en-3d .viseur {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  color: rgba(246, 240, 230, .72);
+  font: 600 .64rem/1 'Manrope', system-ui, sans-serif;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+}
+.v-coin { position: absolute; width: 26px; height: 26px; border: 0 solid rgba(246, 240, 230, .55); }
+.v1 { top: calc(var(--nav-h) + 14px); left: 22px; border-width: 1.5px 0 0 1.5px; }
+.v2 { top: calc(var(--nav-h) + 14px); right: 22px; border-width: 1.5px 1.5px 0 0; }
+.v3 { bottom: 22px; left: 22px; border-width: 0 0 1.5px 1.5px; }
+.v4 { bottom: 22px; right: 22px; border-width: 0 1.5px 1.5px 0; }
+.v-haut { position: absolute; top: calc(var(--nav-h) + 24px); }
+.v-g { left: 58px; }
+.v-g b { color: #fff; font-weight: 700; font-variant-numeric: tabular-nums; }
+.v-d { right: 58px; display: flex; align-items: center; gap: 8px; }
+.v-point { width: 7px; height: 7px; border-radius: 50%; background: #7CDB8A; box-shadow: 0 0 8px #7CDB8A; animation: af 1.6s ease-in-out infinite; }
+@keyframes af { 50% { opacity: .25; } }
+.v-mise {
+  position: absolute;
+  left: 50%; top: 44%;
+  width: calc(var(--cw) * 1.1);
+  height: calc(var(--cw) * 1.6);
+  margin: calc(var(--cw) * -.8) 0 0 calc(var(--cw) * -.55);
+}
+.v-mise i { position: absolute; width: 22px; height: 22px; border: 0 solid rgba(246, 240, 230, .8); transition: border-color .35s var(--ease); }
+.v-mise i:nth-child(1) { top: 0; left: 0; border-width: 2px 0 0 2px; }
+.v-mise i:nth-child(2) { top: 0; right: 0; border-width: 2px 2px 0 0; }
+.v-mise i:nth-child(3) { bottom: 0; left: 0; border-width: 0 0 2px 2px; }
+.v-mise i:nth-child(4) { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
+.v-mise.net i { border-color: var(--gold); }
+.v-cellule {
+  position: absolute;
+  left: 50%; bottom: 26px;
+  width: min(300px, 64vw);
+  display: flex;
+  justify-content: space-between;
+  padding-top: 12px;
+  transform: translateX(-50%);
+  font-size: .56rem;
+  letter-spacing: .08em;
+  background: repeating-linear-gradient(90deg, rgba(246, 240, 230, .5) 0 1px, transparent 1px calc(100% / 18)) top / 100% 6px no-repeat;
+}
+.v-index {
+  position: absolute; top: -9px; left: calc(var(--p, 0) * 100%);
+  width: 0; height: 0;
+  border: 5px solid transparent; border-top-color: var(--gold); border-bottom: 0;
+  transform: translateX(-50%);
+}
+
+/* la légende : catégorie et titre de la photo au premier plan */
+.en-3d .obj-legende {
+  display: block;
+  position: absolute;
+  left: 0; right: 0; bottom: 62px;
+  z-index: 5;
+  padding-inline: 20px;
+  text-align: center;
+  pointer-events: none;
+}
+.obj-cat { font: 700 .68rem/1.2 'Manrope', system-ui, sans-serif; letter-spacing: .32em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+.obj-titre { font-family: 'Playfair Display', 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 4.4vw, 3.3rem); line-height: 1.08; color: #f6f0e6; }
+.obj-aide { margin-top: 12px; font-size: .68rem; letter-spacing: .22em; text-transform: uppercase; color: rgba(246, 240, 230, .5); }
+
+@media (max-width: 760px) {
+  .objectif { --cw: max(140px, min(46vw, calc((100svh - 300px) / 1.5))); }
+  .en-3d .obj-scene { perspective: 900px; }
+  .v-g { left: 52px; } .v-d { right: 52px; }
+  .en-3d .obj-entete { top: calc(var(--nav-h) + 52px); }
+  .en-3d .obj-bague, .v-mise { top: 47%; }
+  .v-cellule { width: min(300px, 52vw); }
+  .en-3d .obj-legende { bottom: 58px; }
+}
+
+/* ---------- mouvement général ---------- */
+/* défilement doux (Lenis) : le défilement natif ne doit pas lisser par-dessus */
+html.lenis, html.lenis body { height: auto; }
+html.lenis { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-smooth iframe { pointer-events: none; }
+/* les lignes et les mots sortent d'un masque : un peu de marge pour les jambages */
+.ligne-mask, .mot-mask { padding-bottom: .12em; margin-bottom: -.12em; }
+/* pendant le rideau, c'est GSAP qui zoome la photo : pas de transition CSS par-dessus */
+.ph.rideau img { transition: opacity .8s ease; }
+.ph.rideau { transition: box-shadow .5s var(--ease); }
+
 /* ---------- responsive ---------- */
 @media (max-width: 960px) {
   .about-grid, .booking-grid, .contact-grid { grid-template-columns: 1fr; }
