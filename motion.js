@@ -219,13 +219,40 @@
     };
     //  En fermant la visionneuse, la bague se place sur la dernière photo regardée
     addEventListener('visionneuse:fermee', e => {
-      const i = e.detail?.index;
+      if (!e.detail || !e.detail.bague) return;
+      const i = e.detail.index;
       if (Number.isInteger(i) && i !== actuel) aller(i);
     });
     cartes.forEach((c, i) => {
       c.addEventListener('click', () => { if (!c.classList.contains('devant')) aller(i); });
       c.addEventListener('focus', () => {
         if (!c.classList.contains('devant') && c.matches(':focus-visible')) aller(i);
+      });
+    });
+  }
+
+  /* ---------- Plumes des tropiques : les feuilles poussent autour des tirages ---------- */
+  const cadres = $$('.tirage-cadre');
+  if (cadres.length) {
+    cadres.forEach(c => {
+      gsap.set($$('.deco-in', c), { scale: 0.25, opacity: 0 });
+      gsap.set($('.tirage', c), { y: 46, opacity: 0 });
+    });
+    ScrollTrigger.batch(cadres, {
+      start: 'top 90%',
+      once: true,
+      onEnter: lot => lot.forEach((c, k) => {
+        gsap.timeline({ delay: k * 0.12 })
+          .to($('.tirage', c), { y: 0, opacity: 1, duration: 0.9, ease: 'power3.out', clearProps: 'transform,opacity' })
+          .to($$('.deco-in', c), { scale: 1, opacity: 1, duration: 1.2, ease: 'back.out(1.7)', stagger: 0.14 }, 0.25);
+      })
+    });
+    //  de la profondeur : ce qui est devant défile un peu plus vite que ce qui est derrière
+    $$('.deco', $('.plumes')).forEach(d => {
+      const devant = d.classList.contains('devant');
+      gsap.fromTo(d.querySelector('.deco-in'), { yPercent: devant ? 10 : -6 }, {
+        yPercent: devant ? -10 : 6, ease: 'none',
+        scrollTrigger: { trigger: d.closest('.tirage-cadre'), start: 'top bottom', end: 'bottom top', scrub: true }
       });
     });
   }

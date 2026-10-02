@@ -136,7 +136,7 @@
 
   /* ---------- les photos se développent depuis leur aperçu flou ---------- */
   root.classList.add('js-fondu');
-  const aDevelopper = $$('.recent img, .insta-strip img');
+  const aDevelopper = $$('.recent img, .insta-strip img, .tirage img');
   aDevelopper.forEach(im => {
     const net = () => im.classList.add('charge');
     if (im.complete && im.naturalWidth) net();
@@ -192,9 +192,10 @@
     precharger(idx + 1);
     precharger(idx - 1);
   };
-  const openLb = i => {
+  //  la visionneuse parcourt la bague, ou la série « Plumes des tropiques »
+  const openLb = (i, liste = photos) => {
     if (!lb) return;
-    visible = photos;
+    visible = liste;
     idx = Math.max(0, i);
     dernierFocus = document.activeElement;
     afficher(false);
@@ -208,7 +209,7 @@
     lb.classList.remove('open');
     document.body.style.overflow = '';
     //  la bague tourne jusqu'à la dernière photo regardée
-    dispatchEvent(new CustomEvent('visionneuse:fermee', { detail: { index: idx } }));
+    dispatchEvent(new CustomEvent('visionneuse:fermee', { detail: { index: idx, bague: visible === photos } }));
     dernierFocus?.focus?.({ preventScroll: true });
   };
   const step = d => { if (!visible.length) return; idx = (idx + d + visible.length) % visible.length; afficher(true); };
@@ -218,6 +219,8 @@
     if (c.closest('.en-3d') && !c.classList.contains('devant')) return;
     openLb(i);
   }));
+  const tirages = $$('.tirage');
+  tirages.forEach((t, i) => t.addEventListener('click', () => openLb(i, tirages)));
   $('.lb-close')?.addEventListener('click', closeLb);
   $('.lb-prev')?.addEventListener('click', e => { e.stopPropagation(); step(-1); });
   $('.lb-next')?.addEventListener('click', e => { e.stopPropagation(); step(1); });
