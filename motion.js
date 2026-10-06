@@ -78,7 +78,8 @@
 
   /* ---------- titres de section : chaque ligne sort de son masque ---------- */
   if (SplitText) {
-    $$('.section-title').filter(t => !t.closest('.objectif')).forEach(t => {
+    //  (le titre de « Nouvelle série » change avec la série : il reste en texte simple)
+    $$('.section-title').filter(t => !t.closest('.objectif') && !t.closest('.series-tete')).forEach(t => {
       t.classList.remove('reveal');
       SplitText.create(t, {
         type: 'lines', mask: 'lines', linesClass: 'ligne', autoSplit: true,
@@ -231,21 +232,45 @@
     });
   }
 
-  /* ---------- Plumes des tropiques : les feuilles poussent autour des tirages ---------- */
+  /* ---------- Nouvelle série : les feuilles poussent autour des tirages ---------- */
   const cadres = $$('.tirage-cadre');
   if (cadres.length) {
-    cadres.forEach(c => {
+    const cacher = c => {
       gsap.set($$('.deco-in', c), { scale: 0.25, opacity: 0 });
       gsap.set($('.tirage', c), { y: 46, opacity: 0 });
-    });
-    ScrollTrigger.batch(cadres, {
+    };
+    //  le tirage monte, puis ses feuilles poussent autour
+    const entrer = (c, delai) => gsap.timeline({ delay: delai })
+      .fromTo($('.tirage', c), { y: 46, opacity: 0 }, { y: 0, opacity: 1, duration: 0.9, ease: 'power3.out', overwrite: 'auto', clearProps: 'transform,opacity' })
+      .fromTo($$('.deco-in', c), { scale: 0.25, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.2, ease: 'back.out(1.7)', stagger: 0.14, overwrite: 'auto' }, 0.25);
+    let entrees = [];
+    cadres.forEach(cacher);
+    //  la série affichée au chargement apparaît au défilement…
+    const auDepart = cadres.filter(c => !c.closest('.serie') || c.closest('.serie').classList.contains('est-active'));
+    let premiers = ScrollTrigger.batch(auDepart, {
       start: 'top 90%',
       once: true,
-      onEnter: lot => lot.forEach((c, k) => {
-        gsap.timeline({ delay: k * 0.12 })
-          .to($('.tirage', c), { y: 0, opacity: 1, duration: 0.9, ease: 'power3.out', clearProps: 'transform,opacity' })
-          .to($$('.deco-in', c), { scale: 1, opacity: 1, duration: 1.2, ease: 'back.out(1.7)', stagger: 0.14 }, 0.25);
-      })
+      onEnter: lot => lot.forEach((c, k) => entrees.push(entrer(c, k * 0.12)))
+    });
+    //  … les autres quand on les choisit avec la flèche : ce qui est à l'écran arrive avec elle,
+    //  ce qui est plus bas attend qu'on y descende
+    let rafraichir = null;
+    addEventListener('serie:change', e => {
+      const s = e.detail && e.detail.serie;
+      premiers.forEach(t => t.kill()); premiers = [];
+      entrees.forEach(t => t.kill()); entrees = [];
+      if (s) {
+        const bas = innerHeight * 0.92;
+        let k = 0;
+        $$('.tirage-cadre', s).forEach(c => {
+          if (c.getBoundingClientRect().top < bas) { entrees.push(entrer(c, 0.18 + 0.07 * k++)); return; }
+          cacher(c);
+          entrees.push(ScrollTrigger.create({ trigger: c, start: 'top 90%', once: true, onEnter: () => entrees.push(entrer(c, 0)) }));
+        });
+      }
+      //  la section n'a plus la même hauteur : les déclencheurs plus bas se recalent
+      clearTimeout(rafraichir);
+      rafraichir = setTimeout(() => ScrollTrigger.refresh(), 800);
     });
     //  de la profondeur : ce qui est devant défile un peu plus vite que ce qui est derrière
     $$('.deco', $('.plumes')).forEach(d => {

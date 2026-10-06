@@ -219,8 +219,14 @@
     if (c.closest('.en-3d') && !c.classList.contains('devant')) return;
     openLb(i);
   }));
-  const tirages = $$('.tirage');
-  tirages.forEach((t, i) => t.addEventListener('click', () => openLb(i, tirages)));
+  //  chaque série a sa visionneuse : « 3 / 9 » compte les photos de la série
+  const groupes = new Map();
+  $$('.tirage').forEach(t => {
+    const g = t.closest('.serie') || document.body;
+    if (!groupes.has(g)) groupes.set(g, []);
+    groupes.get(g).push(t);
+  });
+  groupes.forEach(liste => liste.forEach((t, i) => t.addEventListener('click', () => openLb(i, liste))));
   $('.lb-close')?.addEventListener('click', closeLb);
   $('.lb-prev')?.addEventListener('click', e => { e.stopPropagation(); step(-1); });
   $('.lb-next')?.addEventListener('click', e => { e.stopPropagation(); step(1); });
@@ -242,6 +248,112 @@
     if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) step(dx < 0 ? 1 : -1);
     else if (dy > 90 && dy > Math.abs(dx)) closeLb();
   }, { passive: true });
+
+  /* ---------- Nouvelle série : la flèche passe d'une série à l'autre ---------- */
+  const blocSeries = $('.series');
+  const series = blocSeries ? $$('.serie', blocSeries) : [];
+  if (series.length > 1) {
+    const fenetre = $('.series-fenetre', blocSeries);
+    const tete = $('.series-tete', blocSeries);
+    const titreSerie = $('.section-title', tete);
+    const sousSerie = $('.serie-sub', tete);
+    const fleche = $('.serie-fleche', blocSeries);
+    const compte = $('.serie-compte b', blocSeries);
+    const prochaine = $('.serie-suivante b', blocSeries);
+    const doux = !matchMedia('(prefers-reduced-motion: reduce)').matches && 'animate' in Element.prototype;
+    let active = Math.max(0, series.findIndex(s => s.classList.contains('est-active')));
+    let jetonTexte = 0, ancrage = null;
+
+    //  la fenêtre prend la hauteur de la série affichée : elles n'ont pas le même nombre de rangées
+    const caler = () => { fenetre.style.height = series[active].offsetHeight + 'px'; };
+    //  les photos d'une série se chargent dès qu'on approche de la flèche
+    const charger = s => $$('img[loading="lazy"]', s).forEach(im => { im.loading = 'eager'; });
+    const suivante = () => series[(active + 1) % series.length];
+
+    //  sens 1 : la série part vers la gauche et la suivante arrive par la droite
+    const loin = sens => `translateX(calc(${sens} * (50vw + 50% + 160px)))`;
+    const glisser = (el, de, a) => {
+      const avant = el.getAnimations().filter(x => x.id === 'serie');
+      const depart = avant.length ? getComputedStyle(el).transform : de;
+      avant.forEach(x => x.cancel());
+      el.animate([{ transform: depart, visibility: 'visible' }, { transform: a, visibility: 'visible' }],
+        { duration: 850, easing: 'cubic-bezier(.7, 0, .2, 1)' }).id = 'serie';
+    };
+    //  le titre et la phrase s'effacent vers le haut, les nouveaux montent à leur place
+    const changerTexte = s => {
+      const moi = ++jetonTexte, els = [titreSerie, sousSerie];
+      els.forEach(el => el.classList.add('in'));
+      Promise.all(els.map(el => el.animate({ opacity: 0, transform: 'translateY(-14px)' },
+        { duration: 260, easing: 'cubic-bezier(.55, 0, 1, .45)', fill: 'forwards' }).finished.catch(() => {}))).then(() => {
+        if (moi !== jetonTexte) return;
+        titreSerie.textContent = s.dataset.titre;
+        sousSerie.textContent = s.dataset.sub;
+        els.forEach((el, k) => {
+          el.getAnimations().forEach(x => x.cancel());
+          el.animate([{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }],
+            { duration: 560, delay: k * 80, easing: 'cubic-bezier(.22, .8, .28, 1)', fill: 'backwards' });
+        });
+      });
+    };
+
+    const montrer = (i, sens = 1, instantane = false) => {
+      const avant = series[active], s = series[i];
+      if (!s || s === avant) return;
+      active = i;
+      charger(s);
+      //  pendant la bascule, le navigateur ne doit pas faire défiler la page pour « suivre »
+      //  une photo qui s'en va : la page reste où elle est
+      document.documentElement.style.overflowAnchor = 'none';
+      clearTimeout(ancrage);
+      ancrage = setTimeout(() => { document.documentElement.style.overflowAnchor = ''; }, 1000);
+      if (instantane) blocSeries.classList.add('sans-anim');
+      blocSeries.dataset.serie = i;
+      series.forEach(x => {
+        const oui = x === s;
+        x.classList.toggle('est-active', oui);
+        x.toggleAttribute('inert', !oui);
+        if (oui) x.removeAttribute('aria-hidden'); else x.setAttribute('aria-hidden', 'true');
+      });
+      const apres = suivante();
+      if (compte) compte.textContent = i + 1;
+      if (prochaine) prochaine.textContent = apres.dataset.titre;
+      fleche?.setAttribute('aria-label', 'Série suivante : ' + apres.dataset.titre);
+      caler();
+      if (instantane || !doux) {
+        titreSerie.textContent = s.dataset.titre;
+        sousSerie.textContent = s.dataset.sub;
+      } else {
+        glisser(avant, 'none', loin(-sens));
+        glisser(s, loin(sens), 'none');
+        changerTexte(s);
+        //  l'adresse suit la série : on peut partager le lien de « Sang-froid »
+        if (s.dataset.ancre) history.replaceState(null, '', '#' + s.dataset.ancre);
+      }
+      if (instantane) { void blocSeries.offsetWidth; blocSeries.classList.remove('sans-anim'); }
+      dispatchEvent(new CustomEvent('serie:change', { detail: { index: i, serie: s, instantane } }));
+    };
+
+    fleche?.addEventListener('click', () => montrer((active + 1) % series.length, 1));
+    ['pointerenter', 'focus', 'touchstart'].forEach(t => fleche?.addEventListener(t, () => charger(suivante()), { passive: true }));
+    //  sur téléphone : glisser vers la gauche montre la série suivante, vers la droite la précédente
+    let doigtS = null;
+    fenetre.addEventListener('touchstart', e => { const t = e.changedTouches[0]; doigtS = { x: t.clientX, y: t.clientY }; }, { passive: true });
+    fenetre.addEventListener('touchend', e => {
+      if (!doigtS) return;
+      const t = e.changedTouches[0], dx = t.clientX - doigtS.x, dy = t.clientY - doigtS.y;
+      doigtS = null;
+      if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+      const sens = dx < 0 ? 1 : -1;
+      montrer((active + sens + series.length) % series.length, sens);
+    }, { passive: true });
+
+    //  arrivée par un lien enzoniepon.fr/#sang-froid : la série est déjà affichée
+    const lien = series.findIndex(s => s.dataset.ancre && '#' + s.dataset.ancre === location.hash);
+    if (lien > 0) montrer(lien, 1, true);
+    caler();
+    if ('ResizeObserver' in window) { const ro = new ResizeObserver(caler); series.forEach(s => ro.observe(s)); }
+    requestAnimationFrame(() => requestAnimationFrame(() => fenetre.classList.add('pret')));
+  }
 
   /* ---------- carrousel avis ---------- */
   const track = $('.car-track');

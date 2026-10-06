@@ -24,7 +24,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,500&family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
 
   <link rel="preload" as="image" href="photos/webp/hero.webp" fetchpriority="high">
-  <link rel="stylesheet" href="style.css?v=5">
+  <link rel="stylesheet" href="style.css?v=6">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📷</text></svg>">
 
   <!-- Données structurées -->
@@ -192,17 +192,32 @@
   </section>
 
   <!-- ==================== SÉRIE : PLUMES DES TROPIQUES ==================== -->
-  <section class="section plumes" id="plumes" aria-labelledby="plumes-titre">
+  <section class="section plumes series" id="plumes" data-serie="0" aria-labelledby="plumes-titre">
     <div class="plumes-fond" aria-hidden="true">
       <img class="pf pf1" src="photos/deco/monstera.webp" alt="" loading="lazy">
       <img class="pf pf2" src="photos/deco/palme.webp" alt="" loading="lazy">
       <img class="pf pf3" src="photos/deco/bananier.webp" alt="" loading="lazy">
       <img class="pf pf4" src="photos/deco/fougere.webp" alt="" loading="lazy">
     </div>
+    <div class="serpent-fond" aria-hidden="true"></div>
     <div class="wrap">
-      <span class="kicker reveal">Nouvelle série</span>
-      <h2 class="section-title reveal" id="plumes-titre">Plumes des tropiques</h2>
-      <p class="section-sub reveal">Huit portraits d’oiseaux tropicaux, entre feuillages et regards perçants.</p>
+      <div class="series-tete" id="sang-froid">
+        <div class="series-ligne">
+          <span class="kicker reveal">Nouvelle série</span>
+          <div class="serie-nav reveal">
+            <span class="serie-compte" aria-hidden="true"><b>1</b> / 2</span>
+            <button class="serie-fleche" type="button" aria-controls="series-piste" aria-label="Série suivante : Sang-froid">
+              <span class="serie-suivante"><small>Série suivante</small><b>Sang-froid</b></span>
+              <span class="serie-rond" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+            </button>
+          </div>
+        </div>
+        <h2 class="section-title reveal" id="plumes-titre" aria-live="polite">Plumes des tropiques</h2>
+        <p class="section-sub reveal serie-sub">Huit portraits d’oiseaux tropicaux, entre feuillages et regards perçants.</p>
+      </div>
+      <div class="series-fenetre">
+        <div class="series-piste" id="series-piste">
+          <div class="serie est-active" id="serie-plumes" data-ancre="plumes" data-titre="Plumes des tropiques" data-sub="Huit portraits d’oiseaux tropicaux, entre feuillages et regards perçants." role="group" aria-roledescription="série" aria-label="Plumes des tropiques">
       <div class="tirages">
         <figure class="tirage-cadre">
           <div class="tirage-zone">
@@ -284,6 +299,103 @@
           </div>
           <figcaption>Dans la verdure</figcaption>
         </figure>
+      </div>
+          </div>
+          <div class="serie serie-serpent" id="serie-sang-froid" data-ancre="sang-froid" data-titre="Sang-froid" data-sub="Neuf portraits avec un python : regards, écailles et lumière d’automne." role="group" aria-roledescription="série" aria-label="Sang-froid" aria-hidden="true" inert>
+            <div class="tirages">
+            <figure class="tirage-cadre">
+              <div class="tirage-zone">
+                <span class="deco derriere" style="--x:30%;--y:-18%;--t:90%;--r:8deg;--s:1;--o:50% 0%" aria-hidden="true"><span class="deco-in"><img src="photos/deco/lierre.webp" alt="" loading="lazy" decoding="async"></span></span>
+                <button class="tirage" type="button" style="--incl:-1.5deg;--lqip:url(data:image/webp;base64,UklGRsYAAABXRUJQVlA4ILoAAADwBACdASoUAB4APu1qrlCppaQiqAqpMB2JYgC7AA05NLTbeDJUWVkSwgOidjk0Y8AA/vHgTqknGzYwe8ymzXCqN7reSJMWbYtOcku4EA1g+MQwO5k2T6MH+RSawubkNDictIhGqujt4tds4UM8CrWY8TeFZ3Ly66oOpdQ38RL45l/L3h/qLAYwdMP3VLuLYnKXHNjz5yTMNHLxnxFmcK/1xOW7mYiUx4ulNAyLGyTpCIW+R3hNT4gAAAA=)" aria-label="Agrandir : Portrait en studio d’une femme couronnée, un python jaune enroulé sur les épaules">
+                  <img src="photos/webp/sang-froid-couronne-800.webp" srcset="photos/webp/sang-froid-couronne-480.webp 480w, photos/webp/sang-froid-couronne-800.webp 800w, photos/webp/sang-froid-couronne.webp 1600w" sizes="(max-width: 760px) 44vw, 30vw" width="1600" height="2400" data-full="photos/webp/sang-froid-couronne.webp" alt="Portrait en studio d’une femme couronnée, un python jaune enroulé sur les épaules" loading="lazy" decoding="async">
+                </button>
+                <span class="deco devant" style="--x:64%;--y:72%;--t:46%;--r:24deg;--s:1;--o:10% 90%" aria-hidden="true"><span class="deco-in"><img src="photos/deco/feuilles.webp" alt="" loading="lazy" decoding="async"></span></span>
+              </div>
+              <figcaption>La reine</figcaption>
+            </figure>
+            <figure class="tirage-cadre">
+              <div class="tirage-zone">
+                <span class="deco derriere" style="--x:-40%;--y:10%;--t:70%;--r:-32deg;--s:1;--o:50% 100%" aria-hidden="true"><span class="deco-in"><img src="photos/deco/fougere.webp" alt="" loading="lazy" decoding="async"></span></span>
+                <button class="tirage" type="button" style="--incl:1.3deg;--lqip:url(data:image/webp;base64,UklGRroAAABXRUJQVlA4IK4AAAAQBQCdASoUAB4APu1mqk2ppaQiMAgBMB2JaAC2yCHhXeYvFx+hdaVG6AmzOZjI6ykwAP7vINIonhYb7KR3i2MIhraWZkzaoy0NIAoQeEilhTRTYdvKi1M+eDoJo3KvTBGr4PZ6ZahZ/1NNV0lqFzOJ1cs0WFyY/eqxqf3kkMaGGctAi6APlgRZpfiYaIk4pFbs6E61F0J5T8k8VvQP3Kj40O0+1XN6id3wzq0OwAA=)" aria-label="Agrandir : Portrait d’une femme tenant son python jaune, le regard droit vers l’objectif">
+                  <img src="photos/webp/sang-froid-regard-800.webp" srcset="photos/webp/sang-froid-regard-480.webp 480w, photos/webp/sang-froid-regard-800.webp 800w, photos/webp/sang-froid-regard.webp 1600w" sizes="(max-width: 760px) 44vw, 30vw" width="1600" height="2400" data-full="photos/webp/sang-froid-regard.webp" alt="Portrait d’une femme tenant son python jaune, le regard droit vers l’objectif" loading="lazy" decoding="async">
+                </button>
+                <span class="deco devant" style="--x:60%;--y:70%;--t:50%;--r:18deg;--s:1;--o:10% 100%" aria-hidden="true"><span class="deco-in"><img src="photos/deco/laurier.webp" alt="" loading="lazy" decoding="async"></span></span>
+              </div>
+              <figcaption>Face à face</figcaption>
+            </figure>
+            <figure class="tirage-cadre">
+              <div class="tirage-zone">
+                <span class="deco derriere" style="--x:-36%;--y:-16%;--t:76%;--r:-10deg;--s:1;--o:60% 100%" aria-hidden="true"><span class="deco-in"><img src="photos/deco/alocasia.webp" alt="" loading="lazy" decoding="async"></span></span>
+                <button class="tirage" type="button" style="--incl:-1.2deg;--lqip:url(data:image/webp;base64,UklGRowAAABXRUJQVlA4IIAAAABQBACdASoUAB4APu1kqk2ppaQiMAgBMB2JZwAAW52w2FBkNhN9IuPdDeTAAP70IB2lrrf9Zm9Nm2ujni40IIgA6M/Ei64hYRfPhcycSO7KVrKmI/B56kQx/Ao9sSYfA1PeMyW3NOqW311HtJDcMhrq7evrWvxb6Mj4+WcsJ/AAAA==)" aria-label="Agrandir : Portrait noir et blanc d’une femme de dos, un python posé sur l’épaule">
+                  <img src="photos/webp/sang-froid-dos-nb-800.webp" srcset="photos/webp/sang-froid-dos-nb-480.webp 480w, photos/webp/sang-froid-dos-nb-800.webp 800w, photos/webp/sang-froid-dos-nb.webp 1600w" sizes="(max-width: 760px) 44vw, 30vw" width="1600" height="2400" data-full="photos/webp/sang-froid-dos-nb.webp" alt="Portrait noir et blanc d’une femme de dos, un python posé sur l’épaule" loading="lazy" decoding="async">
+                </button>
+                <span class="deco devant" style="--x:-12%;--y:70%;--t:48%;--r:-14deg;--s:-1;--o:80% 100%" aria-hidden="true"><span class="deco-in"><img src="photos/deco/capillaire.webp" alt="" loading="lazy" decoding="async"></span></span>
+              </div>
+              <figcaption>Ombre et écailles</figcaption>
+            </figure>
+            <figure class="tirage-cadre">
+              <div class="tirage-zone">
+                <span class="deco derriere" style="--x:52%;--y:30%;--t:72%;--r:22deg;--s:-1;--o:30% 100%" aria-hidden="true"><span class="deco-in"><img src="photos/deco/croton.webp" alt="" loading="lazy" decoding="async"></span></span>
+                <button class="tirage" type="button" style="--incl:1.6deg;--lqip:url(data:image/webp;base64,UklGRs4AAABXRUJQVlA4IMIAAADQBQCdASoUAB4APu1mq0+ppSOiMBgIATAdiWoAtsmL9G85yMnLCVQ71X+cPNnLGFq1GNcuI+IAAP7yo9au+tZDRaX+hwpdp8U1lrMRR2chG0ECOUOZnB1LvBYEhfI5K1paXp6c13sWbH6n1b0TELHqm4WUYLtnoxlwWUJI/9IWdV4dVfSAC5sWnDS92sv9ntYQwsLQ1RUkBOuhb7/Sw8n6ZDsBs10tyxT0XW/+BKpJEllUKLmQJ0uQezDVTVAb9TAAAA==)" aria-label="Agrandir : Une femme souriante lève son python au-dessus de sa tête, en sous-bois">
+                  <img src="photos/webp/sang-froid-leve-800.webp" srcset="photos/webp/sang-froid-leve-480.webp 480w, photos/webp/sang-froid-leve-800.webp 800w, photos/webp/sang-froid-leve.webp 1600w" sizes="(max-width: 760px) 44vw, 30vw" width="1600" height="2401" data-full="photos/webp/sang-froid-leve.webp" alt="Une femme souriante lève son python au-dessus de sa tête, en sous-bois" loading="lazy" decoding="async">
+                </button>
+                <span class="deco devant" style="--x:64%;--y:74%;--t:42%;--r:30deg;--s:1;--o:10% 90%" aria-hidden="true"><span class="deco-in"><img src="photos/deco/feuille.webp" alt="" loading="lazy" decoding="async"></span></span>
+              </div>
+              <figcaption>Lever de rideau</figcaption>
+            </figure>
+            <figure class="tirage-cadre">
+              <div class="tirage-zone">
+                <span class="deco derriere" style="--x:46%;--y:-22%;--t:70%;--r:32deg;--s:1;--o:50% 100%" aria-hidden="true"><span class="deco-in"><img src="photos/deco/fougere-verte.webp" alt="" loading="lazy" decoding="async"></span></span>
+                <button class="tirage" type="button" style="--incl:-1.4deg;--lqip:url(data:image/webp;base64,UklGRiwBAABXRUJQVlA4ICABAACQBgCdASoUAB4APu1gqE2ppSOiMAgBMB2JbACpI8F2ACyBlgaQJoMSVv0cU2B4WvGFMZ0JUT8BYBSoCzOgAP7hxkUIgNpsp+UxVgWpORQ/cFcvShlJZko8spHcp0ZrBU3qKS8HVQNUZ1OosyZnStNNsFJGDMVC+U3sku0p37rYXcorWNUzTEPIHfIww2PcneBMB4D4A+TMY23zZxSfvGObWzPLZRJnOYy1RGiLkCXcUxJMrCC/d/z66Pkzkppr8pDeOg/1k+fVWUrryUcRrrVJsB9ukBT+hqCu2XZFGqvWADaJDCqLdeQ/IgPQf+wxSlt/CEOZ8gwEe2bvkGnJAoPZ1VVuWHvGPC/5GVuvGMm7ydMSPfDVCVFRgVOFdceeEAA=)" aria-label="Agrandir : Une femme assise dans un arbre aux feuilles d’automne, son python autour d’elle">
+                  <img src="photos/webp/sang-froid-arbre-800.webp" srcset="photos/webp/sang-froid-arbre-480.webp 480w, photos/webp/sang-froid-arbre-800.webp 800w, photos/webp/sang-froid-arbre.webp 1600w" sizes="(max-width: 760px) 44vw, 30vw" width="1600" height="2400" data-full="photos/webp/sang-froid-arbre.webp" alt="Une femme assise dans un arbre aux feuilles d’automne, son python autour d’elle" loading="lazy" decoding="async">
+                </button>
+                <span class="deco devant" style="--x:-12%;--y:82%;--t:54%;--r:-10deg;--s:1;--o:0% 50%" aria-hidden="true"><span class="deco-in"><img src="photos/deco/baies.webp" alt="" loading="lazy" decoding="async"></span></span>
+              </div>
+              <figcaption>Au creux de l’arbre</figcaption>
+            </figure>
+            <figure class="tirage-cadre">
+              <div class="tirage-zone">
+                <span class="deco derriere" style="--x:-38%;--y:50%;--t:66%;--r:-8deg;--s:1;--o:50% 100%" aria-hidden="true"><span class="deco-in"><img src="photos/deco/calathea.webp" alt="" loading="lazy" decoding="async"></span></span>
+                <button class="tirage" type="button" style="--incl:1.2deg;--lqip:url(data:image/webp;base64,UklGRsIAAABXRUJQVlA4ILYAAAAwBgCdASoUAB4APu1oq08ppiOiMBgIATAdiUAXZC3RP8u5ky0uewzm/VaC/AVtfWELrxcs9FhpjxiAAP7yp1AhZLRatHLRKT6NPVSCwm6DqdjWw8uESd/BQQ1DOMrapQtRjz42O71QjVSv3ZRQOemMjXqmXS5lqEQg+/dKCRjKkeUKrUD6UqvN0GCxWLqkjdFWV4Oc2jFvAuU3C/yRkHkc0yUrrUmFv0BYarJxP7Rx70E0x9IAAA==)" aria-label="Agrandir : Une femme éclate de rire, la tête de son python tout contre son visage">
+                  <img src="photos/webp/sang-froid-sourire-800.webp" srcset="photos/webp/sang-froid-sourire-480.webp 480w, photos/webp/sang-froid-sourire-800.webp 800w, photos/webp/sang-froid-sourire.webp 1600w" sizes="(max-width: 760px) 44vw, 30vw" width="1600" height="2400" data-full="photos/webp/sang-froid-sourire.webp" alt="Une femme éclate de rire, la tête de son python tout contre son visage" loading="lazy" decoding="async">
+                </button>
+                <span class="deco devant" style="--x:58%;--y:70%;--t:52%;--r:16deg;--s:1;--o:20% 100%" aria-hidden="true"><span class="deco-in"><img src="photos/deco/oranger.webp" alt="" loading="lazy" decoding="async"></span></span>
+              </div>
+              <figcaption>Éclat de rire</figcaption>
+            </figure>
+            <figure class="tirage-cadre">
+              <div class="tirage-zone">
+                <span class="deco derriere" style="--x:44%;--y:-20%;--t:80%;--r:26deg;--s:1;--o:10% 100%" aria-hidden="true"><span class="deco-in"><img src="photos/deco/laurier.webp" alt="" loading="lazy" decoding="async"></span></span>
+                <button class="tirage" type="button" style="--incl:-1.7deg;--lqip:url(data:image/webp;base64,UklGRsIAAABXRUJQVlA4ILYAAABQBQCdASoUAB4APu1sq1EppaOiqAqpMB2JaQAFEB7nxk+z4jILrA/pq3uHd+0/U3agNgAA/u6pKs58FkrSWwFxyDEhV+dC4gr2JT1g9EuerzCXWFJc3mDGmj3aruCqFlyn3P2TXZj5rbQjosNcr05THTc/ldRxJd+lnL1bGreBJuZrYPX9eSVft4fyC+7RTIgo8NUT9yHZghUC4gpzH4PZm+0u/VkrPg75A3Ve3fJ9kydkCgAAAA==)" aria-label="Agrandir : Portrait noir et blanc d’une femme en robe noire tenant un python clair">
+                  <img src="photos/webp/sang-froid-blanc-nb-800.webp" srcset="photos/webp/sang-froid-blanc-nb-480.webp 480w, photos/webp/sang-froid-blanc-nb-800.webp 800w, photos/webp/sang-froid-blanc-nb.webp 1600w" sizes="(max-width: 760px) 44vw, 30vw" width="1600" height="2400" data-full="photos/webp/sang-froid-blanc-nb.webp" alt="Portrait noir et blanc d’une femme en robe noire tenant un python clair" loading="lazy" decoding="async">
+                </button>
+                <span class="deco devant" style="--x:-14%;--y:66%;--t:50%;--r:-28deg;--s:1;--o:50% 100%" aria-hidden="true"><span class="deco-in"><img src="photos/deco/fougere.webp" alt="" loading="lazy" decoding="async"></span></span>
+              </div>
+              <figcaption>Noir et blanc</figcaption>
+            </figure>
+            <figure class="tirage-cadre">
+              <div class="tirage-zone">
+                <span class="deco derriere" style="--x:-40%;--y:20%;--t:84%;--r:-6deg;--s:-1;--o:50% 0%" aria-hidden="true"><span class="deco-in"><img src="photos/deco/lierre.webp" alt="" loading="lazy" decoding="async"></span></span>
+                <button class="tirage" type="button" style="--incl:1.4deg;--lqip:url(data:image/webp;base64,UklGRsgAAABXRUJQVlA4ILwAAACwBQCdASoUAB4APu1krE+ppSQiMBgIATAdiWoAuzMv5cAk/YBX29I0OsYwtuqMH6+yB7lm4JwA/vV1BLv6YySN7flJzSWX4Wzj6tNLCgpzk6CAP1zGFYpldqfbugOqXY+ym2LKBw8p1jPhYwTGycj2dbfAe2g8ClyKUih2LlIRIOKdZhPXg7NpXfxMcKZze58YvRvg9XmME/icGvSXrj5hDop6HpzoxvgwHVN3/KwD3gBJRmUpwMJ6dd94AA==)" aria-label="Agrandir : Portrait souriant, bras levé, un python enroulé sur les épaules">
+                  <img src="photos/webp/sang-froid-bras-800.webp" srcset="photos/webp/sang-froid-bras-480.webp 480w, photos/webp/sang-froid-bras-800.webp 800w, photos/webp/sang-froid-bras.webp 1600w" sizes="(max-width: 760px) 44vw, 30vw" width="1600" height="2400" data-full="photos/webp/sang-froid-bras.webp" alt="Portrait souriant, bras levé, un python enroulé sur les épaules" loading="lazy" decoding="async">
+                </button>
+                <span class="deco devant" style="--x:-12%;--y:74%;--t:48%;--r:-6deg;--s:1;--o:50% 100%" aria-hidden="true"><span class="deco-in"><img src="photos/deco/calathea.webp" alt="" loading="lazy" decoding="async"></span></span>
+              </div>
+              <figcaption>Bras levé</figcaption>
+            </figure>
+            <figure class="tirage-cadre">
+              <div class="tirage-zone">
+                <span class="deco derriere" style="--x:20%;--y:-24%;--t:84%;--r:10deg;--s:1;--o:30% 100%" aria-hidden="true"><span class="deco-in"><img src="photos/deco/bananier.webp" alt="" loading="lazy" decoding="async"></span></span>
+                <button class="tirage" type="button" style="--incl:-1.3deg;--lqip:url(data:image/webp;base64,UklGRtoAAABXRUJQVlA4IM4AAACwBQCdASoUAB4APu1irFAppSQisBgIATAdiWQArAWwEf+EnQ7ZxD8z1EFd2RHWZqhBlMR7XGAA/tqKcJAPgu3Pu+kkDlGle6+2zOdV2BYEfoG28oxA0Q57/+LMSBOssuS/OeyBMHTveKmpaIAOZYcj9G7OB7CHpHq/6Q3g67bzDaDoqRIdVChk3ZPOlZAnPd1zE88LpT2ljYwXDRqSsrZM0rWiMqK8fhrtFPFqF+sdosJIGbNLCyHvVACpAi5Xv6weSXjT0oQMe2SYGQkAAA==)" aria-label="Agrandir : Portrait en contre-plongée, le python enroulé autour du cou">
+                  <img src="photos/webp/sang-froid-contre-plongee-800.webp" srcset="photos/webp/sang-froid-contre-plongee-480.webp 480w, photos/webp/sang-froid-contre-plongee-800.webp 800w, photos/webp/sang-froid-contre-plongee.webp 1600w" sizes="(max-width: 760px) 44vw, 30vw" width="1600" height="2400" data-full="photos/webp/sang-froid-contre-plongee.webp" alt="Portrait en contre-plongée, le python enroulé autour du cou" loading="lazy" decoding="async">
+                </button>
+                <span class="deco devant" style="--x:64%;--y:72%;--t:44%;--r:24deg;--s:1;--o:10% 90%" aria-hidden="true"><span class="deco-in"><img src="photos/deco/feuilles.webp" alt="" loading="lazy" decoding="async"></span></span>
+              </div>
+              <figcaption>Contre-plongée</figcaption>
+            </figure>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -625,11 +737,11 @@
   <!-- ==================== RETOUR EN HAUT ==================== -->
   <button class="to-top" aria-label="Retour en haut"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
 
-  <script src="script.js?v=5"></script>
+  <script src="script.js?v=6"></script>
   <script src="vendor/gsap.min.js" defer></script>
   <script src="vendor/ScrollTrigger.min.js" defer></script>
   <script src="vendor/SplitText.min.js" defer></script>
   <script src="vendor/lenis.min.js" defer></script>
-  <script src="motion.js?v=3" defer></script>
+  <script src="motion.js?v=4" defer></script>
 </body>
 </html>
