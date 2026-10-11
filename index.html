@@ -24,7 +24,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,500&family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
 
   <link rel="preload" as="image" href="photos/webp/hero.webp" fetchpriority="high">
-  <link rel="stylesheet" href="style.css?v=7">
+  <link rel="stylesheet" href="style.css?v=8">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📷</text></svg>">
 
   <!-- Données structurées -->
@@ -39,11 +39,18 @@
     "telephone": "+33 6 24 60 90 13",
     "email": "enzo.nieponpro@gmail.com",
     "address": { "@type": "PostalAddress", "addressLocality": "Lacanau", "addressCountry": "FR" },
-    "priceRange": "80 € – 120 €",
+    "priceRange": "60 € – 1 200 €",
     "areaServed": ["Lacanau", "Mérignac", "Bordeaux", "Le Porge", "Carcans", "Saint-Médard-en-Jalles"],
     "makesOffer": [
-      { "@type": "Offer", "name": "Séance photo 1 h", "price": "80", "priceCurrency": "EUR" },
-      { "@type": "Offer", "name": "Séance photo 2 h", "price": "120", "priceCurrency": "EUR" }
+      { "@type": "Offer", "name": "Séance Découverte (30 min, 5 photos)", "price": "60", "priceCurrency": "EUR" },
+      { "@type": "Offer", "name": "Séance Essentielle (1 h, 12 photos)", "price": "80", "priceCurrency": "EUR" },
+      { "@type": "Offer", "name": "Séance Complète (2 h, 25 photos)", "price": "120", "priceCurrency": "EUR" },
+      { "@type": "Offer", "name": "Événement Instant (2 h)", "price": "180", "priceCurrency": "EUR" },
+      { "@type": "Offer", "name": "Événement Émotion (4 h)", "price": "300", "priceCurrency": "EUR" },
+      { "@type": "Offer", "name": "Événement Moment (6 h)", "price": "420", "priceCurrency": "EUR" },
+      { "@type": "Offer", "name": "Mariage Essentielle (jusqu'à 5 h)", "priceSpecification": { "@type": "PriceSpecification", "minPrice": "600", "priceCurrency": "EUR" } },
+      { "@type": "Offer", "name": "Mariage Classique (jusqu'à 8 h)", "priceSpecification": { "@type": "PriceSpecification", "minPrice": "850", "priceCurrency": "EUR" } },
+      { "@type": "Offer", "name": "Mariage Premium (jusqu'à 12 h)", "priceSpecification": { "@type": "PriceSpecification", "minPrice": "1200", "priceCurrency": "EUR" } }
     ],
     "sameAs": ["https://www.instagram.com/enzophoto.raw", "https://www.tiktok.com/@enzophoto.raw", "https://www.behance.net/enzoniepon"]
   }
@@ -564,37 +571,98 @@
         <article class="presta reveal"><div class="presta-icon">🎉</div><h3>Événements</h3><p>Anniversaires, baptêmes, soirées : l'ambiance et l'émotion, sans rien manquer.</p><a href="#reservation" data-book="Événements">En savoir plus <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></article>
       </div>
 
-      <!-- Tarifs (lien direct : enzoniepon.fr/#tarifs) -->
+      <!-- Tarifs (lien direct : enzoniepon.fr/#tarifs) : trois onglets en boutons radio, sans JavaScript -->
       <div class="tarifs" id="tarifs">
         <h3 class="tarifs-titre reveal">Tarifs</h3>
-        <div class="tarifs-grid">
-          <article class="tarif reveal">
-            <span class="tarif-duree">Séance 1&nbsp;h</span>
-            <p class="tarif-prix">80&nbsp;€</p>
-            <p class="tarif-pour">Animaux · Événements</p>
-            <ul>
-              <li>Échange avant la séance</li>
-              <li>1&nbsp;h de prise de vue</li>
-              <li>Retouche fine</li>
-              <li>Galerie privée en ligne</li>
-            </ul>
-          </article>
-          <article class="tarif reveal" data-delay="1">
-            <span class="tarif-duree">Séance 2&nbsp;h</span>
-            <p class="tarif-prix">120&nbsp;€</p>
-            <p class="tarif-pour">Animaux · Événements</p>
-            <ul>
-              <li>Échange avant la séance</li>
-              <li>2&nbsp;h de prise de vue</li>
-              <li>Retouche fine</li>
-              <li>Galerie privée en ligne</li>
-            </ul>
-          </article>
+        <div class="tarifs-choix reveal" role="radiogroup" aria-label="Catégorie de tarifs">
+          <input type="radio" name="tarif-cat" id="tc-seances" checked><label for="tc-seances">Séances</label>
+          <input type="radio" name="tarif-cat" id="tc-evenements"><label for="tc-evenements">Événements</label>
+          <input type="radio" name="tarif-cat" id="tc-mariages"><label for="tc-mariages">Mariages</label>
         </div>
+
+        <div class="tarifs-panneaux reveal">
+          <div class="tarifs-panneau p-seances">
+            <p class="tarifs-pour">Portrait, couple, animalier, famille, grossesse · livraison sous 1&nbsp;semaine</p>
+            <div class="tarifs-grid">
+              <article class="tarif">
+                <span class="tarif-nom">Découverte</span>
+                <span class="tarif-duree">30&nbsp;min de prise de vue</span>
+                <p class="tarif-prix">60&nbsp;€</p>
+                <ul><li>1 lieu</li><li>5 photos retouchées</li><li>Galerie de sélection</li><li>Galerie privée en ligne</li></ul>
+              </article>
+              <article class="tarif reco">
+                <span class="tarif-badge">Recommandée</span>
+                <span class="tarif-nom">Essentielle</span>
+                <span class="tarif-duree">1&nbsp;h de prise de vue</span>
+                <p class="tarif-prix">80&nbsp;€</p>
+                <ul><li>1 lieu</li><li>12 photos retouchées</li><li>Galerie de sélection</li><li>Galerie privée en ligne</li></ul>
+              </article>
+              <article class="tarif">
+                <span class="tarif-nom">Complète</span>
+                <span class="tarif-duree">2&nbsp;h de prise de vue</span>
+                <p class="tarif-prix">120&nbsp;€</p>
+                <ul><li>Jusqu'à 2 lieux</li><li>25 photos retouchées</li><li>Galerie de sélection</li><li>Galerie privée en ligne</li></ul>
+              </article>
+            </div>
+          </div>
+
+          <div class="tarifs-panneau p-evenements">
+            <p class="tarifs-pour">Baptême, anniversaire, PACS, fête de famille · livraison sous 3&nbsp;semaines</p>
+            <div class="tarifs-grid">
+              <article class="tarif">
+                <span class="tarif-nom">Instant</span>
+                <span class="tarif-duree">2&nbsp;h de présence</span>
+                <p class="tarif-prix">180&nbsp;€</p>
+                <ul><li>Groupes et portraits</li><li>Moments spontanés</li><li>Toutes les photos retenues retouchées</li><li>Galerie privée en ligne</li></ul>
+              </article>
+              <article class="tarif reco">
+                <span class="tarif-badge">Recommandée</span>
+                <span class="tarif-nom">Émotion</span>
+                <span class="tarif-duree">4&nbsp;h de présence</span>
+                <p class="tarif-prix">300&nbsp;€</p>
+                <ul><li>Reportage complet</li><li>Détails et ambiance</li><li>Toutes les photos retenues retouchées</li><li>Galerie privée en ligne</li></ul>
+              </article>
+              <article class="tarif">
+                <span class="tarif-nom">Moment</span>
+                <span class="tarif-duree">6&nbsp;h de présence</span>
+                <p class="tarif-prix">420&nbsp;€</p>
+                <ul><li>Des premiers instants à la soirée</li><li>Reportage complet, détails et ambiance</li><li>Toutes les photos retenues retouchées</li><li>Galerie privée en ligne</li></ul>
+              </article>
+            </div>
+          </div>
+
+          <div class="tarifs-panneau p-mariages">
+            <p class="tarifs-pour">Livraison sous 6&nbsp;semaines · partout en France, déplacement sur devis</p>
+            <div class="tarifs-grid">
+              <article class="tarif">
+                <span class="tarif-nom">Essentielle</span>
+                <span class="tarif-duree">Jusqu'à 5&nbsp;h le jour J</span>
+                <p class="tarif-prix"><small>dès</small>600&nbsp;€</p>
+                <ul><li>Cérémonie et vin d'honneur</li><li>Portraits de couple</li><li>Photos de groupe</li><li>Galerie privée en ligne</li></ul>
+              </article>
+              <article class="tarif reco">
+                <span class="tarif-badge">Recommandée</span>
+                <span class="tarif-nom">Classique</span>
+                <span class="tarif-duree">Jusqu'à 8&nbsp;h le jour J</span>
+                <p class="tarif-prix"><small>dès</small>850&nbsp;€</p>
+                <ul><li>Des préparatifs à la réception</li><li>Portraits de couple et groupes</li><li>Photos retouchées en HD</li><li>Galerie privée en ligne</li></ul>
+              </article>
+              <article class="tarif">
+                <span class="tarif-nom">Premium</span>
+                <span class="tarif-duree">Jusqu'à 12&nbsp;h le jour J</span>
+                <p class="tarif-prix"><small>dès</small>1&nbsp;200&nbsp;€</p>
+                <ul><li>Des préparatifs à la soirée</li><li>Séance couple après le mariage</li><li>Portraits de couple et groupes</li><li>Galerie privée en ligne</li></ul>
+              </article>
+            </div>
+          </div>
+        </div>
+
         <div class="tarifs-infos reveal">
-          <p><b>Déplacement</b> 20&nbsp;€ par tranche de 15&nbsp;km</p>
-          <p><b>Zone</b> 30&nbsp;km autour de Lacanau et de Mérignac</p>
-          <p><b>Mariage, portrait, famille, grossesse, entreprise</b> sur devis</p>
+          <p><b>Photo supplémentaire</b> 8&nbsp;€</p>
+          <p><b>Livraison express 72&nbsp;h</b> +30&nbsp;€</p>
+          <p><b>Déplacement</b> 20&nbsp;€ par tranche de 15&nbsp;km, 30&nbsp;km autour de Lacanau et de Mérignac</p>
+          <p><b>Entreprise</b> sur devis</p>
+          <p><b>Bons cadeaux</b> pour toutes les formules</p>
         </div>
         <a class="btn btn-solid reveal" href="#reservation">Réserver une séance</a>
       </div>
@@ -609,15 +677,15 @@
       <div class="faq-list reveal">
         <details>
           <summary>Combien de temps dure une séance ?</summary>
-          <p>Entre 1 h et 2 h pour une séance classique (portrait, famille, grossesse, animaux). Pour un mariage, je vous accompagne de quelques heures à la journée complète, selon la formule choisie.</p>
+          <p>De 30 min à 2 h pour une séance (portrait, couple, famille, grossesse, animaux), de 2 h à 6 h pour un événement, et jusqu'à la journée complète pour un mariage, selon la formule choisie.</p>
         </details>
         <details>
           <summary>Sous quel délai reçoit-on les photos ?</summary>
-          <p>Une sélection d'aperçus vous est envoyée sous 48 h, et la galerie complète retouchée est livrée sous 2 semaines (4 semaines pour les mariages).</p>
+          <p>Une sélection d'aperçus vous est envoyée sous 48 h. Les photos retouchées sont livrées sous 1 semaine pour une séance, 3 semaines pour un événement et 6 semaines pour un mariage. Besoin plus vite ? La livraison express en 72 h est à 30 €.</p>
         </details>
         <details>
           <summary>Combien de photos sont livrées ?</summary>
-          <p>En moyenne 40 à 60 photos retouchées pour une séance d'une heure, et 400 à 700 pour un mariage. Toutes en haute définition, sans filigrane, avec droits d'impression.</p>
+          <p>Pour une séance, 5, 12 ou 25 photos retouchées selon la formule, que vous choisissez dans votre galerie de sélection (8 € la photo supplémentaire). Pour un événement ou un mariage, toutes les photos retenues sont retouchées. Toutes en haute définition, sans filigrane, avec droits d'impression.</p>
         </details>
         <details>
           <summary>Vous déplacez-vous ?</summary>
