@@ -484,9 +484,9 @@ h1, h2, h3, .serif {
 .form {
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
   padding: clamp(28px, 4vw, 48px); box-shadow: var(--shadow-sm);
-  display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px;
 }
-.field { display: flex; flex-direction: column; gap: 8px; }
+.field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .field.full { grid-column: 1 / -1; }
 .field label { font-size: .875rem; font-weight: 600; letter-spacing: .02em; color: var(--text-soft); }
 .field input, .field select, .field textarea {

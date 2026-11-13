@@ -484,6 +484,31 @@
     if (sel) sel.value = a.dataset.book;
   }));
 
+  /* ---------- forfaits : la liste du formulaire reprend les cartes de tarifs ---------- */
+  //  (un seul endroit à modifier : les prix des cartes)
+  const selForfait = $('#f-forfait');
+  if (selForfait) {
+    const net = el => (el?.textContent || '').replace(/\s+/g, ' ').trim();
+    $$('.tarifs-panneau').forEach(p => {
+      const cat = p.className.match(/p-(\w+)/)?.[1];
+      const titre = net($(`label[for="tc-${cat}"]`)) || cat;
+      const g = document.createElement('optgroup');
+      g.label = titre;
+      $$('.tarif', p).forEach(t => {
+        const o = document.createElement('option');
+        const duree = net($('.tarif-duree', t)).match(/\d+\s*(?:min|h)/)?.[0] || '';
+        o.textContent = [`${titre.replace(/s$/, '')} ${net($('.tarif-nom', t))}`, duree, net($('.tarif-prix', t)).replace(/^Dès\s*/, 'dès ')].filter(Boolean).join(' · ');
+        g.appendChild(o);
+      });
+      selForfait.appendChild(g);
+    });
+    //  un forfait mariage ou événement remplit le type de séance s'il est encore vide
+    selForfait.addEventListener('change', () => {
+      const type = $('#f-type'), cat = selForfait.selectedOptions[0]?.parentElement?.label || '';
+      if (type && !type.value) type.value = /mariage/i.test(cat) ? 'Mariage' : /événement/i.test(cat) ? 'Événements' : '';
+    });
+  }
+
   /* ---------- formulaire réservation (envoi direct via FormSubmit) ---------- */
   $('#booking-form')?.addEventListener('submit', async e => {
     e.preventDefault();
@@ -503,6 +528,7 @@
           Email: v('#f-email'),
           'Téléphone': v('#f-tel'),
           'Type de séance': v('#f-type'),
+          Forfait: v('#f-forfait') || 'Pas encore choisi',
           'Date souhaitée': v('#f-date'),
           Message: v('#f-msg'),
         }),
@@ -512,7 +538,7 @@
       e.target.reset();
     } catch {
       // secours : ouverture du logiciel de mail
-      const body = `Bonjour Enzo,\n\nJe souhaite réserver une séance photo.\n\nNom : ${v('#f-nom')}\nEmail : ${v('#f-email')}\nTéléphone : ${v('#f-tel')}\nType de séance : ${v('#f-type')}\nDate souhaitée : ${v('#f-date')}\n\nMessage :\n${v('#f-msg')}`;
+      const body = `Bonjour Enzo,\n\nJe souhaite réserver une séance photo.\n\nNom : ${v('#f-nom')}\nEmail : ${v('#f-email')}\nTéléphone : ${v('#f-tel')}\nType de séance : ${v('#f-type')}\nForfait : ${v('#f-forfait') || 'pas encore choisi'}\nDate souhaitée : ${v('#f-date')}\n\nMessage :\n${v('#f-msg')}`;
       location.href = `mailto:enzo.nieponpro@gmail.com?subject=${encodeURIComponent('Demande de séance — ' + v('#f-type'))}&body=${encodeURIComponent(body)}`;
       if (note) note.textContent = 'Votre logiciel de mail vient de s’ouvrir avec votre demande pré-remplie ✨';
     }
