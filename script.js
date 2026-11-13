@@ -79,6 +79,8 @@
   const heroBg = $('.hero-bg');
   const hero = $('.hero');
   const toTop = $('.to-top');
+  //  le bouton s'efface tant que le formulaire de réservation est à l'écran (il couvrait « Envoyer » sur téléphone)
+  let formulaireVisible = false;
   const parallaxe = heroBg && !reduit;
   let hautHero = hero ? hero.offsetHeight : 0;
   let prevu = false;
@@ -86,7 +88,7 @@
     prevu = false;
     const y = scrollY;
     nav?.classList.toggle('scrolled', y > 40);
-    toTop?.classList.toggle('show', y > 700);
+    toTop?.classList.toggle('show', y > 700 && !formulaireVisible);
     //  La parallaxe ne travaille que tant que la photo d'accueil est à l'écran
     if (parallaxe && y < hautHero + 120) heroBg.style.transform = `translate3d(0, ${y * 0.28}px, 0)`;
   };
@@ -97,6 +99,10 @@
   }, { passive: true });
   addEventListener('resize', () => { hautHero = hero ? hero.offsetHeight : 0; }, { passive: true });
   auDefilement();
+  const formulaire = $('#booking-form');
+  if (formulaire && 'IntersectionObserver' in window) {
+    new IntersectionObserver(e => { formulaireVisible = e[0].isIntersecting; auDefilement(); }).observe(formulaire);
+  }
   toTop?.addEventListener('click', () => {
     if (window.lenis) window.lenis.scrollTo(0, { duration: 1.4 });
     else scrollTo({ top: 0, behavior: reduit ? 'auto' : 'smooth' });
@@ -403,20 +409,18 @@
   if (baFrame) {
     // avant = photos/avant/<file>.jpg ; après = photos/<file>.jpg (sauf "apres" spécifique)
     const PAIRS = [
+      { f: 'perroquet-jungle',  n: 'Du ciel bleu à la jungle' },
+      { f: 'python-sang-froid', n: 'Sang-froid' },
+      { f: 'ara-nuages',        n: 'L’ara sous les nuages' },
+      { f: 'python-noir-blanc', n: 'Noir & blanc' },
+      { f: 'python-arbre',      n: 'Perchée dans le chêne' },
+      { f: 'python-couronne',   n: 'Couronnée' },
+      { f: 'python-allongee',   n: 'Allongée' },
+      { f: 'python-soigneur',   n: 'Mains sûres' },
       { f: 'mainecoon-regard',  n: 'Regard de Maine Coon' },
-      { f: 'chat-oeil-gris',    n: 'L’œil d’or' },
       { f: 'chat-dore',         n: 'Heure dorée' },
-      { f: 'mainecoon-lumiere', n: 'Maine Coon majestueux' },
-      { f: 'papillon-orange',   n: 'Papillon au repos' },
-      { f: 'chat-jungle',       n: 'Petit tigre urbain' },
       { f: 'chien-regard-ciel', n: 'Les yeux au ciel' },
-      { f: 'mainecoon-jardin',  n: 'Cache-cache au jardin' },
-      { f: 'eglise',            n: 'Clocher au couchant' },
       { f: 'oiseau-fil',        n: 'Le funambule' },
-      { f: 'oiseau-lampadaire', n: 'Perché sous les nuages' },
-      { f: 'guepe-fleurs',      n: 'La butineuse' },
-      { f: 'chat-oeil-ambre',   n: 'Ambre' },
-      { f: 'mains-henne',       n: 'Mains liées' },
     ];
     const before = $('.ba-before', baFrame);
     const after = $('.ba-after', baFrame);
@@ -572,7 +576,7 @@
         setTimeout(() => {
           const paw = document.createElement('span');
           paw.className = 'paw';
-          paw.textContent = '🐾';
+          paw.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="6.5" cy="11" r="2"/><circle cx="9.7" cy="6.5" r="2"/><circle cx="14.3" cy="6.5" r="2"/><circle cx="17.5" cy="11" r="2"/><path d="M12 12.4c-2.5 0-4.6 2.1-4.6 4.2 0 1.5 1.1 2.4 2.4 2.4.9 0 1.5-.4 2.2-.4s1.3.4 2.2.4c1.3 0 2.4-.9 2.4-2.4 0-2.1-2.1-4.2-4.6-4.2z"/></svg>';
           const t = i / (steps - 1);
           const x = fromLeft ? t * (innerWidth + 40) - 20 : (1 - t) * (innerWidth + 40) - 20;
           const yy = y0 + (y1 - y0) * t + (i % 2 ? -14 : 14);
