@@ -1070,3 +1070,26 @@ html.lenis { scroll-behavior: auto !important; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
   html { scroll-behavior: auto; }
 }
+
+/* ============================================================
+   Portfolio de l'accueil (20 nov 2026) : 8 photos, puis « Réserver »
+   Remplace la bague 3D « Dans l'objectif » : simple, rapide, une seule action.
+   Les cartes gardent la classe .obj-carte pour ouvrir la visionneuse (script.js).
+   ============================================================ */
+.galerie { background: #100d0a; color: #f3ede2; padding: clamp(64px, 9vw, 112px) clamp(20px, 6vw, 80px); }
+.galerie-tete { max-width: 1220px; margin: 0 auto 28px; display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.galerie .section-title { color: #f6f0e6; margin: 0; }
+.galerie-tout { color: #e3c98f; font-weight: 600; font-size: .95rem; white-space: nowrap; }
+.galerie-tout:hover { color: #f6f0e6; }
+.galerie-grille { max-width: 1220px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(8px, 1.2vw, 16px); }
+.galerie .obj-carte { width: auto; aspect-ratio: 4 / 5; border-radius: 10px; box-shadow: none; background: #221c16; scroll-snap-align: none; }
+.galerie .obj-carte img { transition: transform .7s var(--ease); }
+.galerie .obj-carte:hover img { transform: scale(1.04); }
+.galerie-cta { max-width: 1220px; margin: clamp(28px, 4vw, 44px) auto 0; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+.galerie-btn { background: #d9b96f; color: #17130d; padding: 16px 38px; font-size: 1rem; font-weight: 700; }
+.galerie-btn:hover { background: #e6c983; }
+.galerie-cta p { margin: 0; font-size: .9rem; color: rgba(243, 237, 226, .66); }
+@media (max-width: 760px) {
+  .galerie-grille { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .galerie-btn { width: 100%; max-width: 360px; justify-content: center; }
+}
