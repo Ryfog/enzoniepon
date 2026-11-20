@@ -39,6 +39,8 @@ svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width:
 .logo-rond { width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--or); display: grid; place-items: center; font: italic 500 17px/1 var(--serif); color: var(--or); letter-spacing: -.02em; }
 .logo-nom { font: 500 23px/1 var(--serif); white-space: nowrap; }
 .liens { display: flex; gap: clamp(20px, 3vw, 42px); }
+.accueil .barre { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; border-bottom-color: rgba(217, 185, 111, .14); transition: background .35s, border-color .35s; }
+.accueil .barre.pleine { background: rgba(13, 11, 8, .82); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom-color: rgba(217, 185, 111, .2); }
 .liens a { position: relative; padding: 6px 0; text-decoration: none; font-size: 15px; font-weight: 600; color: var(--doux); transition: color .2s; }
 .liens a:hover, .liens a.actif { color: var(--creme); }
 .liens a.actif::after { content: ""; position: absolute; left: -8px; right: -8px; bottom: -6px; height: 2px; border-radius: 2px; background: var(--or); }
@@ -55,6 +57,12 @@ svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width:
 .btn-contour { justify-self: end; height: 44px; padding: 0 20px; border-color: var(--or); color: var(--or-clair); }
 .btn-contour:hover { background: var(--or-doux); border-color: var(--or-clair); }
 .btn-contour .court { display: none; }
+.btn-contour, .filtre.actif { position: relative; }
+.btn-contour { border-color: transparent; }
+.btn-contour::before, .filtre.actif::before {
+  content: ""; position: absolute; inset: -6px; pointer-events: none;
+  border: 28px solid transparent; border-image: url('pilule-or.webp') 222 / 28px / 0 stretch;
+}
 .btn.plein { width: 100%; }
 .rond {
   width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--trait-fort); background: transparent;
@@ -64,39 +72,47 @@ svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width:
 .partage { display: flex; gap: 8px; }
 
 /* ---------- grand bandeau ---------- */
-.hero { position: relative; min-height: clamp(540px, 66vh, 660px); display: flex; align-items: center; overflow: hidden; isolation: isolate; }
-.hero-photo {
-  position: absolute; top: 0; right: 0; z-index: -1; width: 60%; height: 100%; object-fit: cover; object-position: 50% 47%;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 34%), linear-gradient(0deg, transparent 0%, #000 22%);
-  -webkit-mask-composite: source-in; mask-image: linear-gradient(90deg, transparent 0%, #000 34%), linear-gradient(0deg, transparent 0%, #000 22%);
-  mask-composite: intersect;
+.hero { position: relative; isolation: isolate; min-height: clamp(560px, 64vh, 680px); display: flex; align-items: flex-start; }
+/* la photo et le trait doré partagent la même boîte et le même dessin (viewBox 1440×700 étiré) : la découpe et le trait coïncident */
+.hero-visuel { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.hero-image {
+  position: absolute; inset: 0; overflow: hidden;
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 700' preserveAspectRatio='none'><path d='M0 0H1440V600C1180 590 1000 620 760 650C520 680 260 690 0 640Z'/></svg>") 0 0 / 100% 100% no-repeat; mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 700' preserveAspectRatio='none'><path d='M0 0H1440V600C1180 590 1000 620 760 650C520 680 260 690 0 640Z'/></svg>") 0 0 / 100% 100% no-repeat;
 }
-.hero::before { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(70% 90% at 22% 50%, rgba(13, 11, 8, .55), rgba(13, 11, 8, 0) 70%); }
-.hero-contenu { width: 100%; max-width: var(--large); margin: 0 auto; padding: 56px var(--marge) 110px; }
-.hero-contenu > * { max-width: 540px; }
-.hero-kicker { margin: 0 0 18px; font-size: 12px; font-weight: 700; letter-spacing: .34em; text-transform: uppercase; color: rgba(244, 237, 226, .78); }
-.hero h1 { margin: 0; font: 600 clamp(50px, 6.4vw, 84px)/1 var(--serif); letter-spacing: -.01em; }
+.hero-image img { width: 100%; height: 100%; object-fit: cover; object-position: 72% 40%; }
+.hero-image::after {
+  content: ""; position: absolute; inset: 0;
+  background:
+    linear-gradient(90deg, rgba(13, 11, 8, .72) 0%, rgba(13, 11, 8, .45) 30%, rgba(13, 11, 8, .08) 52%, rgba(13, 11, 8, 0) 70%),
+    linear-gradient(180deg, rgba(13, 11, 8, .6) 0%, rgba(13, 11, 8, 0) 16%, rgba(13, 11, 8, 0) 78%, rgba(13, 11, 8, .35) 100%);
+}
+/* le trait doré d'Enzo : posé par portfolio.js pile sur la découpe (sans script : en bas du bandeau) */
+.hero-ligne-or { position: absolute; left: 0; bottom: 0; width: 100%; height: auto; max-width: none; pointer-events: none; }
+.hero-contenu { width: 100%; max-width: var(--large); margin: 0 auto; padding: 34px var(--marge) 0; }
+.accueil .hero { margin-top: -75px; padding-top: 75px; }
+.hero-contenu > * { max-width: 560px; }
+.hero-kicker { margin: 0 0 16px; font-size: 12px; font-weight: 700; letter-spacing: .34em; text-transform: uppercase; color: rgba(244, 237, 226, .8); }
+.hero h1 { margin: 0; font: 600 clamp(44px, 4.3vw, 70px)/1 var(--serif); letter-spacing: -.01em; }
 /* Playfair en italique colle la boule du « N » au point du « i » (on lisait « Nïepon ») : Cormorant, comme la signature du site */
 .hero h1 em { font: italic 600 1.13em/1 'Cormorant Garamond', Georgia, serif; color: var(--or); letter-spacing: 0; }
-.hero-trait { display: block; width: 58px; height: 2px; margin: 22px 0 24px; background: var(--or); border-radius: 2px; }
-.hero-bio { margin: 0; font-size: 16px; line-height: 1.7; color: var(--doux); }
-.hero-infos { display: flex; flex-wrap: wrap; gap: 10px 30px; margin-top: 22px; font-size: 14px; color: var(--doux); }
+.hero-trait { display: block; width: 58px; height: 2px; margin: 16px 0 16px; background: var(--or); border-radius: 2px; }
+.hero-bio { margin: 0; font-size: 15.5px; line-height: 1.65; color: var(--doux); }
+.hero-infos { display: flex; flex-wrap: wrap; gap: 10px 30px; margin-top: 16px; font-size: 14px; color: var(--doux); }
 .hero-infos span { display: inline-flex; align-items: center; gap: 10px; }
 .hero-infos svg { width: 19px; height: 19px; color: var(--creme); }
-.hero-chiffres { display: grid; grid-template-columns: repeat(3, 1fr); max-width: 420px; margin-top: 24px; padding: 14px 0; border-top: 1px solid var(--trait); border-bottom: 1px solid var(--trait); }
+.hero-chiffres { display: grid; grid-template-columns: repeat(3, 1fr); max-width: 420px; margin-top: 16px; padding: 10px 0; border-top: 1px solid var(--trait); border-bottom: 1px solid var(--trait); }
 .hero-chiffres div { display: flex; flex-direction: column; gap: 2px; padding-left: 22px; }
 .hero-chiffres div:first-child { padding-left: 6px; }
 .hero-chiffres div + div { border-left: 1px solid var(--trait); }
 .hero-chiffres b { font: 600 24px/1.1 var(--serif); color: var(--or); white-space: nowrap; }
 .hero-chiffres b small { font: 700 10.5px/1 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--pale); margin-right: 5px; }
 .hero-chiffres span { font-size: 10.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--pale); }
-.hero-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 26px; }
-.hero-actions .btn { height: 50px; padding: 0 28px; }
-.hero-reseaux { margin-top: 24px; gap: 22px; align-items: center; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 20px; }
+.hero-actions .btn { height: 48px; padding: 0 26px; }
+.hero-reseaux { margin-top: 18px; gap: 22px; align-items: center; }
 .hero-reseaux a, .hero-reseaux button { display: inline-grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; background: none; cursor: pointer; color: rgba(244, 237, 226, .82); transition: color .2s; }
 .hero-reseaux a:hover, .hero-reseaux button:hover { color: var(--or); }
 .hero-reseaux svg { width: 22px; height: 22px; }
-.hero-vague { position: absolute; left: 0; right: 0; bottom: 6px; width: 100%; height: 90px; pointer-events: none; }
 
 /* ---------- « Mon portfolio » ---------- */
 .section-portfolio { max-width: var(--large); margin: 0 auto; padding: 4px var(--marge) 0; }
@@ -118,7 +134,7 @@ svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width:
 /* ---------- mosaïque des séries ---------- */
 .mosaique { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-rows: clamp(200px, 16vw, 250px); gap: clamp(12px, 1.4vw, 20px); }
 .carte {
-  grid-column: span 4; position: relative; display: block; overflow: hidden; isolation: isolate;
+  grid-column: span 4; position: relative; display: block; isolation: isolate;
   border-radius: 14px; border: 1px solid rgba(244, 237, 226, .1); background: var(--carte); text-decoration: none;
   transition: border-color .3s, box-shadow .3s;
 }
@@ -127,15 +143,24 @@ svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width:
 .carte.l2 { grid-column: span 6; }
 .carte.l1 { grid-column: span 12; }
 .carte.cache { display: none; }
-.carte img { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; transition: transform .9s cubic-bezier(.2, .7, .2, 1); }
-.carte::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(10, 8, 6, 0) 38%, rgba(10, 8, 6, .86) 100%); }
+.carte-photo { position: absolute; inset: 0; z-index: -1; overflow: hidden; border-radius: 13px; }
+.carte-photo img { width: 100%; height: 100%; object-fit: cover; transition: transform .9s cubic-bezier(.2, .7, .2, 1); }
+.carte-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10, 8, 6, 0) 38%, rgba(10, 8, 6, .86) 100%); }
+/* le cadre doré d'Enzo en 9 tranches : coins de 42 px dans l'image → 14 px à l'écran (l'arrondi des cartes) */
+.carte::before {
+  content: ""; position: absolute; inset: -14px; z-index: 2; pointer-events: none;
+  border: 33px solid transparent; border-image: url('cadre-or.webp') 100 / 33px / 0 stretch;
+  opacity: 0; transition: opacity .35s;
+}
+.carte:hover::before, .carte:focus-visible::before, .carte:active::before { opacity: 1; }
 .carte-bas { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 18px 18px 18px 20px; }
 .carte-titre { display: block; font: 600 clamp(21px, 1.8vw, 27px)/1.1 var(--serif); color: #fff; text-shadow: 0 2px 14px rgba(0, 0, 0, .5); }
 .carte-sous { display: block; margin-top: 6px; font-size: 13px; color: rgba(244, 237, 226, .8); }
 .carte-fleche { width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(244, 237, 226, .6); display: grid; place-items: center; flex: none; color: #fff; transition: background .3s, border-color .3s, color .3s; }
 .carte-fleche svg { width: 17px; height: 17px; }
-.carte:hover, .carte:focus-visible { border-color: var(--or); box-shadow: 0 0 0 1px var(--or), 0 20px 44px rgba(0, 0, 0, .45); }
-.carte:hover img, .carte:focus-visible img { transform: scale(1.05); }
+.carte:hover, .carte:focus-visible, .carte:active { border-color: transparent; box-shadow: 0 0 34px rgba(217, 185, 111, .28), 0 20px 44px rgba(0, 0, 0, .5); }
+.carte:focus-visible { outline: none; }
+.carte:hover .carte-photo img, .carte:focus-visible .carte-photo img { transform: scale(1.05); }
 .carte:hover .carte-fleche, .carte:focus-visible .carte-fleche { background: var(--or); border-color: var(--or); color: #17130d; }
 
 /* ---------- page d'une série ---------- */
@@ -211,7 +236,6 @@ svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width:
 @media (max-width: 1100px) {
   .barre-in { grid-template-columns: auto 1fr auto; }
   .liens { justify-content: center; gap: 22px; }
-  .hero-photo { width: 66%; }
   .mosaique.trois .carte { grid-column: span 6; }
   .mosaique.trois .carte:last-child { grid-column: span 12; }
 }
@@ -224,16 +248,14 @@ svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width:
 }
 /* ---------- téléphones ---------- */
 @media (max-width: 760px) {
-  .hero { flex-direction: column; align-items: stretch; min-height: 0; }
-  .hero-photo {
-    position: relative; z-index: 0; width: 100%; height: 56vh; max-height: 480px; object-position: 50% 38%;
-    -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 100%); mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
-  }
-  .hero::before { display: none; }
-  .hero-contenu { margin-top: -110px; padding: 0 var(--marge) 90px; position: relative; z-index: 1; }
+  .hero { min-height: 0; display: block; }
+  .hero-visuel { position: relative; inset: auto; height: 64vh; max-height: 520px; margin-top: -75px; }
+  .accueil .hero { margin-top: 0; padding-top: 0; }
+  .hero-image img { object-position: 87% 32%; }
+  .hero-image::after { background: linear-gradient(180deg, rgba(13, 11, 8, .55) 0%, rgba(13, 11, 8, 0) 22%, rgba(13, 11, 8, 0) 70%, rgba(13, 11, 8, .55) 100%); }
+  .hero-contenu { padding: 8px var(--marge) 40px; }
   .hero-kicker { font-size: 11px; letter-spacing: .26em; }
   .hero-actions .btn { flex: 1 1 auto; }
-  .hero-vague { bottom: 0; height: 60px; }
   .mosaique { grid-auto-rows: 230px; }
   .onglets { flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; margin: 0 calc(-1 * var(--marge)) 26px; padding: 2px var(--marge) 6px; scrollbar-width: none; }
   .onglets::-webkit-scrollbar { display: none; }

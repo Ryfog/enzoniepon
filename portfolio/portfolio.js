@@ -11,6 +11,36 @@
     : null;
   $$('.reveal').forEach(el => (io ? io.observe(el) : el.classList.add('vu')));
 
+  // barre du haut : transparente sur la photo, opaque dès qu'on descend
+  const barre = $('.barre');
+  if (barre && document.body.classList.contains('accueil')) {
+    const majBarre = () => barre.classList.toggle('pleine', scrollY > 24);
+    majBarre();
+    addEventListener('scroll', majBarre, { passive: true });
+  }
+
+  // bandeau : le trait doré d'Enzo est posé en bas, et la photo est découpée exactement le long de sa courbe
+  const visuel = $('.hero-visuel'), image = $('.hero-image'), ligne = $('.hero-ligne-or'), L = window.LIGNE_OR;
+  const decouper = () => {
+    if (!visuel || !image || !ligne || !L) return;
+    const W = visuel.clientWidth, H = visuel.clientHeight;
+    if (!W || !H) return;
+    const k = W / L.w;                                    // le trait occupe toute la largeur
+    const moyenne = L.points.reduce((t, p) => t + p[1], 0) / L.points.length;
+    const haut = H * (innerWidth > 760 ? .9 : .93) - moyenne * k;   // le milieu du trait à 90 % de la hauteur
+    ligne.style.top = haut + 'px'; ligne.style.bottom = 'auto';
+    const pts = L.points.map(p => [p[0] * k, haut + p[1] * k]);
+    const y0 = pts[0][1], y1 = pts[pts.length - 1][1];
+    const d = `M0 0H${W}V${y1.toFixed(1)}` + pts.slice().reverse().map(p => `L${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join('') + `L0 ${y0.toFixed(1)}Z`;
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${W}' height='${H}' viewBox='0 0 ${W} ${H}'><path d='${d}'/></svg>`;
+    const url = `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
+    image.style.webkitMaskImage = url; image.style.maskImage = url;
+    image.style.webkitMaskSize = image.style.maskSize = '100% 100%';
+  };
+  decouper();
+  let attenteDecoupe;
+  addEventListener('resize', () => { clearTimeout(attenteDecoupe); attenteDecoupe = setTimeout(decouper, 80); });
+
   // mosaïque : rangées de 4 puis 3 cartes sur grand écran, 2 par rangée sur tablette, 1 sur téléphone ;
   // la dernière rangée s'étire pour ne jamais laisser de trou
   const grille = $('#grille');
