@@ -1093,3 +1093,7 @@ html.lenis { scroll-behavior: auto !important; }
   .galerie-grille { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .galerie-btn { width: 100%; max-width: 360px; justify-content: center; }
 }
+
+/* « Avis » suit maintenant « À propos » sur le même fond beige (sections Pourquoi + Avant/Après retirées le 20 nov) :
+   on ne double plus la marge entre les deux */
+.section.reviews { padding-top: clamp(8px, 2vw, 24px); }
