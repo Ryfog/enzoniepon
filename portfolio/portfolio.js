@@ -25,13 +25,19 @@
     if (!visuel || !image || !ligne || !L) return;
     const W = visuel.clientWidth, H = visuel.clientHeight;
     if (!W || !H) return;
-    const k = W / L.w;                                    // le trait occupe toute la largeur
+    // le trait s'estompe à ses deux bouts : on l'étire pour que ses extrémités sortent de l'écran (3 % de chaque côté)
+    // et que la partie bien dorée aille d'un bord à l'autre
+    const xa = L.points[0][0], xb = L.points[L.points.length - 1][0], deborde = .03;
+    const k = W * (1 + 2 * deborde) / (xb - xa);
+    const gauche = -xa * k - W * deborde;
     const moyenne = L.points.reduce((t, p) => t + p[1], 0) / L.points.length;
-    const haut = H * (innerWidth > 760 ? .9 : .93) - moyenne * k;   // le milieu du trait à 90 % de la hauteur
-    ligne.style.top = haut + 'px'; ligne.style.bottom = 'auto';
-    const pts = L.points.map(p => [p[0] * k, haut + p[1] * k]);
-    const y0 = pts[0][1], y1 = pts[pts.length - 1][1];
-    const d = `M0 0H${W}V${y1.toFixed(1)}` + pts.slice().reverse().map(p => `L${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join('') + `L0 ${y0.toFixed(1)}Z`;
+    // le milieu du trait à une distance fixe du bas (le texte garde toujours sa place au-dessus, voir .hero-contenu)
+    const haut = H - (26 + 46 * W / L.w) - moyenne * k;
+    Object.assign(ligne.style, { top: haut + 'px', bottom: 'auto', left: gauche + 'px', width: L.w * k + 'px' });
+    const pts = L.points.map(p => [gauche + p[0] * k, haut + p[1] * k]);
+    const debut = pts[0], fin = pts[pts.length - 1];
+    const d = `M${debut[0].toFixed(1)} -2H${fin[0].toFixed(1)}V${fin[1].toFixed(1)}`
+      + pts.slice().reverse().map(p => `L${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join('') + 'Z';
     const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${W}' height='${H}' viewBox='0 0 ${W} ${H}'><path d='${d}'/></svg>`;
     const url = `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
     image.style.webkitMaskImage = url; image.style.maskImage = url;
