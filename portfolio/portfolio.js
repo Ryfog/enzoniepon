@@ -32,7 +32,7 @@
     const gauche = -xa * k - W * deborde;
     const moyenne = L.points.reduce((t, p) => t + p[1], 0) / L.points.length;
     // le milieu du trait à une distance fixe du bas (le texte garde toujours sa place au-dessus, voir .hero-contenu)
-    const haut = H - (26 + 46 * W / L.w) - moyenne * k;
+    const haut = H - (14 + 28 * W / L.w) - moyenne * k;
     Object.assign(ligne.style, { top: haut + 'px', bottom: 'auto', left: gauche + 'px', width: L.w * k + 'px' });
     const pts = L.points.map(p => [gauche + p[0] * k, haut + p[1] * k]);
     const debut = pts[0], fin = pts[pts.length - 1];
