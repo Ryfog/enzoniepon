@@ -496,7 +496,8 @@
       g.label = titre;
       $$('.tarif', p).forEach(t => {
         const o = document.createElement('option');
-        const duree = net($('.tarif-duree', t)).match(/\d+\s*(?:min|h)/)?.[0] || '';
+        // durée pour les événements et mariages, nombre de photos pour les séances
+        const duree = net($('.tarif-duree', t)).match(/\d+\s*(?:min|h)\b|\d+\s*photos/)?.[0] || '';
         o.textContent = [`${titre.replace(/s$/, '')} ${net($('.tarif-nom', t))}`, duree, net($('.tarif-prix', t)).replace(/^Dès\s*/, 'dès ')].filter(Boolean).join(' · ');
         g.appendChild(o);
       });
