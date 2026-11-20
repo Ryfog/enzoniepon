@@ -11,6 +11,28 @@
     : null;
   $$('.reveal').forEach(el => (io ? io.observe(el) : el.classList.add('vu')));
 
+  // mosaïque : rangées de 4 puis 3 cartes sur grand écran, 2 par rangée sur tablette, 1 sur téléphone ;
+  // la dernière rangée s'étire pour ne jamais laisser de trou
+  const grille = $('#grille');
+  const placer = () => {
+    if (!grille) return;
+    const w = innerWidth;
+    const motif = w > 1100 ? [4, 3] : w > 760 ? [2] : [1];
+    const visibles = $$('.carte', grille).filter(c => !c.classList.contains('cache'));
+    let i = 0, r = 0;
+    while (i < visibles.length) {
+      const n = Math.min(motif[r % motif.length], visibles.length - i);
+      visibles.slice(i, i + n).forEach(c => {
+        c.classList.remove('l1', 'l2', 'l3', 'l4');
+        c.classList.add('l' + n);
+      });
+      i += n; r++;
+    }
+  };
+  placer();
+  let attenteResize;
+  addEventListener('resize', () => { clearTimeout(attenteResize); attenteResize = setTimeout(placer, 120); });
+
   // filtres par catégorie (page d'accueil)
   $$('.filtre').forEach(b => b.addEventListener('click', () => {
     $$('.filtre').forEach(x => x.classList.toggle('actif', x === b));
@@ -20,6 +42,7 @@
       c.classList.toggle('cache', !ok);
       if (ok) c.classList.add('vu');
     });
+    placer();
   }));
 
   // partage : menu natif du téléphone, sinon copie du lien

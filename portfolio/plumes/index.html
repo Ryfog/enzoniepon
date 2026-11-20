@@ -19,19 +19,23 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Cormorant+Garamond:ital,wght@1,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%231c1915'/><path d='M9 13V9h4M19 9h4v4M23 19v4h-4M13 23H9v-4' fill='none' stroke='%23d9b96f' stroke-width='2'/></svg>">
-<link rel="stylesheet" href="/portfolio/portfolio.css?v=1">
+<link rel="stylesheet" href="/portfolio/portfolio.css?v=2">
 <script>document.documentElement.classList.add('js')</script>
 </head>
 <body>
 <header class="barre">
-  <a class="marque" href="/">Enzo <i>Niepon</i></a>
-  <nav>
-    <a href="/portfolio/" class="nav-port">Portfolio</a>
-    <a href="/#tarifs">Tarifs</a>
-    <a class="btn btn-or petit" href="/#reservation">Réserver</a>
-  </nav>
+  <div class="barre-in">
+    <a class="marque" href="/" aria-label="Enzo Niepon, retour au site"><span class="logo-rond">EN</span><span class="logo-nom">Enzo Niepon</span></a>
+    <nav class="liens" aria-label="Navigation">
+      <a href="/portfolio/" class="actif">Portfolio</a>
+      <a href="/#tarifs">Tarifs</a>
+      <a href="/#apropos">À propos</a>
+      <a href="/#contact">Contact</a>
+    </nav>
+    <a class="btn btn-contour" href="/#reservation"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg><span class="long">Réserver une séance</span><span class="court">Réserver</span></a>
+  </div>
 </header>
 
 <main class="serie">
@@ -57,19 +61,16 @@
   </section>
   <section class="autres">
     <h2 class="reveal">Autres séries</h2>
-    <div class="grille trois">
-    <a class="carte reveal" href="/portfolio/jour-de-fete/" data-cat="Événements">
-      <div class="carte-image"><img src="/photos/webp/fete-complices-800.webp" srcset="/photos/webp/fete-complices-480.webp 480w, /photos/webp/fete-complices-800.webp 800w, /photos/webp/fete-complices.webp 1600w" sizes="(max-width: 640px) 92vw, 380px" width="1600" height="2399" alt="Jour de fête — Anniversaire en famille" loading="lazy" decoding="async" style="object-position:50% 50%">
-        <span class="carte-voile"><span>Voir la série</span></span></div>
-      <div class="carte-texte"><h3>Jour de fête</h3><p>Anniversaire en famille · 6 photos</p></div>
-    </a><a class="carte reveal" href="/portfolio/felins/" data-cat="Animaux">
-      <div class="carte-image"><img src="/photos/webp/mainecoon-regard-800.webp" srcset="/photos/webp/mainecoon-regard-480.webp 480w, /photos/webp/mainecoon-regard-800.webp 800w, /photos/webp/mainecoon-regard.webp 1600w" sizes="(max-width: 640px) 92vw, 380px" width="1600" height="2400" alt="Félins — Chats &amp; Maine Coons" loading="lazy" decoding="async" style="object-position:50% 40%">
-        <span class="carte-voile"><span>Voir la série</span></span></div>
-      <div class="carte-texte"><h3>Félins</h3><p>Chats &amp; Maine Coons · 8 photos</p></div>
-    </a><a class="carte reveal" href="/portfolio/complices/" data-cat="Animaux">
-      <div class="carte-image"><img src="/photos/webp/cheval-oeil-ambre-800.webp" srcset="/photos/webp/cheval-oeil-ambre-480.webp 480w, /photos/webp/cheval-oeil-ambre-800.webp 800w, /photos/webp/cheval-oeil-ambre.webp 1151w" sizes="(max-width: 640px) 92vw, 380px" width="1151" height="767" alt="Complices — Chevaux" loading="lazy" decoding="async" style="object-position:50% 40%">
-        <span class="carte-voile"><span>Voir la série</span></span></div>
-      <div class="carte-texte"><h3>Complices</h3><p>Chevaux · 3 photos</p></div>
+    <div class="mosaique trois">
+    <a class="carte reveal l3" href="/portfolio/jour-de-fete/" data-cat="Événements">
+      <img src="/photos/webp/fete-complices-800.webp" srcset="/photos/webp/fete-complices-480.webp 480w, /photos/webp/fete-complices-800.webp 800w, /photos/webp/fete-complices.webp 1600w" sizes="(max-width: 640px) 94vw, 420px" width="1600" height="2399" alt="Jour de fête — Anniversaire en famille" loading="lazy" decoding="async" style="object-position:50% 50%">
+      <span class="carte-bas"><span><span class="carte-titre">Jour de fête</span><span class="carte-sous">Anniversaire en famille · 6 photos</span></span><span class="carte-fleche" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></span>
+    </a><a class="carte reveal l3" href="/portfolio/felins/" data-cat="Animaux">
+      <img src="/photos/webp/mainecoon-regard-800.webp" srcset="/photos/webp/mainecoon-regard-480.webp 480w, /photos/webp/mainecoon-regard-800.webp 800w, /photos/webp/mainecoon-regard.webp 1600w" sizes="(max-width: 640px) 94vw, 420px" width="1600" height="2400" alt="Félins — Chats &amp; Maine Coons" loading="lazy" decoding="async" style="object-position:50% 40%">
+      <span class="carte-bas"><span><span class="carte-titre">Félins</span><span class="carte-sous">Chats &amp; Maine Coons · 8 photos</span></span><span class="carte-fleche" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></span>
+    </a><a class="carte reveal l3" href="/portfolio/complices/" data-cat="Animaux">
+      <img src="/photos/webp/cheval-oeil-ambre-800.webp" srcset="/photos/webp/cheval-oeil-ambre-480.webp 480w, /photos/webp/cheval-oeil-ambre-800.webp 800w, /photos/webp/cheval-oeil-ambre.webp 1151w" sizes="(max-width: 640px) 94vw, 420px" width="1151" height="767" alt="Complices — Chevaux" loading="lazy" decoding="async" style="object-position:50% 40%">
+      <span class="carte-bas"><span><span class="carte-titre">Complices</span><span class="carte-sous">Chevaux · 3 photos</span></span><span class="carte-fleche" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></span>
     </a>
     </div>
   </section>
@@ -97,6 +98,6 @@
   <button class="v-suiv" aria-label="Photo suivante"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="/portfolio/portfolio.js?v=1"></script>
+<script src="/portfolio/portfolio.js?v=2"></script>
 </body>
 </html>
